@@ -9,151 +9,90 @@ body {
   font-family: Arial;
   background: #0f172a;
   color: white;
-  margin: 0;
+  padding: 20px;
 }
 
-.header {
-  background: linear-gradient(90deg,#1e293b,#334155);
-  padding: 15px;
-  text-align: center;
-  font-size: 20px;
-}
-
-.container {
-  padding: 15px;
+h1 {
+  margin-bottom: 20px;
 }
 
 .card {
   background: #1e293b;
   padding: 15px;
-  border-radius: 10px;
   margin-bottom: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  border-radius: 10px;
 }
-
-.status {
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 12px;
-}
-
-.pending { background: orange }
-.approved { background: green }
-.rejected { background: red }
 
 button {
-  margin-top: 10px;
-  margin-right: 5px;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.approve { background: #22c55e }
-.reject { background: #ef4444 }
-
-.filter {
-  margin-bottom: 10px;
+.approve {
+  background: green;
+  color: white;
 }
+
 </style>
 </head>
 
 <body>
 
-<div class="header">
-📦 لوحة التحكم - الطلبات
-</div>
-
-<div class="container">
-
-<select id="filter" class="filter" onchange="fetchOrders()">
-  <option value="">كل الطلبات</option>
-  <option value="pending">قيد المراجعة</option>
-  <option value="approved">تمت الموافقة</option>
-  <option value="rejected">مرفوض</option>
-</select>
+<h1>📦 الطلبات</h1>
 
 <div id="orders"></div>
 
-</div>
-
 <script>
-const SUPABASE_URL = "https://wukrgmpetgkmklwjqqrs.supabase.co";
-const SUPABASE_KEY = "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91";
+const API_URL = "https://wukrgmpetgkmklwjqqrs.supabase.co/rest/v1/";
+const API_KEY = "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91";
 
-async function fetchOrders() {
-  let filter = document.getElementById("filter").value;
-
-  let url = `${SUPABASE_URL}/rest/v1/orders?select=*`;
-
-  if (filter) {
-    url += `&status=eq.${filter}`;
-  }
-
-  const res = await fetch(url, {
+async function loadOrders() {
+  const res = await fetch(API_URL + "orders?select=*", {
     headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`
+      apikey: API_KEY,
+      Authorization: "Bearer " + API_KEY
     }
   });
 
   const data = await res.json();
-  console.log(data);
 
-  renderOrders(data);
-}
-
-function renderOrders(orders) {
   const container = document.getElementById("orders");
   container.innerHTML = "";
 
-  if (orders.length === 0) {
-    container.innerHTML = "<p>لا يوجد طلبات</p>";
-    return;
-  }
-
-  orders.forEach(order => {
-
+  data.forEach(order => {
     const div = document.createElement("div");
     div.className = "card";
 
     div.innerHTML = `
       <b>طلب #${order.order_id}</b><br>
-      👤 ${order.customer_name || "-"}<br>
-      📞 ${order.customer_phone || "-"}<br>
-      📍 ${order.customer_address || "-"}<br>
-      💰 ${order.total_amount}<br>
+      الحالة: ${order.status}<br><br>
 
-      <span class="status ${order.status}">
-        ${order.status}
-      </span><br>
-
-      ${order.status === "pending" ? `
-        <button class="approve" onclick="updateOrder(${order.order_id}, 'approved')">✔ موافقة</button>
-        <button class="reject" onclick="updateOrder(${order.order_id}, 'rejected')">❌ رفض</button>
-      ` : ""}
+      <button class="approve" onclick="approve(${order.order_id})">
+        موافقة
+      </button>
     `;
 
     container.appendChild(div);
   });
 }
 
-async function updateOrder(id, status) {
-  await fetch(`${SUPABASE_URL}/rest/v1/orders?order_id=eq.${id}`, {
-    method: "PATCH",
+async function approve(id) {
+  await fetch(API_URL + "rpc/approve_order", {
+    method: "POST",
     headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
+      apikey: API_KEY,
+      Authorization: "Bearer " + API_KEY,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ status })
+    body: JSON.stringify({ p_order_id: id })
   });
 
-  fetchOrders();
+  loadOrders();
 }
 
-fetchOrders();
+loadOrders();
 </script>
 
 </body>
