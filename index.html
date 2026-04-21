@@ -1,86 +1,107 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <title>Alahram Store</title>
-</head><body><h1>Products</h1><div id="products"></div><script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2B Demo</title>
 
-const client = createClient(
-  "https://wukrgmpetgkmklwjqqrs.supabase.co",
-  "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91"
-);
+<style>
+body{font-family:Arial;background:#f5f7fb;margin:0;padding:20px}
+h1{text-align:center}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{background:#fff;padding:10px;border-radius:10px;box-shadow:0 5px 10px rgba(0,0,0,0.1)}
+button{padding:8px;border:none;border-radius:8px;background:#2d6cdf;color:#fff;cursor:pointer}
+.cart{margin-top:20px;background:#fff;padding:10px;border-radius:10px}
+</style>
+</head>
 
-// تحميل المنتجات
-async function loadProducts() {
-  const { data, error } = await client
-    .from('products')
-    .select('*');
+<body>
 
-  const container = document.getElementById('products');
+<h1>الأهرام للتجارة والتوزيع</h1>
 
-  if (error) {
-    console.log(error);
-    container.innerHTML = "في مشكلة";
-    return;
-  }
+<h2>المنتجات</h2>
+<div id="products" class="grid"></div>
 
-  container.innerHTML = "";
+<div class="cart">
+<h2>السلة</h2>
+<div id="cart"></div>
+<h3 id="total"></h3>
 
-  data.forEach(p => {
-    container.innerHTML += `
-      <div>
-        <h3>${p.name}</h3>
-        <button onclick="buy(${p.product_id})">اشتري</button>
-      </div>
-    `;
-  });
+<input id="name" placeholder="اسم العميل"><br><br>
+<input id="phone" placeholder="رقم الهاتف"><br><br>
+<input id="address" placeholder="العنوان"><br><br>
+
+<button onclick="sendOrder()">إرسال الطلب واتساب</button>
+</div>
+
+<script>
+const products = [
+{id:1,name:"شامبو",price:50},
+{id:2,name:"صابون",price:30},
+{id:3,name:"كريم",price:70},
+{id:4,name:"لوشن",price:80}
+];
+
+let cart = [];
+
+function renderProducts(){
+let html="";
+products.forEach(p=>{
+html+=`
+<div class="card">
+<h3>${p.name}</h3>
+<p>${p.price} ج</p>
+<button onclick="add(${p.id})">إضافة</button>
+</div>
+`;
+});
+document.getElementById("products").innerHTML=html;
 }
 
-// زر الشراء
-window.buy = async function(productId) {
+function add(id){
+let item=cart.find(i=>i.id===id);
+if(item){item.qty++}
+else{
+let p=products.find(x=>x.id===id);
+cart.push({...p,qty:1})
+}
+renderCart();
+}
 
-  const { data: orderData, error: orderError } = await client
-    .from('orders')
-    .insert([
-      {
-        customer_id: 1,
-        tier_id: 1,
-        payment_type: 'cash',
-        delivery_type: 'pickup',
-        status: 'new'
-      }
-    ])
-    .select();
+function renderCart(){
+let html="";
+let total=0;
 
-  if (orderError) {
-    console.log(orderError);
-    alert("فشل إنشاء الطلب");
-    return;
-  }
+cart.forEach(i=>{
+total+=i.price*i.qty;
+html+=`${i.name} × ${i.qty} = ${i.price*i.qty} ج <br>`;
+});
 
-  const orderId = orderData[0].order_id;
+document.getElementById("cart").innerHTML=html;
+document.getElementById("total").innerText="الإجمالي: "+total+" ج";
+}
 
-  const { error: itemError } = await client
-    .from('order_items')
-    .insert([
-      {
-        order_id: orderId,
-        product_id: productId,
-        qty: 1,
-        price: 0,
-        total: 0,
-        is_offer: false,
-        company: 'eva'
-      }
-    ]);
+function sendOrder(){
 
-  if (!itemError) {
-    alert("تم الطلب بالكامل");
-  } else {
-    console.log(itemError);
-    alert("في مشكلة");
-  }
-};
+let name=document.getElementById("name").value;
+let phone=document.getElementById("phone").value;
+let address=document.getElementById("address").value;
 
-loadProducts();
-</script></body>
+let msg="طلب جديد 🚚\n\n";
+
+msg+=`العميل: ${name}\n`;
+msg+=`📞 ${phone}\n`;
+msg+=`📍 ${address}\n\n`;
+
+cart.forEach(i=>{
+msg+=`${i.name} × ${i.qty}\n`;
+});
+
+window.open("https://wa.me/201552670465?text="+encodeURIComponent(msg));
+}
+
+renderProducts();
+</script>
+
+</body>
 </html>
