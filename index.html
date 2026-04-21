@@ -1,5 +1,6 @@
 <!DOCTYPE html><html>
 <head>
+  <meta charset="UTF-8">
   <title>Alahram Store</title>
 </head>
 <body><h1>Products</h1>
@@ -21,20 +22,25 @@ async function loadProducts() {
   console.log("ERROR:", error);
 
   const container = document.getElementById('products');
+  container.innerHTML = "";
+
+  if (!data) {
+    container.innerHTML = "<p>مفيش بيانات</p>";
+    return;
+  }
 
   data.forEach(p => {
     container.innerHTML += `
-      <div>
+      <div style="border:1px solid #ccc; padding:10px; margin:10px;">
         <h3>${p.name}</h3>
-        <p>${p.company}</p>
+        <p>Company: ${p.company}</p>
         <button onclick="buy(${p.product_id})">اشتري</button>
-        <hr>
       </div>
     `;
   });
 }
 
-// تنفيذ الطلب
+// إنشاء طلب
 window.buy = async function(productId) {
   const { data, error } = await client
     .from('orders')
@@ -50,9 +56,9 @@ window.buy = async function(productId) {
   console.log("ERROR:", error);
 
   if (!error) {
-    alert("تم إنشاء الطلب بنجاح");
+    alert("تم إنشاء الطلب");
   } else {
-    alert("في مشكلة في الطلب");
+    alert("في مشكلة");
   }
 };
 
