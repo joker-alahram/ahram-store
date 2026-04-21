@@ -1,5 +1,3 @@
-<div id="products"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
@@ -13,12 +11,7 @@ async function loadProducts() {
     .from('products')
     .select('*');
 
-  if (error) {
-    console.log("ERROR:", error);
-    return;
-  }
-
-  console.log("DATA:", data);
+  console.log(data);
 
   const container = document.getElementById('products');
 
