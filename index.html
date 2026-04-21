@@ -1,182 +1,37 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-<meta charset="UTF-8">
-<title>Orders Dashboard</title>
+<div id="products"></div>
 
-<style>
-body {
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-}
-
-#orders {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 15px;
-}
-
-.card {
-  background: #1e293b;
-  padding: 15px;
-  border-radius: 10px;
-}
-
-button {
-  margin: 5px;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.approve {
-  background: green;
-  color: white;
-}
-
-.reject {
-  background: red;
-  color: white;
-}
-</style>
-</head>
-
-<body>
-
-<h1>📦 لوحة الطلبات</h1>
-
-<div id="orders"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
-const API_URL = "https://wukrgmpetgkmklwjqqrs.supabase.co/rest/v1/";
-const API_KEY = "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91";
+const client = supabase.createClient(
+  "https://wukrgmpetgkmklwjqqrs.supabase.co",
+  "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91"
+);
 
-// تحميل الطلبات
-async function loadOrders() {
-  try {
-    const res = await fetch(API_URL + "orders?select=*", {
-      headers: {
-        apikey: API_KEY,
-        Authorization: "Bearer " + API_KEY
-      }
-    });
+async function loadProducts() {
+  const { data, error } = await client
+    .from('products')
+    .select('*');
 
-    const data = await res.json();
-    console.log("DATA:", data);
-
-    if (!Array.isArray(data)) {
-      alert("❌ مشكلة في الاتصال أو الصلاحيات");
-      return;
-    }
-
-    const container = document.getElementById("orders");
-    container.innerHTML = "";
-
-    data.forEach(order => {
-      const div = document.createElement("div");
-      div.className = "card";
-
-      div.innerHTML = `
-        <h3>طلب #${order.order_id}</h3>
-        <p>الحالة: ${order.status}</p>
-        <p>الدفع: ${order.payment_type}</p>
-        <p>التوصيل: ${order.delivery_type}</p>
-
-        <button class="approve" onclick="approve(${order.order_id})">✔ موافقة</button>
-        <button class="reject" onclick="reject(${order.order_id})">❌ رفض</button>
-      `;
-
-      container.appendChild(div);
-    });
-
-  } catch (err) {
-    console.error(err);
+  if (error) {
+    console.log("ERROR:", error);
+    return;
   }
+
+  console.log("DATA:", data);
+
+  const container = document.getElementById('products');
+
+  data.forEach(p => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <h3>${p.name}</h3>
+      <p>${p.company}</p>
+      <hr>
+    `;
+    container.appendChild(div);
+  });
 }
 
-// موافقة
-async function approve(id) {
-  try {
-    await fetch(API_URL + "orders?order_id=eq." + id, {
-      method: "PATCH",
-      headers: {
-        apikey: API_KEY,
-        Authorization: "Bearer " + API_KEY,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        status: "confirmed",
-        approved: true
-      })
-    });
-
-    alert("✔ تم الموافقة");
-    loadOrders();
-
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-// رفض
-async function reject(id) {
-  try {
-    await fetch(API_URL + "orders?order_id=eq." + id, {
-      method: "PATCH",
-      headers: {
-        apikey: API_KEY,
-        Authorization: "Bearer " + API_KEY,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        status: "cancelled"
-      })
-    });
-
-    alert("❌ تم الرفض");
-    loadOrders();
-
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-// تشغيل
-loadOrders();
+loadProducts();
 </script>
-
-</body>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>  <script>  
-const supabase = supabase.createClient(  
-  "https://wukrgmpetgkmklwjqqrs.supabase.co",  
-  "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91"  
-);  
-  
-async function loadOrders() {  
-  const { data, error } = await supabase  
-    .from("orders")  
-    .select("*");  
-  
-  if (error) {  
-    console.error("ERROR:", error);  
-    alert("في مشكلة: " + error.message);  
-    return;  
-  }  
-  
-  console.log("DATA:", data);  
-  
-  data.forEach(order => {  
-    console.log(order);  
-  });  
-}  
-  
-loadOrders();  
-</script> 
-</html>
