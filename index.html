@@ -1,67 +1,48 @@
-<!DOCTYPE html><html>
-<head>
-  <meta charset="UTF-8">
-  <title>Alahram Store</title>
-</head>
-<body><h1>Products</h1>
-<div id="products"></div><script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-const client = createClient(
-  "https://wukrgmpetgkmklwjqqrs.supabase.co",
-  "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91"
-);
-
-// تحميل المنتجات
-async function loadProducts() {
-  const { data, error } = await client
-    .from('products')
-    .select('*');
-
-  console.log("DATA:", data);
-  console.log("ERROR:", error);
-
-  const container = document.getElementById('products');
-  container.innerHTML = "";
-
-  if (!data) {
-    container.innerHTML = "<p>مفيش بيانات</p>";
-    return;
-  }
-
-  data.forEach(p => {
-    container.innerHTML += `
-      <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-        <h3>${p.name}</h3>
-        <p>Company: ${p.company}</p>
-        <button onclick="buy(${p.product_id})">اشتري</button>
-      </div>
-    `;
-  });
-}
-
-// إنشاء طلب
 window.buy = async function(productId) {
-  const { data, error } = await client
+
+  // 1️⃣ إنشاء الطلب
+  const { data: orderData, error: orderError } = await client
     .from('orders')
     .insert([
       {
         customer_id: 1,
         tier_id: 1,
-        payment_type: 'cash'
+        payment_type: 'cash',
+        delivery_type: 'pickup',
+        status: 'new'
+      }
+    ])
+    .select();
+
+  if (orderError) {
+    console.log("ORDER ERROR:", orderError);
+    alert("فشل إنشاء الطلب");
+    return;
+  }
+
+  const orderId = orderData[0].order_id;
+
+  // 2️⃣ إضافة المنتج داخل order_items
+  const { data: itemData, error: itemError } = await client
+    .from('order_items')
+    .insert([
+      {
+        order_id: orderId,
+        product_id: productId,
+        qty: 1,
+        price: 0,
+        total: 0,
+        is_offer: false,
+        company: 'eva'
       }
     ]);
 
-  console.log("ORDER:", data);
-  console.log("ERROR:", error);
+  console.log("ITEM:", itemData);
+  console.log("ERROR:", itemError);
 
-  if (!error) {
-    alert("تم إنشاء الطلب");
+  if (!itemError) {
+    alert("تم الطلب بالكامل");
   } else {
-    alert("في مشكلة");
+    alert("في مشكلة في إضافة المنتج");
   }
 };
-
-loadProducts();
-</script></body>
-</html>
