@@ -1,7 +1,17 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test</title>
+</head>
+<body>
 
-<script>
-const client = supabase.createClient(
+<h1>Products</h1>
+<div id="products"></div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const client = createClient(
   "https://wukrgmpetgkmklwjqqrs.supabase.co",
   "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91"
 );
@@ -11,20 +21,18 @@ async function loadProducts() {
     .from('products')
     .select('*');
 
-  console.log(data);
+  console.log("DATA:", data);
+  console.log("ERROR:", error);
 
   const container = document.getElementById('products');
 
   data.forEach(p => {
-    const div = document.createElement('div');
-    div.innerHTML = `
-      <h3>${p.name}</h3>
-      <p>${p.company}</p>
-      <hr>
-    `;
-    container.appendChild(div);
+    container.innerHTML += `<p>${p.name}</p>`;
   });
 }
 
 loadProducts();
 </script>
+
+</body>
+</html>
