@@ -8,16 +8,28 @@
 <style>
 body{font-family:Arial;background:#f5f7fb;margin:0;padding:20px}
 h1{text-align:center}
+button{padding:8px;border:none;border-radius:8px;background:#2d6cdf;color:#fff;cursor:pointer;margin:5px}
+
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .card{background:#fff;padding:10px;border-radius:10px;box-shadow:0 5px 10px rgba(0,0,0,0.1)}
-button{padding:8px;border:none;border-radius:8px;background:#2d6cdf;color:#fff;cursor:pointer}
+
 .cart{margin-top:20px;background:#fff;padding:10px;border-radius:10px}
+
+.dashboard{display:none}
+.stats{display:flex;gap:10px}
+.stat{background:#fff;padding:10px;border-radius:10px;flex:1;text-align:center}
 </style>
 </head>
 
 <body>
 
 <h1>الأهرام للتجارة والتوزيع</h1>
+
+<button onclick="showSales()">صفحة البيع</button>
+<button onclick="showDashboard()">Dashboard</button>
+
+<!-- SALES -->
+<div id="sales">
 
 <h2>المنتجات</h2>
 <div id="products" class="grid"></div>
@@ -34,7 +46,25 @@ button{padding:8px;border:none;border-radius:8px;background:#2d6cdf;color:#fff;c
 <button onclick="sendOrder()">إرسال الطلب واتساب</button>
 </div>
 
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="dashboard">
+
+<h2>Dashboard</h2>
+
+<div class="stats">
+<div class="stat">المنتجات: <span id="pCount"></span></div>
+<div class="stat">الطلبات: <span id="oCount"></span></div>
+</div>
+
+<h3>آخر الطلبات</h3>
+<div id="orders"></div>
+
+</div>
+
 <script>
+
 const products = [
 {id:1,name:"شامبو",price:50},
 {id:2,name:"صابون",price:30},
@@ -43,6 +73,18 @@ const products = [
 ];
 
 let cart = [];
+let orders = [];
+
+function showSales(){
+document.getElementById("sales").style.display="block";
+document.getElementById("dashboard").style.display="none";
+}
+
+function showDashboard(){
+document.getElementById("sales").style.display="none";
+document.getElementById("dashboard").style.display="block";
+renderDashboard();
+}
 
 function renderProducts(){
 let html="";
@@ -84,23 +126,42 @@ document.getElementById("total").innerText="الإجمالي: "+total+" ج";
 function sendOrder(){
 
 let name=document.getElementById("name").value;
-let phone=document.getElementById("phone").value;
-let address=document.getElementById("address").value;
+
+let order = {
+name:name,
+total:cart.reduce((s,i)=>s+i.price*i.qty,0)
+};
+
+orders.push(order);
 
 let msg="طلب جديد 🚚\n\n";
-
-msg+=`العميل: ${name}\n`;
-msg+=`📞 ${phone}\n`;
-msg+=`📍 ${address}\n\n`;
+msg+="العميل: "+name+"\n\n";
 
 cart.forEach(i=>{
 msg+=`${i.name} × ${i.qty}\n`;
 });
 
 window.open("https://wa.me/201552670465?text="+encodeURIComponent(msg));
+
+cart=[];
+renderCart();
+}
+
+function renderDashboard(){
+
+document.getElementById("pCount").innerText=products.length;
+document.getElementById("oCount").innerText=orders.length;
+
+let html="";
+orders.forEach(o=>{
+html+=`<div class="card">${o.name} - ${o.total} ج</div>`;
+});
+
+document.getElementById("orders").innerHTML=html;
 }
 
 renderProducts();
+
 </script>
 
 </body>
