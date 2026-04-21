@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Orders Dashboard</title>
+<title>Alahram Orders</title>
 
 <style>
 body {
@@ -13,34 +13,44 @@ body {
 }
 
 h1 {
-  margin-bottom: 20px;
+  text-align: center;
 }
 
-.card {
+.order {
   background: #1e293b;
   padding: 15px;
-  margin-bottom: 10px;
+  margin: 12px 0;
   border-radius: 10px;
+  border-left: 5px solid #38bdf8;
 }
 
+.status {
+  font-weight: bold;
+}
+
+.pending { color: orange; }
+.confirmed { color: lightgreen; }
+.cancelled { color: red; }
+
 button {
-  padding: 6px 12px;
+  margin: 5px;
+  padding: 6px 10px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
 }
 
-.approve {
-  background: green;
-  color: white;
-}
+.approve { background: green; color: white; }
+.reject { background: red; color: white; }
+.refresh { background: #38bdf8; color: black; }
 
 </style>
 </head>
 
 <body>
 
-<h1>📦 الطلبات</h1>
+<h1>📦 لوحة التحكم - الطلبات</h1>
+<button class="refresh" onclick="loadOrders()">🔄 تحديث</button>
 
 <div id="orders"></div>
 
@@ -48,50 +58,106 @@ button {
 const API_URL = "https://wukrgmpetgkmklwjqqrs.supabase.co/rest/v1/";
 const API_KEY = "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91";
 
-async function loadOrders() {
-  const res = await fetch(API_URL + "orders?select=*", {
-    headers: {
-      apikey: API_KEY,
-      Authorization: "Bearer " + API_KEY
-    }
-  });
-
-  const data = await res.json();
-
-  const container = document.getElementById("orders");
-  container.innerHTML = "";
-
-  data.forEach(order => {
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <b>طلب #${order.order_id}</b><br>
-      الحالة: ${order.status}<br><br>
-
-      <button class="approve" onclick="approve(${order.order_id})">
-        موافقة
-      </button>
-    `;
-
-    container.appendChild(div);
-  });
+function statusClass(status){
+  if(status === "pending") return "pending";
+  if(status === "confirmed") return "confirmed";
+  if(status === "cancelled") return "cancelled";
+  return "";
 }
 
+async function loadOrders() {
+  try {
+    const res = await fetch(API_URL + "orders?select=*&order=order_id.desc", {
+      headers: {
+        apikey: API_KEY,
+        Authorization: "Bearer " + API_KEY
+      }
+    });
+
+    const data = await res.json();
+
+    const container = document.getElementById("orders");
+    container.innerHTML = "";
+
+    if(data.length === 0){
+      container.innerHTML = "<p>❌ لا يوجد طلبات</p>";
+      return;
+    }
+
+    data.forEach(order => {
+      const div = document.createElement("div");
+      div.className = "order";
+
+      div.innerHTML = `
+        <p>🧾 الطلب: ${order.order_id}</p>
+        <p class="status ${statusClass(order.status)}">
+          📊 الحالة: ${order.status}
+        </p>
+        <p>💰 الإجمالي: ${order.total_amount || 0}</p>
+
+        ${
+          order.status === "pending" ? `
+          <button class="approve" onclick="approve(${order.order_id})">✔ موافقة</button>
+          <button class="reject" onclick="reject(${order.order_id})">❌ رفض</button>
+          ` : ""
+        }
+      `;
+
+      container.appendChild(div);
+    });
+
+  } catch(err){
+    console.error("ERROR:", err);
+    alert("في مشكلة في الاتصال");
+  }
+}
+
+// approve (مع حماية stock error)
 async function approve(id) {
-  await fetch(API_URL + "rpc/approve_order", {
-    method: "POST",
+  try {
+    const res = await fetch(API_URL + "rpc/approve_order", {
+      method: "POST",
+      headers: {
+        apikey: API_KEY,
+        Authorization: "Bearer " + API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ p_order_id: id })
+    });
+
+    const result = await res.json();
+
+    if(result.error){
+      alert("❌ خطأ: " + result.error);
+    } else {
+      alert("✅ تم الموافقة");
+    }
+
+    loadOrders();
+
+  } catch(err){
+    alert("❌ فشل الموافقة");
+    console.error(err);
+  }
+}
+
+// reject
+async function reject(id) {
+  await fetch(API_URL + "orders?order_id=eq." + id, {
+    method: "PATCH",
     headers: {
       apikey: API_KEY,
       Authorization: "Bearer " + API_KEY,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ p_order_id: id })
+    body: JSON.stringify({ status: "cancelled" })
   });
 
+  alert("❌ تم رفض الطلب");
   loadOrders();
 }
 
+// auto load
 loadOrders();
 </script>
 
