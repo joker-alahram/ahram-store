@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html>
 <head>
-  <title>Test</title>
+  <title>Alahram Store</title>
 </head>
-<body>
-
-<h1>Products</h1>
-<div id="products"></div>
-
-<script type="module">
+<body><h1>Products</h1>
+<div id="products"></div><script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const client = createClient(
@@ -16,6 +11,7 @@ const client = createClient(
   "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91"
 );
 
+// تحميل المنتجات
 async function loadProducts() {
   const { data, error } = await client
     .from('products')
@@ -27,12 +23,39 @@ async function loadProducts() {
   const container = document.getElementById('products');
 
   data.forEach(p => {
-    container.innerHTML += `<p>${p.name}</p>`;
+    container.innerHTML += `
+      <div>
+        <h3>${p.name}</h3>
+        <p>${p.company}</p>
+        <button onclick="buy(${p.product_id})">اشتري</button>
+        <hr>
+      </div>
+    `;
   });
 }
 
-loadProducts();
-</script>
+// تنفيذ الطلب
+window.buy = async function(productId) {
+  const { data, error } = await client
+    .from('orders')
+    .insert([
+      {
+        customer_id: 1,
+        tier_id: 1,
+        payment_type: 'cash'
+      }
+    ]);
 
-</body>
+  console.log("ORDER:", data);
+  console.log("ERROR:", error);
+
+  if (!error) {
+    alert("تم إنشاء الطلب بنجاح");
+  } else {
+    alert("في مشكلة في الطلب");
+  }
+};
+
+loadProducts();
+</script></body>
 </html>
