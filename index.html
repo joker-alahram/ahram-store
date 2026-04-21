@@ -153,4 +153,30 @@ loadOrders();
 </script>
 
 </body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>  <script>  
+const supabase = supabase.createClient(  
+  "https://wukrgmpetgkmklwjqqrs.supabase.co",  
+  "sb_publishable_x8W0usEYwvI55vOTkX6lNw_srJiWC91"  
+);  
+  
+async function loadOrders() {  
+  const { data, error } = await supabase  
+    .from("orders")  
+    .select("*");  
+  
+  if (error) {  
+    console.error("ERROR:", error);  
+    alert("في مشكلة: " + error.message);  
+    return;  
+  }  
+  
+  console.log("DATA:", data);  
+  
+  data.forEach(order => {  
+    console.log(order);  
+  });  
+}  
+  
+loadOrders();  
+</script> 
 </html>
