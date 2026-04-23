@@ -3,164 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>B2B Demo</title>
+<title>الأهرام للتجارة والتوزيع</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body{font-family:Arial;background:#f5f7fb;margin:0;padding:20px}
-h1{text-align:center}
-button{padding:8px;border:none;border-radius:8px;background:#2d6cdf;color:#fff;cursor:pointer;margin:5px}
-
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.card{background:#fff;padding:10px;border-radius:10px;box-shadow:0 5px 10px rgba(0,0,0,0.1)}
-
-.cart{margin-top:20px;background:#fff;padding:10px;border-radius:10px}
-
-.dashboard{display:none}
-.stats{display:flex;gap:10px}
-.stat{background:#fff;padding:10px;border-radius:10px;flex:1;text-align:center}
+body { font-family: Arial; background:#f5f5f5; margin:0; }
+.header { background:#0a7cff; color:#fff; padding:12px; text-align:center; font-size:18px; }
+.products { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:10px; }
+.card { background:#fff; border-radius:10px; padding:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+.price { color:green; font-weight:bold; margin:5px 0; font-size:16px;}
+.old-price { text-decoration:line-through; color:red; font-size:13px;}
+button { padding:8px; border:none; border-radius:6px; cursor:pointer; }
+.add { background:green; color:#fff; width:100%; margin-top:5px;}
+.unit { margin:5px 0; width:100%; padding:5px;}
+.cart { position:fixed; bottom:0; width:100%; background:#fff; padding:10px; border-top:1px solid #ccc; display:flex; justify-content:space-between;}
 </style>
 </head>
 
 <body>
 
-<h1>الأهرام للتجارة والتوزيع</h1>
+<div class="header">الأهرام للتجارة والتوزيع</div>
 
-<button onclick="showSales()">صفحة البيع</button>
-<button onclick="showDashboard()">Dashboard</button>
-
-<!-- SALES -->
-<div id="sales">
-
-<h2>المنتجات</h2>
-<div id="products" class="grid"></div>
+<div class="products" id="products"></div>
 
 <div class="cart">
-<h2>السلة</h2>
-<div id="cart"></div>
-<h3 id="total"></h3>
-
-<input id="name" placeholder="اسم العميل"><br><br>
-<input id="phone" placeholder="رقم الهاتف"><br><br>
-<input id="address" placeholder="العنوان"><br><br>
-
-<button onclick="sendOrder()">إرسال الطلب واتساب</button>
-</div>
-
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboard" class="dashboard">
-
-<h2>Dashboard</h2>
-
-<div class="stats">
-<div class="stat">المنتجات: <span id="pCount"></span></div>
-<div class="stat">الطلبات: <span id="oCount"></span></div>
-</div>
-
-<h3>آخر الطلبات</h3>
-<div id="orders"></div>
-
+  <div>🛒 السلة: <span id="cartCount">0</span></div>
+  <button onclick="sendOrder()">إرسال الطلب</button>
 </div>
 
 <script>
 
-const products = [
-{id:1,name:"شامبو",price:50},
-{id:2,name:"صابون",price:30},
-{id:3,name:"كريم",price:70},
-{id:4,name:"لوشن",price:80}
-];
+// ==========================
+// 🔥 بيانات Supabase
+// ==========================
+const supabase = window.supabase.createClient(
+  "https://upzuslyqfcvpbkqyzyxp.supabase.co",
+  "sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg"
+);
 
-let cart = [];
-let orders = [];
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-function showSales(){
-document.getElementById("sales").style.display="block";
-document.getElementById("dashboard").style.display="none";
+// ==========================
+// تحميل المنتجات
+// ==========================
+async function loadProducts() {
+
+  const { data, error } = await supabase
+    .from('v_final_prices')
+    .select('*')
+    .limit(100);
+
+  console.log(data, error);
+
+  const container = document.getElementById('products');
+  container.innerHTML = '';
+
+  data.forEach(p => {
+
+    const hasCarton = p.final_carton_price != null;
+    const hasPack = p.final_pack_price != null;
+
+    let currentPrice = hasCarton ? p.final_carton_price : p.final_pack_price;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <h4>${p.product_name}</h4>
+
+      <select class="unit">
+        ${hasCarton ? `<option value="carton">كرتونة</option>` : ''}
+        ${hasPack ? `<option value="pack">دستة</option>` : ''}
+      </select>
+
+      <div class="price">${currentPrice}</div>
+
+      <input type="number" value="1" min="1" style="width:100%">
+
+      <button class="add">إضافة للسلة</button>
+    `;
+
+    const select = card.querySelector('.unit');
+    const priceEl = card.querySelector('.price');
+    const qty = card.querySelector('input');
+    const btn = card.querySelector('.add');
+
+    // تغيير السعر حسب الوحدة
+    select.onchange = () => {
+      if (select.value === 'carton') {
+        priceEl.innerText = p.final_carton_price;
+      } else {
+        priceEl.innerText = p.final_pack_price;
+      }
+    };
+
+    // إضافة للسلة
+    btn.onclick = () => {
+      cart.push({
+        name: p.product_name,
+        unit: select.value,
+        price: priceEl.innerText,
+        qty: qty.value
+      });
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCart();
+    };
+
+    container.appendChild(card);
+  });
+
+  updateCart();
 }
 
-function showDashboard(){
-document.getElementById("sales").style.display="none";
-document.getElementById("dashboard").style.display="block";
-renderDashboard();
+// ==========================
+// تحديث السلة
+// ==========================
+function updateCart() {
+  document.getElementById('cartCount').innerText = cart.length;
 }
 
-function renderProducts(){
-let html="";
-products.forEach(p=>{
-html+=`
-<div class="card">
-<h3>${p.name}</h3>
-<p>${p.price} ج</p>
-<button onclick="add(${p.id})">إضافة</button>
-</div>
-`;
-});
-document.getElementById("products").innerHTML=html;
+// ==========================
+// إرسال الطلب واتساب
+// ==========================
+function sendOrder() {
+
+  if (cart.length === 0) {
+    alert("السلة فارغة");
+    return;
+  }
+
+  let message = "طلب جديد:%0A";
+
+  cart.forEach(item => {
+    message += `📦 ${item.name}%0A`;
+    message += `الوحدة: ${item.unit}%0A`;
+    message += `الكمية: ${item.qty}%0A`;
+    message += `السعر: ${item.price}%0A`;
+    message += "------------------%0A";
+  });
+
+  window.open(`https://wa.me/201552670465?text=${message}`);
 }
 
-function add(id){
-let item=cart.find(i=>i.id===id);
-if(item){item.qty++}
-else{
-let p=products.find(x=>x.id===id);
-cart.push({...p,qty:1})
-}
-renderCart();
-}
-
-function renderCart(){
-let html="";
-let total=0;
-
-cart.forEach(i=>{
-total+=i.price*i.qty;
-html+=`${i.name} × ${i.qty} = ${i.price*i.qty} ج <br>`;
-});
-
-document.getElementById("cart").innerHTML=html;
-document.getElementById("total").innerText="الإجمالي: "+total+" ج";
-}
-
-function sendOrder(){
-
-let name=document.getElementById("name").value;
-
-let order = {
-name:name,
-total:cart.reduce((s,i)=>s+i.price*i.qty,0)
-};
-
-orders.push(order);
-
-let msg="طلب جديد 🚚\n\n";
-msg+="العميل: "+name+"\n\n";
-
-cart.forEach(i=>{
-msg+=`${i.name} × ${i.qty}\n`;
-});
-
-window.open("https://wa.me/201552670465?text="+encodeURIComponent(msg));
-
-cart=[];
-renderCart();
-}
-
-function renderDashboard(){
-
-document.getElementById("pCount").innerText=products.length;
-document.getElementById("oCount").innerText=orders.length;
-
-let html="";
-orders.forEach(o=>{
-html+=`<div class="card">${o.name} - ${o.total} ج</div>`;
-});
-
-document.getElementById("orders").innerHTML=html;
-}
-
-renderProducts();
+// تشغيل
+loadProducts();
 
 </script>
 
