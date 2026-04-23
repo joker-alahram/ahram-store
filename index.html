@@ -1,1 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{margin:0;font-family:system-ui;background:#f5f6fa}
+
+.header{
+background:#0a7cff;
+color:#fff;
+padding:10px;
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
+.header button{
+background:#fff;
+color:#0a7cff;
+border:none;
+padding:5px 10px;
+border-radius:6px
+}
+
+.banner img{
+width:100%;
+height:120px;
+object-fit:cover
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+padding:10px
+}
+
+.card{
+background:#fff;
+border-radius:12px;
+padding:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1)
+}
+
+.card img{
+width:100%;
+height:110px;
+object-fit:contain
+}
+
+.price-old{
+text-decoration:line-through;
+color:red;
+font-size:12px
+}
+
+.price-new{
+color:green;
+font-weight:bold
+}
+
+.footer{
+position:fixed;
+bottom:0;
+width:100%;
+background:#fff;
+padding:10px;
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+
+.footer button{
+background:#0a7cff;
+color:#fff;
+border:none;
+padding:8px 12px;
+border-radius:8px
+}
+
+.hidden{display:none}
+.buy.active{background:red}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <span id="appName">الأهرام</span>
+  <div>
+    <button onclick="openTier()">الشريحة</button>
+    <button onclick="openLogin()">دخول</button>
+  </div>
+</div>
+
+<div class="banner" id="banner"></div>
+
+<div id="companiesView">
+<div class="grid" id="companies"></div>
+</div>
+
+<div id="productsView" class="hidden">
+<button onclick="back()">رجوع</button>
+<div class="grid" id="products"></div>
+</div>
+
+<div class="footer">
+<button onclick="back()">رجوع</button>
+<span id="total">0</span>
+<button onclick="openCart()">إتمام</button>
+</div>
+
+<script>
+const supabaseClient = supabase.createClient(
+"https://upzuslyqfcvpbkqyzyxp.supabase.co",
+"sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg"
+);
+
+let cart=[];
+let currentTier="base";
+
+const DISCOUNT={
+base:0,
+half_million:2,
+million:3
+};
+
+// ================= SETTINGS =================
+async function loadSettings(){
+let {data}=await supabaseClient.from("app_settings").select("*").single();
+
+if(data?.company_banner){
+document.getElementById("banner").innerHTML=
+`<img src="${data.company_banner}">`;
+}
+
+if(data?.company_name){
+document.getElementById("appName").innerText=data.company_name;
+}
+}
+
+// ================= TIER =================
+function openTier(){
+
+let choice=prompt("اختار:\n1 عادي\n2 500 ألف\n3 مليون");
+
+if(choice=="2") currentTier="half_million";
+else if(choice=="3") currentTier="million";
+else currentTier="base";
+
+alert("تم اختيار الشريحة");
+
+}
+
+// ================= LOGIN =================
+function openLogin(){
+
+let type=prompt("1 مندوب\n2 عميل");
+
+if(type=="1"){
+let id=prompt("كود المندوب");
+let pass=prompt("الباسورد");
+
+loginRep(id,pass);
+
+}else{
+
+let phone=prompt("رقمك");
+let pass=prompt("الباسورد");
+
+loginCustomer(phone,pass);
+}
+}
+
+async function loginRep(id,pass){
+
+let {data}=await supabaseClient
+.from("sales_reps")
+.select("*")
+.eq("rep_id",id)
+.eq("password",pass)
+.single();
+
+if(data){
+alert("تم تسجيل دخول المندوب");
+}else{
+alert("بيانات غلط");
+}
+}
+
+async function loginCustomer(phone,pass){
+
+let {data}=await supabaseClient
+.from("customers")
+.select("*")
+.eq("phone",phone)
+.eq("password",pass)
+.single();
+
+if(data){
+alert("تم تسجيل دخول العميل");
+}else{
+alert("غير صحيح");
+}
+}
+
+// ================= COMPANIES =================
+async function loadCompanies(){
+
+let {data}=await supabaseClient.from("companies").select("*");
+
+let box=document.getElementById("companies");
+box.innerHTML="";
+
+data.forEach(c=>{
+let div=document.createElement("div");
+div.className="card";
+
+div.innerHTML=`
+<img src="${c.company_logo}">
+<p>${c.company_name}</p>
+`;
+
+div.onclick=()=>loadProducts(c.company_id);
+
+box.appendChild(div);
+});
+}
+
+// ================= PRODUCTS =================
+async function loadProducts(company_id){
+
+document.getElementById("companiesView").classList.add("hidden");
+document.getElementById("productsView").classList.remove("hidden");
+
+let {data}=await supabaseClient
+.from("v_products")
+.select("*")
+.eq("company_id",company_id);
+
+let box=document.getElementById("products");
+box.innerHTML="";
+
+data.forEach(p=>{
+
+let div=document.createElement("div");
+div.className="card";
+
+let base=p.carton_price||p.pack_price;
+
+let discount=DISCOUNT[currentTier];
+let final=Math.round(base-(base*discount/100));
+
+div.innerHTML=`
+<img src="${p.product_image}">
+<h4>${p.product_name}</h4>
+
+<div>
+<span class="price-old">${base}</span>
+<span class="price-new">${final}</span>
+</div>
+
+<input type="number" value="1">
+
+<button class="buy">شراء</button>
+`;
+
+let qty=div.querySelector("input");
+let btn=div.querySelector(".buy");
+
+btn.onclick=()=>{
+
+let index=cart.findIndex(i=>i.product_id==p.product_id);
+
+if(index>-1){
+cart.splice(index,1);
+btn.classList.remove("active");
+btn.innerText="شراء";
+}else{
+cart.push({
+product_id:p.product_id,
+qty:Number(qty.value),
+price:final
+});
+btn.classList.add("active");
+btn.innerText="إزالة";
+}
+
+updateTotal();
+};
+
+box.appendChild(div);
+});
+}
+
+// ================= CART =================
+function updateTotal(){
+let t=0;
+cart.forEach(i=>t+=i.price*i.qty);
+document.getElementById("total").innerText=t;
+}
+
+function openCart(){
+
+if(cart.length==0){
+alert("السلة فاضية");
+return;
+}
+
+alert("هنا صفحة الفاتورة (المرحلة الجاية)");
+}
+
+// ================= NAV =================
+function back(){
+document.getElementById("productsView").classList.add("hidden");
+document.getElementById("companiesView").classList.remove("hidden");
+}
+
+// ================= INIT =================
+loadSettings();
+loadCompanies();
+</script>
+
+</body>
+</html>
