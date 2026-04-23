@@ -1,1 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأهرام</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{margin:0;font-family:Arial;background:#f5f5f5}
+.header{background:#0a7cff;color:#fff;padding:12px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
+.card{background:#fff;border-radius:10px;padding:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+.card img{width:100%;height:100px;object-fit:contain}
+.price{color:green;font-weight:bold}
+.footer{position:fixed;bottom:0;width:100%;background:#fff;padding:10px;display:flex;justify-content:space-between}
+button{padding:8px;border:none;border-radius:6px;background:#0a7cff;color:#fff}
+</style>
+</head>
+<body>
 
+<div class="header">الأهرام للتجارة والتوزيع</div>
+
+<select id="tier" onchange="setTier()" style="width:100%;padding:10px">
+<option value="base">عادي</option>
+<option value="half_million">500 ألف</option>
+<option value="million">1 مليون</option>
+</select>
+
+<div class="grid" id="companies"></div>
+<div class="grid" id="products"></div>
+
+<div class="footer">
+<span id="total">0</span>
+<button onclick="send()">إتمام</button>
+</div>
+
+<script>
+const client = supabase.createClient(
+"https://upzuslyqfcvpbkqyzyxp.supabase.co",
+"sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg"
+);
+
+let cart=[];
+
+function setTier(){
+localStorage.setItem("tier",document.getElementById("tier").value);
+}
+
+async function loadCompanies(){
+const {data}=await client.from("companies").select("*");
+const box=document.getElementById("companies");
+data.forEach(c=>{
+let div=document.createElement("div");
+div.className="card";
+div.innerHTML=`<img src="${c.company_logo||''}"><p>${c.company_name}</p>`;
+div.onclick=()=>loadProducts(c.company_id);
+box.appendChild(div);
+});
+}
+
+async function loadProducts(id){
+const {data}=await client.from("v_final_prices").select("*").eq("company_id",id);
+const box=document.getElementById("products");
+box.innerHTML="";
+data.forEach(p=>{
+let price=p.final_carton_price||p.final_pack_price;
+
+let div=document.createElement("div");
+div.className="card";
+div.innerHTML=`
+<img src="${p.product_image||''}">
+<h4>${p.product_name}</h4>
+<div class="price">${price}</div>
+<input type="number" value="1">
+<button>شراء</button>
+`;
+
+let btn=div.querySelector("button");
+let qty=div.querySelector("input");
+
+btn.onclick=()=>{
+cart.push({name:p.product_name,qty:qty.value,price:price});
+updateTotal();
+btn.innerText="تم";
+};
+
+box.appendChild(div);
+});
+}
+
+function updateTotal(){
+let total=0;
+cart.forEach(i=> total+= i.price * i.qty);
+document.getElementById("total").innerText=total;
+}
+
+function send(){
+let msg="طلب:%0A";
+cart.forEach(i=> msg+=i.name+" "+i.qty+"%0A");
+window.open("https://wa.me/201552670465?text="+msg);
+}
+
+loadCompanies();
+</script>
+
+</body>
+</html>
