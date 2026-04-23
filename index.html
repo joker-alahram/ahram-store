@@ -1,1 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>الأهرام للتجارة والتوزيع</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body { margin:0; font-family:Arial; background:#f5f5f5; }
+
+/* HEADER */
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#0a7cff;
+  color:#fff;
+  padding:10px;
+}
+
+.header button {
+  background:#fff;
+  color:#0a7cff;
+  border:none;
+  padding:5px 10px;
+  border-radius:6px;
+}
+
+/* BANNER */
+.banner img {
+  width:100%;
+  height:150px;
+  object-fit:cover;
+}
+
+/* SECTION */
+.section {
+  padding:10px;
+  font-weight:bold;
+}
+
+/* GRID */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  padding:10px;
+}
+
+/* CARD */
+.card {
+  background:#fff;
+  border-radius:10px;
+  padding:10px;
+  text-align:center;
+}
+
+.card img {
+  width:100%;
+  height:100px;
+  object-fit:contain;
+}
+
+.price {
+  color:green;
+  font-weight:bold;
+}
+
+/* MODAL LOGIN */
+.login {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.login-box {
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+  width:90%;
+  max-width:300px;
+}
+
+input, select {
+  width:100%;
+  padding:8px;
+  margin:5px 0;
+}
+
+button {
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>الأهرام للتجارة</div>
+  <button onclick="openLogin()">دخول</button>
+</div>
+
+<!-- BANNER -->
+<div class="banner">
+  <img src="https://via.placeholder.com/600x150">
+</div>
+
+<!-- TIER -->
+<div class="section">اختر شريحتك</div>
+<select id="tier">
+  <option value="base">عادي</option>
+  <option value="half_million">500 ألف</option>
+  <option value="million">1 مليون</option>
+</select>
+
+<!-- COMPANIES -->
+<div class="section">الشركات</div>
+<div class="grid" id="companies"></div>
+
+<!-- PRODUCTS -->
+<div class="section">المنتجات</div>
+<div class="grid" id="products"></div>
+
+<!-- LOGIN MODAL -->
+<div class="login" id="loginBox">
+  <div class="login-box">
+    <h3>تسجيل الدخول</h3>
+    <input placeholder="الكود">
+    <input placeholder="كلمة المرور">
+    <button onclick="closeLogin()">دخول</button>
+  </div>
+</div>
+
+<script>
+
+const client = window.supabase.createClient(
+"https://upzuslyqfcvpbkqyzyxp.supabase.co",
+"sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg"
+);
+
+// LOGIN
+function openLogin(){
+  document.getElementById("loginBox").style.display="flex";
+}
+function closeLogin(){
+  document.getElementById("loginBox").style.display="none";
+}
+
+// LOAD COMPANIES
+async function loadCompanies(){
+  const { data } = await client.from('companies').select('*');
+  const container = document.getElementById("companies");
+
+  data.forEach(c=>{
+    const card = document.createElement("div");
+    card.className="card";
+
+    card.innerHTML = `
+      <img src="${c.company_logo || ''}">
+      <p>${c.company_name}</p>
+    `;
+
+    card.onclick = ()=>{
+      loadProducts(c.company_id);
+    };
+
+    container.appendChild(card);
+  });
+}
+
+// LOAD PRODUCTS
+async function loadProducts(company_id){
+  const { data } = await client
+    .from('v_final_prices')
+    .select('*')
+    .eq('company_id', company_id);
+
+  const container = document.getElementById("products");
+  container.innerHTML="";
+
+  data.forEach(p=>{
+    const card = document.createElement("div");
+    card.className="card";
+
+    card.innerHTML = `
+      <img src="${p.product_image || ''}">
+      <h4>${p.product_name}</h4>
+      <div class="price">${p.final_carton_price || p.final_pack_price}</div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+loadCompanies();
+
+</script>
+
+</body>
+</html>
