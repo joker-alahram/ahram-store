@@ -3,15 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>الأهرام للتجارة والتوزيع</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body { font-family: Arial; background:#f5f5f5; margin:0; }
-.header { background:#0a7cff; color:#fff; padding:12px; text-align:center; font-size:18px; }
+body { margin:0; font-family:Arial; background:#f5f5f5; }
 
-.products {
+.header {
+  background:#0a7cff;
+  color:#fff;
+  padding:12px;
+  text-align:center;
+}
+
+.screen { display:none; }
+.active { display:block; }
+
+.grid {
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
@@ -22,29 +32,34 @@ body { font-family: Arial; background:#f5f5f5; margin:0; }
   background:#fff;
   border-radius:10px;
   padding:10px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  text-align:center;
 }
 
-.price { color:green; font-weight:bold; margin:5px 0; }
-
-.unit, input {
+.card img {
   width:100%;
-  padding:5px;
-  margin-top:5px;
+  height:100px;
+  object-fit:contain;
+}
+
+.price { color:green; font-weight:bold; }
+
+input, select {
+  width:100%;
+  padding:8px;
+  margin:5px 0;
 }
 
 button {
-  padding:8px;
+  padding:10px;
   border:none;
   border-radius:6px;
   cursor:pointer;
 }
 
-.add {
-  background:green;
-  color:#fff;
-  width:100%;
-  margin-top:5px;
+.add { background:green; color:#fff; width:100%; }
+
+.login-box {
+  padding:20px;
 }
 
 .cart {
@@ -53,7 +68,6 @@ button {
   width:100%;
   background:#fff;
   padding:10px;
-  border-top:1px solid #ccc;
   display:flex;
   justify-content:space-between;
 }
@@ -64,125 +78,160 @@ button {
 
 <div class="header">الأهرام للتجارة والتوزيع</div>
 
-<div class="products" id="products"></div>
+<!-- LOGIN -->
+<div id="login" class="screen active">
+  <div class="login-box">
+    <h3>تسجيل الدخول</h3>
+    <input id="user_id" placeholder="الكود">
+    <select id="tier">
+      <option value="base">عادي</option>
+      <option value="half_million">500 ألف</option>
+      <option value="million">1 مليون</option>
+    </select>
+    <button onclick="enter()">دخول</button>
+  </div>
+</div>
+
+<!-- COMPANIES -->
+<div id="companies" class="screen">
+  <img src="https://via.placeholder.com/600x150" style="width:100%">
+  <div class="grid" id="companiesGrid"></div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="products" class="screen">
+  <button onclick="back()">⬅ رجوع</button>
+  <div class="grid" id="productsGrid"></div>
+</div>
 
 <div class="cart">
-  <div>🛒 السلة: <span id="cartCount">0</span></div>
+  <div>🛒 <span id="cartCount">0</span></div>
   <button onclick="sendOrder()">إرسال الطلب</button>
 </div>
 
 <script>
 
-// ==========================
-// 🔥 Supabase
-// ==========================
 const client = window.supabase.createClient(
-  "https://upzuslyqfcvpbkqyzyxp.supabase.co",
-  "sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg"
+"https://upzuslyqfcvpbkqyzyxp.supabase.co",
+"sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg"
 );
 
 let cart = [];
 
-// ==========================
-// تحميل المنتجات
-// ==========================
-async function loadProducts() {
+// ================= LOGIN
+function enter(){
+  document.getElementById("login").classList.remove("active");
+  document.getElementById("companies").classList.add("active");
+  loadCompanies();
+}
 
-  const { data, error } = await client
-    .from('v_final_prices')
-    .select('*');
+// ================= COMPANIES
+async function loadCompanies(){
+  const { data } = await client.from('companies').select('*');
+  const grid = document.getElementById("companiesGrid");
+  grid.innerHTML = "";
 
-  console.log(data, error);
-
-  if (error) {
-    alert("في مشكلة في الربط");
-    return;
-  }
-
-  const container = document.getElementById('products');
-  container.innerHTML = '';
-
-  data.forEach(p => {
-
-    const hasCarton = p.final_carton_price != null;
-    const hasPack = p.final_pack_price != null;
-
-    if (!hasCarton && !hasPack) return;
-
-    let price = hasCarton ? p.final_carton_price : p.final_pack_price;
-
-    const card = document.createElement('div');
-    card.className = 'card';
+  data.forEach(c=>{
+    const card = document.createElement("div");
+    card.className = "card";
 
     card.innerHTML = `
+      <img src="${c.company_logo || ''}">
+      <p>${c.company_name}</p>
+    `;
+
+    card.onclick = ()=>{
+      loadProducts(c.company_id);
+      document.getElementById("companies").classList.remove("active");
+      document.getElementById("products").classList.add("active");
+    };
+
+    grid.appendChild(card);
+  });
+}
+
+// ================= PRODUCTS
+async function loadProducts(company_id){
+
+  const { data } = await client
+    .from('v_final_prices')
+    .select('*')
+    .eq('company_id', company_id);
+
+  const grid = document.getElementById("productsGrid");
+  grid.innerHTML = "";
+
+  data.forEach(p=>{
+
+    let price = p.final_carton_price || p.final_pack_price;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${p.product_image || ''}">
       <h4>${p.product_name}</h4>
 
       <select class="unit">
-        ${hasCarton ? `<option value="carton">كرتونة</option>` : ''}
-        ${hasPack ? `<option value="pack">دستة</option>` : ''}
+        ${p.final_carton_price ? '<option value="carton">كرتونة</option>' : ''}
+        ${p.final_pack_price ? '<option value="pack">دستة</option>' : ''}
       </select>
 
       <div class="price">${price}</div>
 
-      <input type="number" value="1" min="1">
+      <input type="number" value="1">
 
-      <button class="add">إضافة للسلة</button>
+      <button class="add">إضافة</button>
     `;
 
-    const select = card.querySelector('.unit');
-    const priceEl = card.querySelector('.price');
-    const qty = card.querySelector('input');
-    const btn = card.querySelector('.add');
+    const select = card.querySelector(".unit");
+    const priceEl = card.querySelector(".price");
+    const qty = card.querySelector("input");
+    const btn = card.querySelector(".add");
 
-    // تغيير السعر
-    select.onchange = () => {
+    select.onchange = ()=>{
       priceEl.innerText =
-        select.value === 'carton'
+        select.value === "carton"
         ? p.final_carton_price
         : p.final_pack_price;
     };
 
-    // إضافة للسلة
-    btn.onclick = () => {
+    btn.onclick = ()=>{
       cart.push({
         name: p.product_name,
         unit: select.value,
         price: priceEl.innerText,
         qty: qty.value
       });
-
-      document.getElementById('cartCount').innerText = cart.length;
+      document.getElementById("cartCount").innerText = cart.length;
     };
 
-    container.appendChild(card);
+    grid.appendChild(card);
   });
 }
 
-// ==========================
-// إرسال الطلب
-// ==========================
-function sendOrder() {
+// ================= BACK
+function back(){
+  document.getElementById("products").classList.remove("active");
+  document.getElementById("companies").classList.add("active");
+}
 
-  if (cart.length === 0) {
+// ================= WHATSAPP
+function sendOrder(){
+
+  if(cart.length === 0){
     alert("السلة فارغة");
     return;
   }
 
-  let message = "طلب جديد:%0A";
+  let msg = "طلب جديد:%0A";
 
-  cart.forEach(item => {
-    message += `📦 ${item.name}%0A`;
-    message += `الوحدة: ${item.unit}%0A`;
-    message += `الكمية: ${item.qty}%0A`;
-    message += `السعر: ${item.price}%0A`;
-    message += "------------------%0A";
+  cart.forEach(i=>{
+    msg += `${i.name} - ${i.qty}%0A`;
   });
 
-  window.open(`https://wa.me/201552670465?text=${message}`);
+  window.open("https://wa.me/201552670465?text=" + msg);
 }
-
-// تشغيل
-loadProducts();
 
 </script>
 
