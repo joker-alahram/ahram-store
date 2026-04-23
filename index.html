@@ -284,11 +284,11 @@
     currentTierLabel: localStorage.getItem('tierLabel') || 'عادي',
     currentView: 'homeView',
     currentParams: {},
-    cart: safeParse(localStorage.getItem('cart'), []),
-    user: safeParse(localStorage.getItem('session'), { type: 'guest' }),
+    cart: normalizeCart(safeParse(localStorage.getItem('cart'), [])),
+    user: safeObject(safeParse(localStorage.getItem('session'), { type: 'guest' }), { type: 'guest' }),
     selectedRepCustomer: safeParse(localStorage.getItem('selectedRepCustomer'), null),
     currentCustomer: safeParse(localStorage.getItem('currentCustomer'), null),
-    unitSelectionByProduct: safeParse(localStorage.getItem('unitSelectionByProduct'), {}),
+    unitSelectionByProduct: safeObject(safeParse(localStorage.getItem('unitSelectionByProduct'), {}), {}),
     loading: { settings: false, companies: false, tiers: false, products: false }
   };
 
@@ -296,8 +296,46 @@
     'toast','errorBanner','connectionState','bannerBox','brandLogo','brandLogoFallback','brandLogoWrap','appName','appHint','tierBtn','tierIcon','userPill','userNameLabel','userRoleLabel','companyCount','companiesGrid','productCount','productsGrid','currentCompanyLabel','tiersGrid','tierCount','checkoutTierLabel','invoiceActorLabel','invoiceItemsCount','invoiceMinOrder','invoiceTotal','invoiceList','footerTotal','footerSub','userMenuModal','userMenuTitle','userMenuList','customerFormModeHint','tabRep','tabCustomer','repLoginBox','customerLoginBox','repLoginId','repLoginPass','custLoginPhone','custLoginPass','custName','custBusiness','custPhone','custPassword','custAddress','custLocation','custShopImage','myCustomersList','myCustomersCount','invoiceStatusPill'
   ].map(id => [id, document.getElementById(id)]));
 
-  function safeParse(raw, fallback) { try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; } }
+  function safeParse(raw, fallback) {
+    if (raw == null || raw === '' || raw === 'null' || raw === 'undefined') return fallback;
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed === undefined ? fallback : parsed;
+    } catch {
+      return fallback;
+    }
+  }
+  function safeObject(value, fallback = {}) {
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : fallback;
+  }
+  function normalizeCartItem(item) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return null;
+    const normalized = { ...item };
+    const qty = Number(normalized.qty);
+    normalized.qty = Number.isFinite(qty) && qty > 0 ? Math.floor(qty) : 1;
+    normalized.product_id = normalized.product_id ?? normalized.id ?? '';
+    normalized.unit = ['carton', 'pack', 'piece'].includes(normalized.unit) ? normalized.unit : 'carton';
+    normalized.unit_label = normalized.unit_label || (normalized.unit === 'carton' ? 'كرتونة' : normalized.unit === 'pack' ? 'دستة' : 'قطعة');
+    normalized.price = Number.isFinite(Number(normalized.price)) ? Number(normalized.price) : 0;
+    normalized.base_price = Number.isFinite(Number(normalized.base_price)) ? Number(normalized.base_price) : normalized.price;
+    return normalized;
+  }
+  function normalizeCart(value) {
+    const source = Array.isArray(value) ? value : safeObject(value, {}).items;
+    if (!Array.isArray(source)) return [];
+    return source.map(normalizeCartItem).filter(Boolean);
+  }
+  function getCartSafe() {
+    if (!Array.isArray(state.cart)) state.cart = [];
+    state.cart = normalizeCart(state.cart);
+    return state.cart;
+  }
   function saveState() {
+    state.cart = normalizeCart(state.cart);
+    state.unitSelectionByProduct = safeObject(state.unitSelectionByProduct, {});
+    state.user = safeObject(state.user, { type: 'guest' });
+    state.selectedRepCustomer = state.selectedRepCustomer ?? null;
+    state.currentCustomer = state.currentCustomer ?? null;
     localStorage.setItem('tier', state.currentTier);
     localStorage.setItem('tierLabel', state.currentTierLabel);
     localStorage.setItem('cart', JSON.stringify(state.cart));
@@ -339,17 +377,24 @@
     const tier = state.tiers.find(t => normalizeTier(t.tier_name) === normalizeTier(state.currentTier)) || BASE_TIER;
     return Number(tier.discount_percent || 0);
   }
+  function unitBasePrice(product, unit) {
+    if (unit === 'pack') return Number(product.pack_price ?? product.price_pack ?? 0);
+    if (unit === 'piece') return Number(product.piece_price ?? product.price_piece ?? 0);
+    return Number(product.carton_price ?? product.price_carton ?? 0);
+  }
   function effectivePrice(product, unit) {
-    const base = Number(unit === 'pack' ? product.pack_price : product.carton_price || 0);
+    const base = unitBasePrice(product, unit);
     const discount = currentDiscountPercent();
     return Math.max(0, Math.round(base - (base * discount / 100)));
   }
   function productUnits(product) {
     const units = [];
-    const carton = Number(product.carton_price || 0);
-    const pack = Number(product.pack_price || 0);
+    const carton = Number(product.carton_price ?? product.price_carton ?? 0);
+    const pack = Number(product.pack_price ?? product.price_pack ?? 0);
+    const piece = Number(product.piece_price ?? product.price_piece ?? 0);
     if (carton > 0) units.push({ key: 'carton', label: 'كرتونة', base: carton });
     if (pack > 0) units.push({ key: 'pack', label: 'دستة', base: pack });
+    if (piece > 0) units.push({ key: 'piece', label: 'قطعة', base: piece });
     return units;
   }
   function currentActorLabel() {
@@ -378,9 +423,10 @@
     if (els.tierIcon) els.tierIcon.textContent = `الشريحة: ${state.currentTier === 'base' ? 'عادي' : state.currentTierLabel}`;
   }
   function updateFooter() {
-    const total = state.cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
+    const cart = getCartSafe();
+    const total = cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
     if (els.footerTotal) els.footerTotal.textContent = money(total);
-    if (els.footerSub) els.footerSub.textContent = `${state.cart.reduce((sum, item) => sum + Number(item.qty || 0), 0)} قطعة • ${state.cart.length} صنف`;
+    if (els.footerSub) els.footerSub.textContent = `${cart.reduce((sum, item) => sum + Number(item.qty || 0), 0)} قطعة • ${cart.length} صنف`;
   }
   function readRouteFromHistory() {
     const h = history.state?.view;
@@ -561,8 +607,8 @@
       const product = currentProducts.find(x => safeText(x.product_id) === pid);
       if (!product) return;
       const activeUnitEl = card.querySelector('.unit-chip.active');
-      const unit = activeUnitEl?.dataset.unit || (Number(product.carton_price || 0) > 0 ? 'carton' : 'pack');
-      const base = Number(unit === 'pack' ? product.pack_price : product.carton_price || 0);
+      const unit = activeUnitEl?.dataset.unit || productUnits(product)[0]?.key || 'carton';
+      const base = unitBasePrice(product, unit);
       const final = effectivePrice(product, unit);
       const oldEl = card.querySelector('[data-old-price]');
       const priceEl = card.querySelector('[data-price]');
@@ -611,27 +657,28 @@
     const key = safeText(productId);
     const mapped = state.unitSelectionByProduct?.[key];
     if (mapped) return mapped;
-    const item = state.cart.find(i => safeText(i.product_id) === key);
+    const item = getCartSafe().find(i => safeText(i.product_id) === key);
     if (item) return item.unit;
     const product = (state.productsByCompany.get(String(state.currentCompanyId ?? '')) || []).find(p => safeText(p.product_id) === key);
     if (!product) return 'carton';
-    return Number(product.carton_price || 0) > 0 ? 'carton' : 'pack';
+    const units = productUnits(product);
+    return units[0]?.key || 'carton';
   }
 
   function findCartItem(productId, unit) {
-    return state.cart.find(i => safeText(i.product_id) === safeText(productId) && i.unit === unit);
+    return getCartSafe().find(i => safeText(i.product_id) === safeText(productId) && i.unit === unit);
   }
 
   function setUnit(productId, unit) {
     const key = safeText(productId);
     state.unitSelectionByProduct = state.unitSelectionByProduct || {};
     state.unitSelectionByProduct[key] = unit;
-    const current = state.cart.find(i => safeText(i.product_id) === key);
+    const current = getCartSafe().find(i => safeText(i.product_id) === key);
     if (current && current.unit !== unit) {
       current.unit = unit;
       const product = current.product;
       current.price = effectivePrice(product, unit);
-      current.unit_label = unit === 'carton' ? 'كرتونة' : 'دستة';
+      current.unit_label = unit === 'carton' ? 'كرتونة' : unit === 'pack' ? 'دستة' : 'قطعة';
       toast('تم تغيير الوحدة');
     }
     const cards = document.querySelectorAll('#productsGrid .product-card');
@@ -658,8 +705,8 @@
       product_image: product.product_image,
       company_id: product.company_id,
       unit,
-      unit_label: unit === 'carton' ? 'كرتونة' : 'دستة',
-      base_price: Number(unit === 'pack' ? product.pack_price : product.carton_price || 0),
+      unit_label: unit === 'carton' ? 'كرتونة' : unit === 'pack' ? 'دستة' : 'قطعة',
+      base_price: unitBasePrice(product, unit),
       price: effectivePrice(product, unit),
       qty,
       product
@@ -668,7 +715,7 @@
       Object.assign(item, payload, { qty });
       toast('تمت زيادة الكمية');
     } else {
-      state.cart.push(payload);
+      getCartSafe().push(payload);
       toast('تمت الإضافة للسلة');
     }
     saveState();
@@ -701,7 +748,7 @@
   }
 
   function removeCartItem(productId, unit) {
-    state.cart = state.cart.filter(i => !(safeText(i.product_id) === safeText(productId) && i.unit === unit));
+    state.cart = getCartSafe().filter(i => !(safeText(i.product_id) === safeText(productId) && i.unit === unit));
     saveState();
     renderCart();
     updateRenderedProductPrices();
@@ -726,18 +773,19 @@
 
   function renderCart() {
     if (!els.invoiceList) return;
-    const total = state.cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
+    const cart = getCartSafe();
+    const total = cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
     els.invoiceTotal.textContent = money(total) + ' ج';
-    els.invoiceItemsCount.textContent = String(state.cart.reduce((sum, item) => sum + Number(item.qty || 0), 0));
+    els.invoiceItemsCount.textContent = String(cart.reduce((sum, item) => sum + Number(item.qty || 0), 0));
     els.invoiceActorLabel.textContent = currentActorLabel();
     els.checkoutTierLabel.textContent = state.currentTier === 'base' ? 'عادي' : state.currentTierLabel;
     els.invoiceMinOrder.textContent = money((state.tiers.find(t => normalizeTier(t.tier_name) === normalizeTier(state.currentTier)) || BASE_TIER).min_order || 0) + ' ج';
-    els.invoiceStatusPill.textContent = state.cart.length ? 'جاهز للمراجعة' : 'السلة فارغة';
-    if (!state.cart.length) {
+    els.invoiceStatusPill.textContent = cart.length ? 'جاهز للمراجعة' : 'السلة فارغة';
+    if (!cart.length) {
       els.invoiceList.innerHTML = `<div class="empty">السلة فارغة</div>`;
       return;
     }
-    els.invoiceList.innerHTML = state.cart.map(item => `
+    els.invoiceList.innerHTML = cart.map(item => `
       <div class="list-item">
         <div class="top">
           <div>
@@ -759,22 +807,25 @@
   }
 
   function openCartView() {
-    if (!state.cart.length) { toast('السلة فارغة'); return; }
+    const cart = getCartSafe();
+    if (!cart.length) { toast('السلة فارغة'); return; }
     renderCart();
     showView('checkoutView', {}, true);
   }
 
   function verifyCheckout() {
-    if (!state.cart.length) { toast('السلة فارغة'); return; }
-    const total = state.cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
+    const cart = getCartSafe();
+    if (!cart.length) { toast('السلة فارغة'); return; }
+    const total = cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
     toast(total > 0 ? 'تمت مراجعة الطلب' : 'راجع البيانات');
   }
 
   async function sendOrder() {
-    if (!state.cart.length) { toast('السلة فارغة'); return; }
+    const cart = getCartSafe();
+    if (!cart.length) { toast('السلة فارغة'); return; }
     const phone = currentWhatsAppNumber();
     if (!phone) { toast('رقم الواتساب غير متوفر في الإعدادات'); return; }
-    const total = state.cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
+    const total = cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
     const lines = [
       `طلب جديد - ${state.settings?.company_name || 'الأهرام'}`,
       `العميل: ${currentActorLabel()}`,
@@ -782,7 +833,7 @@
       `إجمالي: ${money(total)} ج`,
       '---'
     ];
-    for (const item of state.cart) {
+    for (const item of cart) {
       lines.push(`${item.product_name} | ${item.unit_label} | ${item.qty} × ${money(item.price)} = ${money(Number(item.price) * Number(item.qty))}`);
     }
     const text = encodeURIComponent(lines.join('\n'));
@@ -1026,6 +1077,9 @@
     try {
       installErrorHandlers();
       bindHistory();
+      state.cart = normalizeCart(state.cart);
+      state.user = safeObject(state.user, { type: 'guest' });
+      state.unitSelectionByProduct = safeObject(state.unitSelectionByProduct, {});
       syncTopUI();
       updateCartWidgets();
       switchCustomerForm('rep');
@@ -1089,6 +1143,9 @@
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
+      state.cart = normalizeCart(state.cart);
+      state.user = safeObject(state.user, { type: 'guest' });
+      state.unitSelectionByProduct = safeObject(state.unitSelectionByProduct, {});
       syncTopUI();
       updateCartWidgets();
     }
