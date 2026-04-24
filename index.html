@@ -73,6 +73,7 @@ body {
   flex: 1;
   text-align: center;
   padding: 10px;
+  font-weight: bold;
 }
 </style>
 </head>
@@ -105,9 +106,13 @@ const supabase = supabase.createClient(
   "YOUR_KEY"
 );
 
+/* ========================= */
+/* STATE */
+/* ========================= */
 const state = {
   user: null,
-  cart: []
+  cart: [],
+  products: []
 };
 
 /* ========================= */
@@ -133,6 +138,102 @@ async function loadCompanies() {
 }
 
 /* ========================= */
+/* LOAD PRODUCTS */
+/* ========================= */
+async function openProducts(company_id) {
+  const { data } = await supabase
+    .from("v_products_full")
+    .select("*")
+    .eq("company_id", company_id);
+
+  state.products = data;
+
+  renderProducts();
+}
+
+/* ========================= */
+/* RENDER PRODUCTS */
+/* ========================= */
+function renderProducts() {
+  const container = document.getElementById("companies");
+  container.innerHTML = "";
+
+  state.products.forEach(p => {
+    const inCart = isInCart(p.product_id);
+
+    container.innerHTML += `
+      <div class="card">
+        <img src="${p.product_image}" width="100%">
+        <h4>${p.product_name}</h4>
+        <p>${p.carton_price || ''}</p>
+
+        <button onclick="toggleCart('${p.product_id}')">
+          ${inCart ? 'إزالة' : 'شراء'}
+        </button>
+      </div>
+    `;
+  });
+}
+
+/* ========================= */
+/* CART ENGINE */
+/* ========================= */
+function isInCart(product_id) {
+  return state.cart.find(i => i.id === product_id);
+}
+
+function addToCart(product) {
+  if (isInCart(product.product_id)) return;
+
+  state.cart.push({
+    id: product.product_id,
+    type: "product",
+    title: product.product_name,
+    price: product.carton_price || 0,
+    qty: 1
+  });
+
+  updateUI();
+}
+
+function removeFromCart(product_id) {
+  state.cart = state.cart.filter(i => i.id !== product_id);
+  updateUI();
+}
+
+function toggleCart(product_id) {
+  const product = state.products.find(p => p.product_id === product_id);
+
+  if (isInCart(product_id)) {
+    removeFromCart(product_id);
+  } else {
+    addToCart(product);
+  }
+
+  renderProducts();
+}
+
+/* ========================= */
+/* UI UPDATE */
+/* ========================= */
+function updateUI() {
+  const total = state.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+  document.getElementById("total").innerText = total;
+
+  localStorage.setItem("cart", JSON.stringify(state.cart));
+}
+
+/* ========================= */
+/* LOAD CART */
+/* ========================= */
+const savedCart = localStorage.getItem("cart");
+if (savedCart) {
+  state.cart = JSON.parse(savedCart);
+  updateUI();
+}
+
+/* ========================= */
 /* LOGIN */
 /* ========================= */
 async function login(code, password) {
@@ -142,12 +243,14 @@ async function login(code, password) {
   });
 
   if (error) {
-    alert("خطأ");
+    alert("بيانات غلط");
     return;
   }
 
   state.user = data;
   localStorage.setItem("user", JSON.stringify(data));
+
+  alert("أهلاً " + data.name);
 }
 
 /* ========================= */
