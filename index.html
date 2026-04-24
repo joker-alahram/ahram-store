@@ -1,1705 +1,281 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f172a" />
-  <title>الأهرام للتجارة والتوزيع</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{
-      --bg:#f4f7fb;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;
-      --blue:#2563eb;--blue2:#1d4ed8;--green:#16a34a;--red:#dc2626;--amber:#f59e0b;
-      --shadow:0 10px 28px rgba(15,23,42,.08);--shadow2:0 16px 42px rgba(15,23,42,.12)
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;overflow-x:hidden}
-    body{min-height:100vh}
-    button,input,select,textarea{font:inherit}
-    button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-    .app{max-width:980px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأهرام</title>
 
-    header{
-      height:20vh;min-height:170px;max-height:240px;
-      background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 55%,#0f172a 100%);
-      color:#fff;padding:12px 12px 14px;box-shadow:0 10px 32px rgba(15,23,42,.22);
-      display:grid;grid-template-rows:auto 1fr auto;gap:10px;position:sticky;top:0;z-index:30
-    }
-    .brand-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
-    .brand{display:flex;align-items:center;gap:10px;min-width:0}
-    .brand-logo{width:42px;height:42px;border-radius:16px;background:#fff;color:#1d4ed8;display:grid;place-items:center;font-weight:1000;flex:0 0 auto;box-shadow:0 10px 18px rgba(0,0,0,.12)}
-    .brand h1{margin:0;font-size:17px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .brand p{margin:2px 0 0;font-size:12px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .header-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .pill{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.1);backdrop-filter:blur(8px);color:#fff;border-radius:999px;padding:10px 12px;font-weight:900;font-size:13px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:.15s;white-space:nowrap}
-    .pill:active,.btn:active,.card:active{transform:scale(.985)}
-    .pill.secondary{background:#fff;color:#0f172a;border-color:#fff}
-    .pill.deal{background:linear-gradient(135deg,#111827,#7c3aed);border-color:#7c3aed}
-    .pill.flash{background:linear-gradient(135deg,#dc2626,#f59e0b);border-color:#f59e0b}
-    .pill.flash.active{animation:pulse 1.25s ease-in-out infinite}
-    .countdown{display:inline-flex;align-items:center;gap:6px;direction:ltr;unicode-bidi:isolate}
-    .countdown small{direction:rtl;unicode-bidi:plaintext}
-    @keyframes pulse{0%,100%{filter:saturate(1);transform:translateY(0)}50%{filter:saturate(1.3);transform:translateY(-1px)}}
-    .banner{
-      border-radius:24px;overflow:hidden;box-shadow:var(--shadow2);background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
-      border:1px solid rgba(255,255,255,.16);padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0
-    }
-    .banner-copy{min-width:0}
-    .banner-copy strong{display:block;font-size:15px;line-height:1.4}
-    .banner-copy span{display:block;margin-top:3px;font-size:12px;opacity:.92}
-    .banner-stats{display:grid;gap:6px;justify-items:end;flex:0 0 auto}
-    .banner-stats .mini{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px;font-weight:800;white-space:nowrap}
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    main{flex:1;padding:12px 12px 96px}
-    .view{display:none;animation:fade .16s ease}
-    .view.active{display:block}
-    @keyframes fade{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 2px 12px}
-    .toolbar .left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .toolbar .right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .smallpill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);padding:8px 10px;border-radius:999px;font-size:12px;font-weight:800;color:var(--text)}
-    .section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 2px 12px;font-size:15px;font-weight:1000}
-    .section-title .subtle{font-size:12px;color:var(--muted);font-weight:700}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    @media (min-width:760px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    .card{
-      background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:12px;transition:transform .15s ease,box-shadow .15s ease;overflow:hidden
-    }
-    .card:hover{box-shadow:var(--shadow2)}
-    .company-card{cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:154px}
-    .company-logo{width:100%;height:86px;border-radius:18px;background:linear-gradient(135deg,#dbeafe,#eff6ff);display:grid;place-items:center;font-size:24px;font-weight:1000;color:#1d4ed8;border:1px solid #dbeafe;overflow:hidden}
-    .company-logo img{width:100%;height:100%;object-fit:contain;background:#fff}
-    .company-card h3,.product-title,.tier-card h3,.offer-card h3{margin:0;font-size:15px;line-height:1.45;font-weight:1000}
-    .muted{color:var(--muted);font-size:12px}
-    .card .name{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-    .card .name strong{display:block;line-height:1.35}
+<style>
+body{margin:0;font-family:system-ui;background:#f5f6fa}
 
-    .panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:12px;box-shadow:var(--shadow)}
-    .product-grid{grid-auto-rows:minmax(220px,1fr)}
-    .product-card{cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:220px;height:100%;overflow:hidden;position:relative}
-    .product-card.selected{outline:2px solid rgba(22,163,74,.18);border-color:#bbf7d0}
-    .product-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-    .product-price{font-size:17px;font-weight:1000}
-    .product-old{font-size:12px;color:#94a3b8;text-decoration:line-through}
-    .unit-row{display:flex;gap:8px;flex-wrap:wrap}
-    .unit-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:900;cursor:pointer}
-    .unit-chip.active{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
-    .qty-row{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px;border-top:1px dashed #e2e8f0}
-    .qty-box{display:flex;align-items:center;gap:8px;min-width:0}
-    .qty-input{width:66px;border:1px solid var(--line);border-radius:12px;padding:8px 8px;text-align:center;font-weight:1000;background:#fff;outline:none}
-    .btn{border:0;border-radius:16px;padding:11px 14px;font-weight:1000;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
-    .btn.primary{background:var(--blue);color:#fff}
-    .btn.primary:hover{background:var(--blue2)}
-    .btn.green{background:var(--green);color:#fff}
-    .btn.red{background:var(--red);color:#fff}
-    .btn.soft{background:#eef2ff;color:#1d4ed8}
-    .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
-    .btn.block{width:100%}
-    .view-footer{margin-top:14px;padding-bottom:4px}
-    .view-footer .btn{width:100%}
+/* HEADER */
+.header{
+height:20vh;
+background:#0a7cff;
+color:#fff;
+display:flex;
+flex-direction:column;
+justify-content:center;
+padding:10px
+}
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center
+}
+.actions button{
+background:#fff;
+border:none;
+padding:6px 10px;
+border-radius:8px;
+margin-left:5px
+}
 
-    .tier-card,.offer-card{display:flex;flex-direction:column;gap:10px;min-height:100%}
-    .status-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900}
-    .status-pill.pending{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
-    .status-pill.active{background:#ecfdf5;color:#166534;border:1px solid #bbf7d0}
-    .status-pill.expired{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-    .empty{padding:18px;border:1px dashed #cbd5e1;border-radius:18px;background:#fff;color:var(--muted);text-align:center;font-weight:700;grid-column:1/-1}
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:8px;
+padding:8px
+}
 
-    .summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
-    .box{border:1px solid var(--line);border-radius:18px;padding:12px;background:#f8fafc}
-    .box .label{font-size:12px;color:var(--muted);font-weight:800}
-    .box .value{font-size:16px;font-weight:1000;margin-top:4px}
-    .invoice{display:grid;gap:10px}
-    .list-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff;display:grid;gap:8px}
-    .list-item .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+/* CARD */
+.card{
+background:#fff;
+border-radius:10px;
+padding:8px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+height:230px
+}
+.card img{
+height:80px;
+object-fit:contain
+}
 
-    .footer{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(15,23,42,.06)}
-    .footer .row{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .footer .main-total{min-width:94px;text-align:center}
-    .footer .main-total strong{display:block;font-size:16px}
-    .footer .main-total small{display:block;color:var(--muted);font-size:12px}
-    .footer .remaining{flex:1;display:grid;gap:4px}
-    .footer .remaining .value{font-size:13px;font-weight:1000;color:var(--text)}
-    .footer .remaining .label{font-size:12px;color:var(--muted)}
-    .footer .checkout{min-width:124px}
+/* PRICE */
+.old{font-size:12px;text-decoration:line-through;color:red}
+.new{color:green;font-weight:bold}
 
-    .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:11px 14px;border-radius:14px;box-shadow:var(--shadow2);z-index:100;opacity:0;pointer-events:none;transition:.22s;max-width:92vw;text-align:center;font-size:13px}
-    .toast.show{opacity:1;bottom:106px}
+/* BUTTON */
+.btn{
+background:#0a7cff;
+color:#fff;
+border:none;
+padding:6px;
+border-radius:8px;
+margin-top:5px
+}
+.btn.red{background:red}
 
-    .modal{position:fixed;inset:0;background:rgba(15,23,42,.52);z-index:90;display:none;align-items:flex-end}
-    .modal.open{display:flex}
-    .sheet{width:100%;max-height:92vh;overflow:auto;background:#fff;border-radius:28px 28px 0 0;padding:14px 12px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -18px 38px rgba(0,0,0,.16)}
-    .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-    .sheet-head h3{margin:0;font-size:16px}
-    .field{display:grid;gap:6px;margin-bottom:10px}
-    .field label{font-size:12px;color:var(--muted);font-weight:800}
-    .field input,.field select,.field textarea{
-      width:100%;border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:#fff;outline:none
-    }
-    .field textarea{min-height:92px;resize:vertical}
-    .tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-    .tab{padding:12px;border-radius:16px;border:1px solid var(--line);background:#fff;font-weight:900;cursor:pointer}
-    .tab.active{background:#2563eb;color:#fff;border-color:#2563eb}
-    .stack{display:grid;gap:10px}
-    .hidden{display:none!important}
+/* FOOTER */
+.footer{
+position:fixed;
+bottom:0;
+width:100%;
+background:#fff;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+box-shadow:0 -2px 5px rgba(0,0,0,.1)
+}
 
-    @media (max-width:420px){
-      header{min-height:165px;padding:11px}
-      .banner{padding:10px}
-      .footer .row{gap:8px}
-      .footer .checkout{min-width:112px}
-      .grid{gap:10px}
-    }
-  </style>
+/* INPUT */
+input{
+width:100%;
+padding:5px;
+margin-top:5px
+}
 
-  <!--
-  =========================================================
-  Supabase Schema + Security Layer
-  =========================================================
-
-  ملاحظة تنفيذية مهمة:
-  أضفت base_price و unit لأن منطق "السعر النهائي = tier_price else base_price"
-  ومنطق "إخفاء الوحدة بدون سعر" يحتاجان حقولًا تشغيلية غير موجودة في القائمة المختصرة.
-
-  -- Extensions
-  create extension if not exists pgcrypto;
-
-  -- 1) products
-  create table if not exists public.products (
-    id uuid primary key default gen_random_uuid(),
-    code text not null default '',
-    name text not null default '',
-    company text not null default '',
-    image text not null default '',
-    base_price numeric not null default 0,
-    status text not null default 'active' check (status in ('active', 'out_of_stock')),
-    visible boolean not null default true,
-    created_at timestamptz not null default now()
-  );
-
-  -- 2) tiers
-  create table if not exists public.tiers (
-    id uuid primary key default gen_random_uuid(),
-    tier_name text not null unique,
-    visible_label text not null default '',
-    min_order_value numeric not null default 0,
-    is_active boolean not null default true,
-    created_at timestamptz not null default now()
-  );
-
-  -- 3) tier_prices
-  create table if not exists public.tier_prices (
-    id uuid primary key default gen_random_uuid(),
-    product_id uuid not null references public.products(id) on delete cascade,
-    tier_name text not null references public.tiers(tier_name) on delete cascade,
-    unit text not null default 'piece',
-    price numeric not null default 0,
-    visible boolean not null default true,
-    created_at timestamptz not null default now(),
-    unique (product_id, tier_name, unit)
-  );
-
-  -- 4) customers
-  create table if not exists public.customers (
-    id uuid primary key default gen_random_uuid(),
-    auth_user_id uuid unique references auth.users(id) on delete set null,
-    name text not null default '',
-    phone text not null default '',
-    address text not null default '',
-    location text not null default '',
-    tier_id uuid references public.tiers(id) on delete set null,
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
-  );
-
-  -- 5) orders
-  create table if not exists public.orders (
-    id uuid primary key default gen_random_uuid(),
-    customer_id uuid not null references public.customers(id) on delete restrict,
-    total numeric not null default 0,
-    status text not null default 'pending' check (status in ('pending', 'confirmed')),
-    created_at timestamptz not null default now()
-  );
-
-  -- 6) order_items
-  create table if not exists public.order_items (
-    id uuid primary key default gen_random_uuid(),
-    order_id uuid not null references public.orders(id) on delete cascade,
-    product_id uuid not null references public.products(id) on delete restrict,
-    quantity numeric not null default 0,
-    unit text not null default 'piece',
-    price numeric not null default 0,
-    created_at timestamptz not null default now()
-  );
-
-  -- Useful indexes
-  create index if not exists idx_products_company_visible on public.products(company, visible);
-  create index if not exists idx_tier_prices_product_tier on public.tier_prices(product_id, tier_name);
-  create index if not exists idx_customers_auth_user_id on public.customers(auth_user_id);
-  create index if not exists idx_orders_customer_id on public.orders(customer_id);
-
-  -- RLS
-  alter table public.products enable row level security;
-  alter table public.tier_prices enable row level security;
-  alter table public.tiers enable row level security;
-  alter table public.customers enable row level security;
-  alter table public.orders enable row level security;
-  alter table public.order_items enable row level security;
-
-  -- Public read for catalog tables
-  create policy "read visible products"
-    on public.products for select
-    to anon, authenticated
-    using (visible = true and status = 'active');
-
-  create policy "read visible tier prices"
-    on public.tier_prices for select
-    to anon, authenticated
-    using (visible = true);
-
-  create policy "read active tiers"
-    on public.tiers for select
-    to anon, authenticated
-    using (is_active = true);
-
-  -- Customers: own row only
-  create policy "customers select own"
-    on public.customers for select
-    to authenticated
-    using (auth_user_id = auth.uid());
-
-  create policy "customers insert own"
-    on public.customers for insert
-    to authenticated
-    with check (auth_user_id = auth.uid());
-
-  create policy "customers update own"
-    on public.customers for update
-    to authenticated
-    using (auth_user_id = auth.uid())
-    with check (auth_user_id = auth.uid());
-
-  -- Orders: own orders only
-  create policy "orders select own"
-    on public.orders for select
-    to authenticated
-    using (
-      exists (
-        select 1
-        from public.customers c
-        where c.id = orders.customer_id
-          and c.auth_user_id = auth.uid()
-      )
-    );
-
-  -- Order items: own items only
-  create policy "order_items select own"
-    on public.order_items for select
-    to authenticated
-    using (
-      exists (
-        select 1
-        from public.orders o
-        join public.customers c on c.id = o.customer_id
-        where o.id = order_items.order_id
-          and c.auth_user_id = auth.uid()
-      )
-    );
-
-  -- Validation RPC
-  create or replace function public.validate_checkout(
-    p_tier_name text,
-    p_items jsonb
-  )
-  returns table (
-    ok boolean,
-    total numeric,
-    min_order_value numeric,
-    message text
-  )
-  language plpgsql
-  security definer
-  set search_path = public
-  as $$
-  declare
-    v_total numeric := 0;
-    v_min numeric := 0;
-    v_item jsonb;
-    v_product_id uuid;
-    v_unit text;
-    v_qty numeric;
-    v_price numeric;
-    v_tier_min numeric;
-  begin
-    select coalesce(min_order_value, 0)
-      into v_tier_min
-    from public.tiers
-    where tier_name = p_tier_name
-      and is_active = true
-    limit 1;
-
-    if p_items is null or jsonb_typeof(p_items) <> 'array' then
-      return query select false, 0::numeric, coalesce(v_tier_min, 0), 'السلة غير صالحة';
-      return;
-    end if;
-
-    for v_item in select * from jsonb_array_elements(p_items)
-    loop
-      v_product_id := nullif(v_item->>'product_id', '')::uuid;
-      v_unit := coalesce(nullif(v_item->>'unit', ''), 'piece');
-      v_qty := coalesce(nullif(v_item->>'quantity', '')::numeric, 0);
-      if v_qty <= 0 then
-        continue;
-      end if;
-
-      select
-        coalesce(tp.price, p.base_price)
-      into v_price
-      from public.products p
-      left join public.tier_prices tp
-        on tp.product_id = p.id
-       and tp.tier_name = p_tier_name
-       and tp.unit = v_unit
-       and tp.visible = true
-      where p.id = v_product_id
-        and p.visible = true
-        and p.status = 'active'
-      limit 1;
-
-      if v_price is null then
-        return query select false, 0::numeric, coalesce(v_tier_min, 0), 'يوجد منتج أو وحدة غير متاحة';
-        return;
-      end if;
-
-      v_total := v_total + (coalesce(v_price, 0) * v_qty);
-    end loop;
-
-    v_min := coalesce(v_tier_min, 0);
-
-    if v_total < v_min then
-      return query select false, v_total, v_min, 'لم تحقق الحد الأدنى للشريحة';
-    end if;
-
-    return query select true, v_total, v_min, 'تم التحقق';
-  end;
-  $$;
-
-  -- Order RPC with snapshot prices
-  create or replace function public.create_order_secure(
-    p_customer jsonb,
-    p_tier_name text,
-    p_items jsonb
-  )
-  returns uuid
-  language plpgsql
-  security definer
-  set search_path = public
-  as $$
-  declare
-    v_validation record;
-    v_customer_id uuid;
-    v_order_id uuid;
-    v_item jsonb;
-    v_product_id uuid;
-    v_unit text;
-    v_qty numeric;
-    v_price numeric;
-    v_name text;
-    v_phone text;
-    v_address text;
-    v_location text;
-  begin
-    select * into v_validation
-    from public.validate_checkout(p_tier_name, p_items);
-
-    if not v_validation.ok then
-      raise exception '%', v_validation.message;
-    end if;
-
-    v_name := coalesce(nullif(p_customer->>'name', ''), '');
-    v_phone := coalesce(nullif(p_customer->>'phone', ''), '');
-    v_address := coalesce(nullif(p_customer->>'address', ''), '');
-    v_location := coalesce(nullif(p_customer->>'location', ''), '');
-
-    if v_name = '' or v_phone = '' or v_address = '' then
-      raise exception 'بيانات العميل غير مكتملة';
-    end if;
-
-    insert into public.customers (auth_user_id, name, phone, address, location)
-    values (auth.uid(), v_name, v_phone, v_address, v_location)
-    on conflict (auth_user_id)
-    do update set
-      name = excluded.name,
-      phone = excluded.phone,
-      address = excluded.address,
-      location = excluded.location,
-      updated_at = now()
-    returning id into v_customer_id;
-
-    insert into public.orders (customer_id, total, status)
-    values (v_customer_id, v_validation.total, 'pending')
-    returning id into v_order_id;
-
-    for v_item in select * from jsonb_array_elements(p_items)
-    loop
-      v_product_id := nullif(v_item->>'product_id', '')::uuid;
-      v_unit := coalesce(nullif(v_item->>'unit', ''), 'piece');
-      v_qty := coalesce(nullif(v_item->>'quantity', '')::numeric, 0);
-      if v_qty <= 0 then
-        continue;
-      end if;
-
-      select coalesce(tp.price, p.base_price)
-        into v_price
-      from public.products p
-      left join public.tier_prices tp
-        on tp.product_id = p.id
-       and tp.tier_name = p_tier_name
-       and tp.unit = v_unit
-       and tp.visible = true
-      where p.id = v_product_id
-        and p.visible = true
-        and p.status = 'active'
-      limit 1;
-
-      if v_price is null then
-        raise exception 'السعر تغير أو المنتج غير متاح';
-      end if;
-
-      insert into public.order_items (order_id, product_id, quantity, unit, price)
-      values (v_order_id, v_product_id, v_qty, v_unit, v_price);
-    end loop;
-
-    return v_order_id;
-  end;
-  $$;
-  =========================================================
-  -->
+.hidden{display:none}
+</style>
 </head>
+
 <body>
-<div class="app">
-  <header>
-    <div class="brand-row">
-      <div class="brand" role="button" tabindex="0" onclick="goHome()">
-        <div class="brand-logo" id="brandLogo">A</div>
-        <div style="min-width:0">
-          <h1 id="appName">الأهرام للتجارة والتوزيع</h1>
-          <p id="appHint">واجهة B2B مرتبطة بـ Supabase</p>
-        </div>
-      </div>
-      <div class="header-meta">
-        <button class="pill secondary" id="tierBtn" onclick="openTiersView()">الشريحة</button>
-        <button class="pill deal" onclick="openDailyDealsView()">صفقة اليوم</button>
-        <button class="pill flash" id="flashBtn" onclick="openFlashOffersView()">عرض الساعة</button>
-        <button class="pill" id="loginBtn" onclick="openLoginView()">تسجيل دخول</button>
-      </div>
-    </div>
-    <div class="banner">
-      <div class="banner-copy">
-        <strong id="bannerTitle">تحميل البيانات من قاعدة البيانات</strong>
-        <span id="bannerSubtitle">لا توجد أي منتجات وهمية داخل الواجهة</span>
-      </div>
-      <div class="banner-stats">
-        <span class="mini" id="bannerStat1">0 شركة</span>
-        <span class="mini" id="bannerStat2">0 منتج</span>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-      <div class="smallpill" id="tierChip">الشريحة: عادي</div>
-      <div class="smallpill" id="statusChip">غير متصل</div>
-    </div>
-  </header>
 
-  <main>
-    <section class="view active" id="homeView">
-      <div class="section-title"><span>الشركات</span><span class="subtle">من products DISTINCT</span></div>
-      <div class="grid" id="companiesGrid"></div>
-      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
-    </section>
-
-    <section class="view" id="productsView">
-      <div class="toolbar">
-        <div class="left">
-          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
-          <span class="smallpill" id="currentCompanyLabel">—</span>
-        </div>
-        <div class="right"><span class="smallpill" id="productCount">0 صنف</span></div>
-      </div>
-      <div class="section-title"><span>المنتجات</span><span class="subtle">السعر النهائي فقط — والوحدات الغير متاحة تُخفى</span></div>
-      <div class="grid product-grid" id="productsGrid"></div>
-      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
-    </section>
-
-    <section class="view" id="tiersView">
-      <div class="toolbar">
-        <div class="left">
-          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
-          <span class="smallpill">الشرائح</span>
-        </div>
-        <div class="right"><span class="smallpill" id="tierCount">0 شريحة</span></div>
-      </div>
-      <div class="section-title"><span>اختيار الشريحة</span><span class="subtle">تأثير فوري على التسعير</span></div>
-      <div class="grid" id="tiersGrid"></div>
-      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
-    </section>
-
-    <section class="view" id="dailyDealsView">
-      <div class="toolbar">
-        <div class="left">
-          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
-          <span class="smallpill">صفقة اليوم</span>
-        </div>
-        <div class="right"><span class="smallpill" id="dailyDealCount">0 صفقة</span></div>
-      </div>
-      <div class="section-title"><span>صفقة اليوم</span><span class="subtle">لو كانت موجودة في قاعدة البيانات</span></div>
-      <div class="grid" id="dailyDealsGrid"></div>
-      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
-    </section>
-
-    <section class="view" id="flashOffersView">
-      <div class="toolbar">
-        <div class="left">
-          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
-          <span class="smallpill">عرض الساعة</span>
-        </div>
-        <div class="right"><span class="smallpill" id="flashOfferCount">0 عرض</span></div>
-      </div>
-      <div class="section-title"><span>عرض الساعة</span><span class="subtle">يُحدَّث بالوقت الفعلي</span></div>
-      <div class="grid" id="flashOffersGrid"></div>
-      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
-    </section>
-
-    <section class="view" id="checkoutView">
-      <div class="toolbar">
-        <div class="left">
-          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
-          <span class="smallpill">المراجعة</span>
-        </div>
-        <div class="right"><span class="smallpill" id="checkoutTierLabel">—</span></div>
-      </div>
-
-      <div class="panel" style="margin-bottom:12px">
-        <div class="section-title"><span>بيانات العميل</span><span class="subtle">الزائر يملأها قبل التحقق</span></div>
-        <div class="stack">
-          <div class="field"><label>الاسم *</label><input id="checkoutName" placeholder="اسم العميل" /></div>
-          <div class="field"><label>الهاتف *</label><input id="checkoutPhone" inputmode="tel" placeholder="01xxxxxxxxx" /></div>
-          <div class="field"><label>العنوان *</label><input id="checkoutAddress" placeholder="العنوان" /></div>
-          <div class="field"><label>الموقع</label><input id="checkoutLocation" placeholder="رابط الموقع / GPS" /></div>
-          <button class="btn soft" type="button" onclick="fillCurrentLocation()">استخدام الموقع الحالي</button>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="section-title"><span>ملخص الطلب</span><span class="subtle">التحقق يتم من Supabase</span></div>
-        <div class="summary">
-          <div class="box"><div class="label">الإجمالي</div><div class="value" id="invoiceTotal">0</div></div>
-          <div class="box"><div class="label">المتبقي</div><div class="value" id="invoiceRemaining">0</div></div>
-          <div class="box"><div class="label">الشريحة</div><div class="value" id="invoiceTier">عادي</div></div>
-          <div class="box"><div class="label">الحالة</div><div class="value" id="invoiceStatus">جاهز</div></div>
-        </div>
-        <div class="invoice" id="invoiceList"></div>
-        <div class="stack" style="margin-top:12px">
-          <button class="btn primary block" id="verifyBtn" onclick="verifyCheckout()">التحقق</button>
-          <button class="btn green block hidden" id="sendBtn" onclick="sendOrder()">إرسال الطلب</button>
-        </div>
-      </div>
-
-      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
-    </section>
-
-    <section class="view" id="loginView">
-      <div class="toolbar">
-        <div class="left">
-          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
-          <span class="smallpill">تسجيل دخول</span>
-        </div>
-        <div class="right"><span class="smallpill">Supabase Auth</span></div>
-      </div>
-      <div class="panel">
-        <div class="tabs">
-          <button class="tab active" id="tabCustomer" onclick="switchLoginTab('customer')">عميل</button>
-          <button class="tab" id="tabRep" onclick="switchLoginTab('rep')">مندوب</button>
-        </div>
-        <div class="stack" id="loginBox">
-          <div class="field"><label id="loginIdLabel">رقم الهاتف</label><input id="loginIdentifier" inputmode="tel" placeholder="01xxxxxxxxx" /></div>
-          <div class="field"><label>كلمة المرور</label><input id="loginPassword" type="password" placeholder="••••••" /></div>
-          <button class="btn primary block" onclick="loginWithPassword()">دخول</button>
-        </div>
-      </div>
-      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
-    </section>
-  </main>
-
-  <div class="footer">
-    <div class="row">
-      <div class="remaining" role="button" tabindex="0" onclick="openTiersView()">
-        <div class="label">المتبقي لتحقيق الشريحة</div>
-        <div class="value" id="footerRemaining">0 جنيه</div>
-      </div>
-      <div class="main-total">
-        <strong id="footerTotal">0</strong>
-        <small>الإجمالي</small>
-      </div>
-      <div class="checkout">
-        <button class="btn green block" onclick="openCheckoutView()">إتمام</button>
-      </div>
+<div class="header">
+  <div class="top">
+    <strong>الأهرام</strong>
+    <div class="actions">
+      <button onclick="openLogin()">دخول</button>
+      <button onclick="openTiers()">الشريحة</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- الشركات -->
+<div id="companies" class="grid"></div>
 
-<div class="modal" id="userModal" onclick="closeUserMenu(event)">
-  <div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-head">
-      <h3>القائمة</h3>
-      <button class="btn soft" onclick="closeUserMenu()">إغلاق</button>
-    </div>
-    <div class="stack">
-      <button class="btn ghost block" onclick="openTiersView(); closeUserMenu();">الشرائح</button>
-      <button class="btn ghost block" onclick="openDailyDealsView(); closeUserMenu();">صفقة اليوم</button>
-      <button class="btn ghost block" onclick="openFlashOffersView(); closeUserMenu();">عرض الساعة</button>
-      <button class="btn ghost block" onclick="openLoginView(); closeUserMenu();">تسجيل دخول</button>
-    </div>
-  </div>
+<!-- المنتجات -->
+<div id="products" class="grid hidden"></div>
+
+<!-- الفوتر -->
+<div class="footer">
+  <span id="total">0</span>
+  <button onclick="checkout()">إتمام</button>
 </div>
 
 <script>
-(() => {
-  'use strict';
+const supabaseClient = supabase.createClient(
+"https://upzuslyqfcvpbkqyzyxp.supabase.co",
+"YOUR_KEY"
+);
 
-  /* ===========================
-     إعداد Supabase
-     =========================== */
-  const SUPABASE_URL = 'PUT_YOUR_SUPABASE_URL_HERE';
-  const SUPABASE_ANON_KEY = 'PUT_YOUR_SUPABASE_ANON_KEY_HERE';
-  const supabaseReady = SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('PUT_YOUR') && !SUPABASE_ANON_KEY.includes('PUT_YOUR');
-  const db = supabaseReady ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let cart=[];
+let tier="base";
 
-  /* ===========================
-     أدوات مساعدة
-     =========================== */
-  const moneyFmt = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 });
-  const sessionKeys = {
-    cart: 'alahram_cart_v1',
-    tier: 'alahram_tier_v1',
-    tierLabel: 'alahram_tier_label_v1',
-    checkoutVerified: 'alahram_checkout_verified_v1'
-  };
+const DISCOUNT={base:0,half_million:2,million:3};
 
-  const els = Object.fromEntries([
-    'companiesGrid','productsGrid','tiersGrid','dailyDealsGrid','flashOffersGrid','invoiceList',
-    'footerTotal','footerRemaining','productCount','tierCount','dailyDealCount','flashOfferCount',
-    'tierChip','statusChip','checkoutTierLabel','invoiceTotal','invoiceRemaining','invoiceTier','invoiceStatus',
-    'currentCompanyLabel','bannerStat1','bannerStat2','tierBtn','flashBtn','toast','tabCustomer','tabRep',
-    'loginIdLabel','loginIdentifier','loginPassword','loginBox','checkoutName','checkoutPhone','checkoutAddress',
-    'checkoutLocation','verifyBtn','sendBtn','appName','appHint','bannerTitle','bannerSubtitle','brandLogo',
-    'userModal'
-  ].map(id => [id, document.getElementById(id)]));
+/* تحميل الشركات */
+async function loadCompanies(){
+  let {data}=await supabaseClient.from("companies").select("*");
 
-  const state = {
-    view: 'homeView',
-    history: ['homeView'],
-    session: { user: null, role: 'guest' },
-    currentCompany: null,
-    currentCompanyProducts: [],
-    currentTier: localStorage.getItem(sessionKeys.tier) || 'base',
-    currentTierLabel: localStorage.getItem(sessionKeys.tierLabel) || 'عادي',
-    tiers: [],
-    companies: [],
-    tierPriceMap: new Map(), // key => price
-    productPriceMap: new Map(),
-    productUnitsMap: new Map(),
-    cart: safeParse(localStorage.getItem(sessionKeys.cart), []),
-    checkoutVerified: localStorage.getItem(sessionKeys.checkoutVerified) === '1',
-    loading: { companies:false, products:false, tiers:false, auth:false },
-    flashTicker: []
-  };
+  let box=document.getElementById("companies");
+  box.innerHTML="";
 
-  function safeParse(value, fallback) {
-    try {
-      return value ? JSON.parse(value) : fallback;
-    } catch {
-      return fallback;
-    }
-  }
+  data.forEach(c=>{
+    let div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`
+      <img src="${c.company_logo||''}">
+      <p>${c.company_name}</p>
+    `;
+    div.onclick=()=>loadProducts(c.company_id);
+    box.appendChild(div);
+  });
+}
 
-  function text(value) {
-    return (value ?? '').toString().trim();
-  }
+/* تحميل المنتجات */
+async function loadProducts(company_id){
 
-  function money(value) {
-    return moneyFmt.format(Math.max(0, Math.round(Number(value) || 0)));
-  }
+  document.getElementById("companies").classList.add("hidden");
+  document.getElementById("products").classList.remove("hidden");
 
-  function toast(message) {
-    if (!els.toast) return;
-    els.toast.textContent = String(message || '');
-    els.toast.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => els.toast.classList.remove('show'), 2600);
-  }
+  let {data}=await supabaseClient
+  .from("v_products_full")
+  .select("*")
+  .eq("company_id",company_id);
 
-  function setStatus(message) {
-    if (els.statusChip) els.statusChip.textContent = message;
-  }
+  let box=document.getElementById("products");
+  box.innerHTML="";
 
-  function saveLocalState() {
-    localStorage.setItem(sessionKeys.cart, JSON.stringify(state.cart));
-    localStorage.setItem(sessionKeys.tier, state.currentTier);
-    localStorage.setItem(sessionKeys.tierLabel, state.currentTierLabel);
-    localStorage.setItem(sessionKeys.checkoutVerified, state.checkoutVerified ? '1' : '0');
-  }
+  data.forEach(p=>{
 
-  function currentTotals() {
-    let total = 0;
-    let itemCount = 0;
-    for (const item of state.cart) {
-      const qty = Number(item.quantity || 0);
-      const price = Number(item.price || 0);
-      total += qty * price;
-      itemCount += qty;
-    }
-    const tier = state.tiers.find(t => t.tier_name === state.currentTier);
-    const minOrder = Number(tier?.min_order_value || 0);
-    const remain = Math.max(0, minOrder - total);
-    return { total, remain, itemCount, minOrder };
-  }
+    let base=p.carton_price||p.pack_price||0;
+    let final=Math.round(base-(base*DISCOUNT[tier]/100));
 
-  function getUserRole(session) {
-    const metaRole = text(session?.user?.user_metadata?.role || session?.user?.app_metadata?.role || '').toLowerCase();
-    if (!session?.user) return 'guest';
-    if (metaRole === 'rep') return 'rep';
-    return 'customer';
-  }
+    let div=document.createElement("div");
+    div.className="card";
 
-  function currentActorLabel() {
-    if (state.session.role === 'rep') return 'مندوب';
-    if (state.session.role === 'customer') return 'عميل';
-    return 'زائر';
-  }
+    div.innerHTML=`
+      <img src="${p.product_image||''}">
+      <b>${p.product_name}</b>
 
-  function normalizeCompanyName(value) {
-    return text(value);
-  }
+      <div class="old">${base}</div>
+      <div class="new">${final}</div>
 
-  function productUnitKey(productId, unit) {
-    return `${productId}::${unit}`;
-  }
+      <input type="number" placeholder="الكمية">
 
-  function setView(view, push = true) {
-    state.view = view;
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(view)?.classList.add('active');
-    if (push) state.history.push(view);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    renderFooter();
-  }
+      <button class="btn">شراء</button>
+    `;
 
-  function goBack() {
-    if (state.history.length > 1) state.history.pop();
-    const prev = state.history[state.history.length - 1] || 'homeView';
-    setView(prev, false);
-  }
+    let qty=div.querySelector("input");
+    let btn=div.querySelector("button");
 
-  function goHome() {
-    state.history = ['homeView'];
-    setView('homeView', false);
-  }
+    btn.onclick=()=>{
+      let q=Number(qty.value)||1;
 
-  function openTiersView() { setView('tiersView'); }
-  function openDailyDealsView() { setView('dailyDealsView'); }
-  function openFlashOffersView() { setView('flashOffersView'); }
-  function openCheckoutView() { setView('checkoutView'); renderCheckout(); }
-  function openLoginView() { setView('loginView'); }
+      let index=cart.findIndex(i=>i.id===p.product_id);
 
-  function openUserMenu() { els.userModal?.classList.add('open'); }
-  function closeUserMenu(event) {
-    if (event && event.target !== els.userModal) return;
-    els.userModal?.classList.remove('open');
-  }
+      if(index>-1){
+        cart.splice(index,1);
+        btn.classList.remove("red");
+        btn.innerText="شراء";
+      }else{
+        cart.push({
+          id:p.product_id,
+          name:p.product_name,
+          price:final,
+          qty:q
+        });
+        btn.classList.add("red");
+        btn.innerText="إزالة";
+      }
 
-  function switchLoginTab(tab) {
-    const isRep = tab === 'rep';
-    state.loginType = tab;
-    els.tabRep.classList.toggle('active', isRep);
-    els.tabCustomer.classList.toggle('active', !isRep);
-    els.loginIdLabel.textContent = isRep ? 'رقم المندوب / البريد' : 'رقم الهاتف';
-    els.loginIdentifier.placeholder = isRep ? 'rep@example.com أو 01xxxxxxxxx' : '01xxxxxxxxx';
-  }
-
-  function formatCountdown(ms) {
-    const total = Math.max(0, Math.floor(Number(ms) || 0) / 1000);
-    const s = Math.floor(total % 60);
-    const m = Math.floor((total / 60) % 60);
-    const h = Math.floor(total / 3600);
-    return [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
-  }
-
-  function safeDbError(error, fallbackMessage) {
-    console.error(error);
-    const msg = error?.message || fallbackMessage || 'فشل الاتصال';
-    toast(msg);
-    setStatus('خطأ');
-    return msg;
-  }
-
-  function productCardUnits(productId) {
-    return state.productUnitsMap.get(productId) || [];
-  }
-
-  function productFinalPrice(productId, unit) {
-    const key = productUnitKey(productId, unit);
-    if (state.tierPriceMap.has(key)) return Number(state.tierPriceMap.get(key) || 0);
-    const base = state.currentCompanyProducts.find(p => p.id === productId);
-    return Number(base?.base_price || 0);
-  }
-
-  function availableUnitsForProduct(productId) {
-    const units = productCardUnits(productId);
-    return units.filter(u => Number(productFinalPrice(productId, u.unit)) > 0);
-  }
-
-  function getCartEntry(productId) {
-    return state.cart.find(x => x.product_id === productId);
-  }
-
-  function setCartItem(product, unit, quantity) {
-    const qty = Math.max(1, Math.floor(Number(quantity) || 1));
-    const price = productFinalPrice(product.id, unit);
-    if (!price || price <= 0) return;
-    const existing = getCartEntry(product.id);
-    const payload = {
-      product_id: product.id,
-      product_name: product.name,
-      unit,
-      quantity: qty,
-      price,
-      code: product.code || '',
-      company: product.company || ''
+      updateTotal();
     };
-    if (existing) {
-      existing.unit = unit;
-      existing.quantity = qty;
-      existing.price = price;
-      existing.product_name = product.name;
-      existing.code = product.code || '';
-      existing.company = product.company || '';
-    } else {
-      state.cart.push(payload);
-    }
-    state.checkoutVerified = false;
-    saveLocalState();
-    renderProducts();
-    renderCheckout();
-    renderFooter();
-    toast('تمت الإضافة');
+
+    box.appendChild(div);
+  });
+}
+
+/* إجمالي */
+function updateTotal(){
+  let t=0;
+  cart.forEach(i=>t+=i.price*i.qty);
+  document.getElementById("total").innerText=t;
+}
+
+/* تسجيل دخول */
+function openLogin(){
+  let type=prompt("1 عميل | 2 مندوب");
+  if(type==1){
+    let phone=prompt("رقم الهاتف");
+    let pass=prompt("الباسورد");
+    alert("تم الدخول");
+  }else{
+    alert("مندوب");
+  }
+}
+
+/* الشرائح */
+function openTiers(){
+  let t=prompt("base / half_million / million");
+  if(t){
+    tier=t;
+    alert("تم تغيير الشريحة");
+  }
+}
+
+/* إتمام */
+async function checkout(){
+
+  if(cart.length==0){
+    alert("السلة فارغة");
+    return;
   }
 
-  function removeCartItem(productId) {
-    state.cart = state.cart.filter(x => x.product_id !== productId);
-    state.checkoutVerified = false;
-    saveLocalState();
-    renderProducts();
-    renderCheckout();
-    renderFooter();
-    toast('تمت الإزالة');
-  }
-
-  function toggleCart(product) {
-    const existing = getCartEntry(product.id);
-    if (existing) {
-      removeCartItem(product.id);
-      return;
-    }
-    const units = availableUnitsForProduct(product.id);
-    if (!units.length) {
-      toast('لا توجد وحدة بسعر متاح لهذا الصنف');
-      return;
-    }
-    const defaultUnit = units[0].unit;
-    const input = document.querySelector(`[data-qty-input="${product.id}"]`);
-    const qty = input ? input.value : 1;
-    setCartItem(product, defaultUnit, qty);
-  }
-
-  async function selectTier(tierName, tierLabel) {
-    if (state.currentTier === tierName) {
-      state.currentTier = 'base';
-      state.currentTierLabel = 'عادي';
-    } else {
-      state.currentTier = tierName;
-      state.currentTierLabel = tierLabel || tierName;
-    }
-    state.checkoutVerified = false;
-    saveLocalState();
-    try {
-      if (state.currentCompanyProducts.length) {
-        await loadTierPrices(state.currentCompanyProducts.map(p => p.id));
-      }
-    } catch (error) {
-      safeDbError(error, 'تعذر تحديث أسعار الشريحة');
-    }
-    renderTiers();
-    renderProducts();
-    renderCheckout();
-    renderFooter();
-    toast('تم تحديث الشريحة');
-  }
-
-  function getLoginMode() {
-    return state.loginType === 'rep' ? 'rep' : 'customer';
-  }
-
-  /* ===========================
-     Supabase fetch layer
-     =========================== */
-  async function loadSession() {
-    if (!db) return;
-    const { data, error } = await db.auth.getSession();
-    if (error) throw error;
-    const session = data?.session || null;
-    state.session = { user: session?.user || null, role: getUserRole(session) };
-  }
-
-  async function loadTiers() {
-    if (!db) throw new Error('Supabase غير مضبوط');
-    state.loading.tiers = true;
-    const { data, error } = await db
-      .from('tiers')
-      .select('id, tier_name, visible_label, min_order_value, is_active')
-      .eq('is_active', true)
-      .order('min_order_value', { ascending: true });
-    if (error) throw error;
-    state.tiers = Array.isArray(data) && data.length ? data : [];
-    if (!state.currentTier || state.currentTier === '') {
-      state.currentTier = 'base';
-      state.currentTierLabel = 'عادي';
-    }
-    state.loading.tiers = false;
-    if (els.tierCount) els.tierCount.textContent = `${state.tiers.length} شريحة`;
-    renderTiers();
-    renderFooter();
-  }
-
-  async function loadCompanies() {
-    if (!db) throw new Error('Supabase غير مضبوط');
-    state.loading.companies = true;
-    setStatus('تحميل الشركات...');
-    const { data, error } = await db
-      .from('products')
-      .select('company, visible, status')
-      .eq('visible', true)
-      .eq('status', 'active')
-      .order('company', { ascending: true });
-    if (error) throw error;
-
-    const seen = new Set();
-    const companies = [];
-    for (const row of (data || [])) {
-      const name = normalizeCompanyName(row.company);
-      if (!name || seen.has(name)) continue;
-      seen.add(name);
-      companies.push({ company: name });
-    }
-
-    state.companies = companies;
-    renderCompanies();
-    state.loading.companies = false;
-    setStatus('متصل');
-  }
-
-  async function loadProductsForCompany(companyName) {
-    if (!db) throw new Error('Supabase غير مضبوط');
-    state.loading.products = true;
-    state.currentCompany = companyName;
-    state.currentCompanyProducts = [];
-    state.tierPriceMap = new Map();
-    state.productUnitsMap = new Map();
-    state.productPriceMap = new Map();
-    renderProductsSkeleton();
-
-    const { data, error } = await db
-      .from('products')
-      .select('id, code, name, company, image, base_price, status, visible')
-      .eq('company', companyName)
-      .eq('visible', true)
-      .order('name', { ascending: true });
-
-    if (error) throw error;
-
-    const products = Array.isArray(data) ? data.filter(p => p.status === 'active') : [];
-    state.currentCompanyProducts = products;
-    await loadTierPrices(products.map(p => p.id));
-    state.loading.products = false;
-    renderProducts();
-    renderFooter();
-  }
-
-  async function loadTierPrices(productIds = []) {
-    if (!db) throw new Error('Supabase غير مضبوط');
-    const ids = (productIds || []).filter(Boolean);
-    if (!ids.length) return;
-
-    const tierName = state.currentTier === 'base' ? 'base' : state.currentTier;
-    const { data, error } = await db
-      .from('tier_prices')
-      .select('product_id, tier_name, unit, price, visible')
-      .in('product_id', ids)
-      .eq('tier_name', tierName)
-      .eq('visible', true);
-
-    if (error) throw error;
-
-    // خريطة أسعار الوحدات + وحدات مرئية فقط
-    const unitsByProduct = new Map();
-    for (const product of state.currentCompanyProducts) {
-      unitsByProduct.set(product.id, []);
-    }
-
-    for (const row of (data || [])) {
-      const productId = row.product_id;
-      const unit = text(row.unit || '');
-      const price = Number(row.price || 0);
-      if (!productId || !unit) continue;
-      state.tierPriceMap.set(productUnitKey(productId, unit), price);
-      if (!unitsByProduct.has(productId)) unitsByProduct.set(productId, []);
-      unitsByProduct.get(productId).push({ unit, price });
-    }
-
-    // لو في base_price، نضيف وحدة افتراضية فقط إذا لم يكن للصنف وحدات معرّفة
-    for (const product of state.currentCompanyProducts) {
-      const units = unitsByProduct.get(product.id) || [];
-      if (!units.length && Number(product.base_price || 0) > 0) {
-        units.push({ unit: 'piece', price: Number(product.base_price || 0) });
-      }
-      state.productUnitsMap.set(product.id, units);
-    }
-  }
-
-  async function loadOptionalOfferData() {
-    if (!db) return;
-
-    // صفقة اليوم — اختياري. لو الجدول غير موجود لن نكسر الواجهة.
-    try {
-      const { data, error } = await db
-        .from('daily_deals')
-        .select('id, title, price, stock, image, is_active')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-      if (!error) {
-        state.dailyDeals = data || [];
-        renderDailyDeals();
-      }
-    } catch (_) {
-      state.dailyDeals = [];
-      renderDailyDeals();
-    }
-
-    // عرض الساعة — اختياري.
-    try {
-      const { data, error } = await db
-        .from('flash_offers')
-        .select('id, title, price, stock, image, status, start_at, end_at, is_active')
-        .eq('is_active', true);
-      if (!error) {
-        state.flashTicker = data || [];
-        renderFlashOffers();
-      }
-    } catch (_) {
-      state.flashTicker = [];
-      renderFlashOffers();
-    }
-  }
-
-  async function loadCustomerProfile() {
-    if (!db || state.session.role !== 'customer' || !state.session.user) return;
-    const { data, error } = await db
-      .from('customers')
-      .select('id, name, phone, address, location, tier_id')
-      .eq('auth_user_id', state.session.user.id)
-      .maybeSingle();
-    if (error) throw error;
-    const profile = data || null;
-    if (profile) {
-      els.checkoutName.value = profile.name || '';
-      els.checkoutPhone.value = profile.phone || '';
-      els.checkoutAddress.value = profile.address || '';
-      els.checkoutLocation.value = profile.location || '';
-    }
-  }
-
-  function renderCompanies() {
-    const list = state.companies || [];
-    els.bannerStat1.textContent = `${list.length} شركة`;
-    els.bannerStat2.textContent = `${state.currentCompanyProducts.length ? state.currentCompanyProducts.length : 0} منتج`;
-    els.companiesGrid.innerHTML = list.length ? list.map(c => {
-      const initial = (c.company || 'A').trim().charAt(0).toUpperCase();
-      return `
-        <div class="card company-card" role="button" tabindex="0" onclick="window.__app.openCompany(${JSON.stringify(c.company)})">
-          <div class="company-logo">${initial}</div>
-          <div class="name"><strong>${escapeHtml(c.company)}</strong></div>
-        </div>
-      `;
-    }).join('') : `<div class="empty">لا توجد شركات متاحة حاليًا</div>`;
-  }
-
-  function renderProductsSkeleton() {
-    els.productsGrid.innerHTML = Array.from({ length: 4 }).map(() => `
-      <div class="card product-card">
-        <div class="skeleton" style="height:28px;width:70%;border-radius:8px"></div>
-        <div class="skeleton" style="height:18px;width:45%;border-radius:8px"></div>
-        <div class="skeleton" style="height:28px;width:90%;border-radius:12px"></div>
-        <div class="skeleton" style="height:48px;width:100%;border-radius:18px"></div>
-      </div>
-    `).join('');
-  }
-
-  function renderProducts() {
-    const list = state.currentCompanyProducts || [];
-    if (els.currentCompanyLabel) els.currentCompanyLabel.textContent = state.currentCompany || '—';
-
-    if (!list.length) {
-      els.productCount.textContent = '0 صنف';
-      els.productsGrid.innerHTML = `<div class="empty">لا توجد منتجات لهذه الشركة</div>`;
-      return;
-    }
-
-    const cards = [];
-    for (const product of list) {
-      const units = availableUnitsForProduct(product.id);
-      if (!units.length) continue;
-
-      const existing = getCartEntry(product.id);
-      const defaultUnit = existing?.unit || units[0].unit;
-      const selectedQty = existing?.quantity || 1;
-      const isSelected = !!existing;
-      const currentPrice = productFinalPrice(product.id, defaultUnit);
-      if (!currentPrice || currentPrice <= 0) continue;
-
-      cards.push(`
-        <div class="card product-card ${isSelected ? 'selected' : ''}" data-product-id="${escapeAttr(product.id)}" role="button" tabindex="0" onclick='window.__app.toggleProduct(${JSON.stringify(product.id)})'>
-          <div class="product-head">
-            <div style="min-width:0;flex:1">
-              <h3 class="product-title">${escapeHtml(product.name || '')}</h3>
-              <div class="muted">${isSelected ? 'مضاف للسلة' : 'اضغط للإضافة أو الإزالة'}</div>
-            </div>
-            <div style="text-align:left">
-              <div class="product-price">${money(currentPrice)} ج</div>
-              <div class="muted">السعر النهائي</div>
-            </div>
-          </div>
-
-          <div class="unit-row">
-            ${units.map(u => `
-              <button class="unit-chip ${u.unit === defaultUnit ? 'active' : ''}" onclick="event.stopPropagation(); window.__app.chooseUnit(${JSON.stringify(product.id)}, ${JSON.stringify(u.unit)})">${escapeHtml(unitLabel(u.unit))}</button>
-            `).join('')}
-          </div>
-
-          <div class="qty-row">
-            <div class="qty-box">
-              <input class="qty-input" data-qty-input="${escapeAttr(product.id)}" type="text" inputmode="numeric" value="${selectedQty}" oninput="event.stopPropagation(); window.__app.setQuantity(${JSON.stringify(product.id)}, this.value)" onclick="event.stopPropagation()" />
-            </div>
-            <button class="btn ${isSelected ? 'red' : 'primary'}" onclick="event.stopPropagation(); window.__app.toggleProduct(${JSON.stringify(product.id)})">${isSelected ? 'إزالة' : 'شراء'}</button>
-          </div>
-        </div>
-      `);
-    }
-
-    els.productCount.textContent = `${cards.length} صنف`;
-    els.productsGrid.innerHTML = cards.length ? cards.join('') : `<div class="empty">لا توجد وحدات بسعر متاح لهذا القسم</div>`;
-  }
-
-  function renderTiers() {
-    const list = state.tiers || [];
-    els.tierCount.textContent = `${list.length} شريحة`;
-    els.tierChip.textContent = `الشريحة: ${state.currentTier === 'base' ? 'عادي' : state.currentTierLabel}`;
-    els.tierBtn.textContent = state.currentTier === 'base' ? 'الشريحة' : state.currentTierLabel;
-    els.tiersGrid.innerHTML = list.length ? list.map(t => {
-      const active = state.currentTier === t.tier_name;
-      return `
-        <div class="card tier-card">
-          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
-            <div>
-              <h3>${escapeHtml(t.visible_label || t.tier_name || '')}</h3>
-              <div class="muted">${escapeHtml(t.tier_name || '')}</div>
-            </div>
-            ${active ? '<span class="smallpill">مختارة</span>' : ''}
-          </div>
-          <div class="stack">
-            <div class="smallpill">الحد الأدنى: ${money(t.min_order_value || 0)} ج</div>
-            <div class="smallpill">الحالة: ${t.is_active ? 'نشطة' : 'غير نشطة'}</div>
-          </div>
-          <button class="btn ${active ? 'red' : 'primary'} block" onclick="window.__app.selectTier(${JSON.stringify(t.tier_name)}, ${JSON.stringify(t.visible_label || t.tier_name || '')})">${active ? 'إلغاء' : 'اختيار'}</button>
-        </div>
-      `;
-    }).join('') : `<div class="empty">لا توجد شرائح متاحة</div>`;
-  }
-
-  function renderDailyDeals() {
-    const list = Array.isArray(state.dailyDeals) ? state.dailyDeals : [];
-    els.dailyDealCount.textContent = `${list.length} صفقة`;
-    els.dailyDealsGrid.innerHTML = list.length ? list.map(item => {
-      return `
-        <div class="card offer-card">
-          <div class="name">
-            <strong>${escapeHtml(item.title || '')}</strong>
-            <span class="smallpill">${Number(item.stock || 0) > 0 ? 'متاح' : 'منتهي'}</span>
-          </div>
-          <div class="muted">لوحة العرض مستقلة عن المنتجات والشرائح</div>
-          <div class="product-price">${money(item.price || 0)} ج</div>
-          <button class="btn ${Number(item.stock || 0) > 0 ? 'primary' : 'ghost'} block" disabled>${Number(item.stock || 0) > 0 ? 'شراء' : 'منتهي'}</button>
-        </div>
-      `;
-    }).join('') : `<div class="empty">لا توجد صفقات اليوم</div>`;
-  }
-
-  function getFlashLifecycle(row, nowMs = Date.now()) {
-    const start = row?.start_at ? new Date(row.start_at).getTime() : null;
-    const end = row?.end_at ? new Date(row.end_at).getTime() : null;
-    const status = text(row?.status || '').toLowerCase();
-    let stateLabel = 'active';
-    if (status === 'pending' || (start && nowMs < start)) stateLabel = 'pending';
-    if (status === 'expired' || (end && nowMs >= end)) stateLabel = 'expired';
-    const remaining = stateLabel === 'pending' ? Math.max(0, (start || nowMs) - nowMs) : stateLabel === 'active' && end ? Math.max(0, end - nowMs) : 0;
-    return { stateLabel, remaining };
-  }
-
-  function renderFlashOffers() {
-    const list = Array.isArray(state.flashTicker) ? state.flashTicker : [];
-    els.flashOfferCount.textContent = `${list.length} عرض`;
-    const best = list.map(item => ({ item, life: getFlashLifecycle(item) })).sort((a, b) => a.life.remaining - b.life.remaining)[0];
-    if (best && best.life.stateLabel === 'active') {
-      els.flashBtn.classList.add('active');
-      els.flashBtn.innerHTML = `<span class="countdown"><small>ينتهي خلال</small><strong>${formatCountdown(best.life.remaining)}</strong></span>`;
-    } else if (best && best.life.stateLabel === 'pending') {
-      els.flashBtn.classList.remove('active');
-      els.flashBtn.innerHTML = `<span class="countdown"><small>يبدأ خلال</small><strong>${formatCountdown(best.life.remaining)}</strong></span>`;
-    } else {
-      els.flashBtn.classList.remove('active');
-      els.flashBtn.textContent = 'عرض الساعة';
-    }
-
-    els.flashOffersGrid.innerHTML = list.length ? list.map(item => {
-      const life = getFlashLifecycle(item);
-      const statusText = life.stateLabel === 'pending' ? 'تبدأ قريبًا' : life.stateLabel === 'expired' ? 'انتهت' : 'نشط';
-      return `
-        <div class="card offer-card">
-          <div class="name">
-            <strong>${escapeHtml(item.title || '')}</strong>
-            <span class="status-pill ${life.stateLabel}">${statusText}</span>
-          </div>
-          <div class="muted">يعتمد على الوقت الفعلي من الخادم</div>
-          <div class="product-price">${money(item.price || 0)} ج</div>
-          <div class="smallpill">${life.stateLabel === 'active' ? `ينتهي خلال ${formatCountdown(life.remaining)}` : life.stateLabel === 'pending' ? `يبدأ خلال ${formatCountdown(life.remaining)}` : 'منتهي'}</div>
-          <button class="btn ${life.stateLabel === 'active' ? 'primary' : 'ghost'} block" disabled>${life.stateLabel === 'active' ? 'شراء' : 'غير متاح'}</button>
-        </div>
-      `;
-    }).join('') : `<div class="empty">لا توجد عروض ساعة</div>`;
-  }
-
-  function renderCheckout() {
-    const totals = currentTotals();
-    els.checkoutTierLabel.textContent = state.currentTier === 'base' ? 'عادي' : state.currentTierLabel;
-    els.invoiceTotal.textContent = `${money(totals.total)} ج`;
-    els.invoiceRemaining.textContent = `${money(totals.remain)} ج`;
-    els.invoiceTier.textContent = state.currentTier === 'base' ? 'عادي' : state.currentTierLabel;
-    els.invoiceStatus.textContent = state.checkoutVerified ? 'تم التحقق' : (state.cart.length ? 'بانتظار التحقق' : 'السلة فارغة');
-    els.sendBtn.classList.toggle('hidden', !state.checkoutVerified);
-
-    if (!state.cart.length) {
-      els.invoiceList.innerHTML = `<div class="empty">السلة فارغة</div>`;
-      return;
-    }
-
-    els.invoiceList.innerHTML = state.cart.map(item => {
-      const line = Number(item.price || 0) * Number(item.quantity || 0);
-      return `
-        <div class="list-item">
-          <div class="top">
-            <div>
-              <strong>${escapeHtml(item.product_name || '')}</strong>
-              <div class="muted">${escapeHtml(unitLabel(item.unit))}</div>
-            </div>
-            <strong>${money(line)} ج</strong>
-          </div>
-          <div class="muted">الكمية: ${money(item.quantity || 0)} • سعر الوحدة: ${money(item.price || 0)} ج</div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function renderFooter() {
-    const totals = currentTotals();
-    els.footerTotal.textContent = money(totals.total);
-    els.footerRemaining.textContent = `${money(totals.remain)} جنيه`;
-    els.statusChip.textContent = state.session.role === 'guest' ? 'زائر' : currentActorLabel();
-    els.bannerTitle.textContent = state.currentCompany ? `عرض منتجات ${state.currentCompany}` : 'تحميل البيانات من قاعدة البيانات';
-    els.bannerSubtitle.textContent = state.checkoutVerified ? 'التحقق تم بنجاح' : 'لا توجد أي منتجات وهمية داخل الواجهة';
-  }
-
-  function unitLabel(unit) {
-    if (unit === 'carton') return 'كرتونة';
-    if (unit === 'pack') return 'دستة';
-    if (unit === 'piece') return 'قطعة';
-    return unit || 'وحدة';
-  }
-
-  function escapeHtml(value) {
-    return text(value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  function escapeAttr(value) {
-    return escapeHtml(value).replace(/`/g, '&#96;');
-  }
-
-  /* ===========================
-     آليات التفاعل
-     =========================== */
-  async function openCompany(companyName) {
-    try {
-      state.checkoutVerified = false;
-      saveLocalState();
-      await loadProductsForCompany(companyName);
-      setView('productsView');
-      renderCheckout();
-      renderFooter();
-    } catch (error) {
-      safeDbError(error, 'تعذر فتح الشركة');
-    }
-  }
-
-  function chooseUnit(productId, unit) {
-    const product = state.currentCompanyProducts.find(p => p.id === productId);
-    if (!product) return;
-    const entry = getCartEntry(productId);
-    if (entry) {
-      entry.unit = unit;
-      entry.price = productFinalPrice(productId, unit);
-      state.checkoutVerified = false;
-      saveLocalState();
-      renderProducts();
-      renderCheckout();
-      renderFooter();
-      toast('تم تغيير الوحدة');
-    } else {
-      toast('اضغط شراء أولًا');
-    }
-  }
-
-  function setQuantity(productId, rawValue) {
-    const cleaned = String(rawValue || '').replace(/[^\d]/g, '');
-    const product = state.currentCompanyProducts.find(p => p.id === productId);
-    if (!product) return;
-    if (!cleaned) {
-      // يسمح بحذف الرقم وكتابة رقم جديد
-      const entry = getCartEntry(productId);
-      if (entry) entry.quantity = 0;
-      renderCheckout();
-      return;
-    }
-    const qty = Math.max(1, Number(cleaned));
-    const entry = getCartEntry(productId);
-    if (entry) {
-      entry.quantity = qty;
-      state.checkoutVerified = false;
-      saveLocalState();
-      renderCheckout();
-      renderFooter();
-    }
-  }
-
-  function toggleProduct(productId) {
-    const product = state.currentCompanyProducts.find(p => p.id === productId);
-    if (!product) {
-      toast('المنتج غير متاح');
-      return;
-    }
-    const existing = getCartEntry(productId);
-    if (existing) {
-      removeCartItem(productId);
-      return;
-    }
-    const units = availableUnitsForProduct(productId);
-    if (!units.length) {
-      toast('لا توجد وحدة بسعر متاح');
-      return;
-    }
-    const qtyInput = document.querySelector(`[data-qty-input="${CSS.escape(productId)}"]`);
-    const qty = qtyInput ? qtyInput.value : 1;
-    setCartItem(product, units[0].unit, qty || 1);
-  }
-
-  async function selectTier(tierName, tierLabel) {
-    if (state.currentTier === tierName) {
-      state.currentTier = 'base';
-      state.currentTierLabel = 'عادي';
-    } else {
-      state.currentTier = tierName;
-      state.currentTierLabel = tierLabel || tierName;
-    }
-    state.checkoutVerified = false;
-    saveLocalState();
-    try {
-      if (state.currentCompanyProducts.length) {
-        await loadTierPrices(state.currentCompanyProducts.map(p => p.id));
-      }
-    } catch (error) {
-      safeDbError(error, 'تعذر تحديث أسعار الشريحة');
-    }
-    renderTiers();
-    renderProducts();
-    renderCheckout();
-    renderFooter();
-    toast('تم تحديث الشريحة');
-  }
-
-  async function verifyCheckout() {
-    if (!db) {
-      toast('Supabase غير مضبوط');
-      return;
-    }
-    if (!state.cart.length) {
-      toast('السلة فارغة');
-      return;
-    }
-
-    const payload = state.cart.map(item => ({
-      product_id: item.product_id,
-      unit: item.unit,
-      quantity: Number(item.quantity || 0)
-    }));
-
-    try {
-      const { data, error } = await db.rpc('validate_checkout', {
-        p_tier_name: state.currentTier,
-        p_items: payload
-      });
-
-      if (error) throw error;
-
-      const result = Array.isArray(data) ? data[0] : data;
-      if (!result?.ok) {
-        state.checkoutVerified = false;
-        saveLocalState();
-        els.invoiceStatus.textContent = result?.message || 'فشل التحقق';
-        toast(result?.message || 'فشل التحقق');
-        renderCheckout();
-        return;
-      }
-
-      state.checkoutVerified = true;
-      saveLocalState();
-      renderCheckout();
-      renderFooter();
-      toast(result.message || 'تم التحقق');
-      els.sendBtn.classList.remove('hidden');
-    } catch (error) {
-      state.checkoutVerified = false;
-      saveLocalState();
-      safeDbError(error, 'تعذر التحقق من الطلب');
-    }
-  }
-
-  async function sendOrder() {
-    if (!db) {
-      toast('Supabase غير مضبوط');
-      return;
-    }
-    if (!state.checkoutVerified) {
-      toast('يجب التحقق أولًا');
-      return;
-    }
-    if (!state.cart.length) {
-      toast('السلة فارغة');
-      return;
-    }
-
-    const name = text(els.checkoutName.value);
-    const phone = text(els.checkoutPhone.value);
-    const address = text(els.checkoutAddress.value);
-    const location = text(els.checkoutLocation.value);
-
-    if (!name || !phone || !address) {
-      toast('أكمل بيانات العميل');
-      return;
-    }
-
-    const payload = state.cart.map(item => ({
-      product_id: item.product_id,
-      unit: item.unit,
-      quantity: Number(item.quantity || 0)
-    }));
-
-    try {
-      const { data, error } = await db.rpc('create_order_secure', {
-        p_customer: { name, phone, address, location },
-        p_tier_name: state.currentTier,
-        p_items: payload
-      });
-
-      if (error) throw error;
-
-      const orderId = data;
-      state.cart = [];
-      state.checkoutVerified = false;
-      saveLocalState();
-      renderCheckout();
-      renderFooter();
-      renderProducts();
-      toast(`تم إنشاء الطلب بنجاح ${orderId ? '' : ''}`);
-    } catch (error) {
-      safeDbError(error, 'تعذر إنشاء الطلب');
-    }
-  }
-
-  async function loginWithPassword() {
-    if (!db) {
-      toast('Supabase غير مضبوط');
-      return;
-    }
-    const identifier = text(els.loginIdentifier.value);
-    const password = text(els.loginPassword.value);
-    if (!identifier || !password) {
-      toast('أكمل بيانات الدخول');
-      return;
-    }
-
-    state.loading.auth = true;
-    try {
-      let result;
-      if (state.loginType === 'rep') {
-        // دعم البريد أو الهاتف للمندوب
-        const isPhone = /^[+\d][\d\s-]+$/.test(identifier) || identifier.startsWith('01');
-        result = isPhone
-          ? await db.auth.signInWithPassword({ phone: identifier, password })
-          : await db.auth.signInWithPassword({ email: identifier, password });
-      } else {
-        const isPhone = /^[+\d][\d\s-]+$/.test(identifier) || identifier.startsWith('01');
-        result = isPhone
-          ? await db.auth.signInWithPassword({ phone: identifier, password })
-          : await db.auth.signInWithPassword({ email: identifier, password });
-      }
-
-      if (result.error) throw result.error;
-      await refreshSession();
-      toast('تم تسجيل الدخول');
-      goHome();
-    } catch (error) {
-      safeDbError(error, 'فشل تسجيل الدخول');
-    } finally {
-      state.loading.auth = false;
-    }
-  }
-
-  async function refreshSession() {
-    if (!db) return;
-    const { data, error } = await db.auth.getSession();
-    if (error) throw error;
-    const session = data?.session || null;
-    state.session = { user: session?.user || null, role: getUserRole(session) };
-    renderFooter();
-    renderCheckout();
-    if (state.session.role === 'customer') {
-      try { await loadCustomerProfile(); } catch (e) { console.warn(e); }
-    }
-  }
-
-  function fillCurrentLocation() {
-    if (!navigator.geolocation) {
-      toast('الموقع غير مدعوم');
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        const lat = pos.coords.latitude.toFixed(6);
-        const lng = pos.coords.longitude.toFixed(6);
-        els.checkoutLocation.value = `${lat},${lng}`;
-        toast('تم جلب الموقع');
-      },
-      () => toast('تعذر جلب الموقع')
-    );
-  }
-
-  /* ===========================
-     الربط العام
-     =========================== */
-  async function init() {
-    renderFooter();
-    renderTiers();
-    renderCompanies();
-    renderDailyDeals();
-    renderFlashOffers();
-    renderCheckout();
-
-    if (!supabaseReady) {
-      setStatus('ضع مفاتيح Supabase');
-      toast('أدخل Supabase URL و ANON KEY داخل الملف');
-      return;
-    }
-
-    setStatus('جارٍ الاتصال...');
-    try {
-      await loadSession();
-      await loadTiers();
-      await loadCompanies();
-      await loadOptionalOfferData();
-      renderFooter();
-
-      if (state.session.role === 'customer') {
-        try { await loadCustomerProfile(); } catch (e) { console.warn(e); }
-      }
-
-      db.auth.onAuthStateChange(async (_event, session) => {
-        state.session = { user: session?.user || null, role: getUserRole(session) };
-        renderFooter();
-        if (state.session.role === 'customer') {
-          try { await loadCustomerProfile(); } catch (e) { console.warn(e); }
-        }
-      });
-    } catch (error) {
-      safeDbError(error, 'فشل الاتصال بقاعدة البيانات');
-    }
-  }
-
-  /* ===========================
-     واجهة داخلية للوصول من HTML
-     =========================== */
-  window.__app = {
-    openCompany,
-    chooseUnit,
-    setQuantity,
-    toggleProduct,
-    selectTier,
-    verifyCheckout,
-    sendOrder
-  };
-
-  window.goBack = goBack;
-  window.goHome = goHome;
-  window.openTiersView = openTiersView;
-  window.openDailyDealsView = openDailyDealsView;
-  window.openFlashOffersView = openFlashOffersView;
-  window.openCheckoutView = openCheckoutView;
-  window.openLoginView = openLoginView;
-  window.openUserMenu = openUserMenu;
-  window.closeUserMenu = closeUserMenu;
-  window.switchLoginTab = switchLoginTab;
-  window.loginWithPassword = loginWithPassword;
-  window.fillCurrentLocation = fillCurrentLocation;
-
-  init();
-  setInterval(() => {
-    renderFlashOffers();
-    renderFooter();
-    renderCheckout();
-  }, 1000);
-})();
+  let total=0;
+  cart.forEach(i=>total+=i.price*i.qty);
+
+  let {data:order}=await supabaseClient
+  .from("orders")
+  .insert({total})
+  .select()
+  .single();
+
+  let items=cart.map(i=>({
+    order_id:order.order_id,
+    product_id:i.id,
+    price:i.price,
+    qty:i.qty
+  }));
+
+  await supabaseClient.from("order_items").insert(items);
+
+  alert("تم الطلب");
+
+  cart=[];
+  updateTotal();
+}
+
+/* تشغيل */
+loadCompanies();
 </script>
+
 </body>
 </html>
