@@ -1,263 +1,1997 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الأهرام للتجارة</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-<style>
-body {
-  margin: 0;
-  font-family: sans-serif;
-  background: #f5f5f5;
-}
-
-/* HEADER */
-.header {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background: #111;
-  color: #fff;
-}
-
-.header button {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 16px;
-}
-
-/* TOP BUTTONS */
-.top-actions {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-}
-
-.top-actions button {
-  flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  font-weight: bold;
-}
-
-/* GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  padding: 10px;
-}
-
-.card {
-  background: #fff;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-/* FOOTER */
-.footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  background: #fff;
-  border-top: 1px solid #ccc;
-}
-
-.footer div {
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  font-weight: bold;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>الأهرام للتجارة والتوزيع</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#f5f1ea; --card:#fff; --text:#0f172a; --muted:#64748b; --line:#e7ddd0;
+      --blue:#2563eb; --blue2:#1d4ed8; --green:#16a34a; --red:#dc2626; --amber:#f59e0b;
+      --shadow:0 10px 28px rgba(15,23,42,.07); --shadow2:0 16px 42px rgba(15,23,42,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;overflow-x:hidden}
+    body{min-height:100vh}
+    button,input,select,textarea{font:inherit}
+    button{touch-action:manipulation}
+    .app{min-height:100vh;display:flex;flex-direction:column;max-width:1040px;margin:0 auto}
+    .hidden{display:none !important}
+    .header{
+      position:sticky;top:0;z-index:20;color:#fff;
+      background:linear-gradient(135deg,#08162f 0%,#123d80 55%,#0f172a 100%);
+      padding:12px 12px 14px; box-shadow:0 12px 30px rgba(15,23,42,.22)
+    }
+    .top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+    .brand{display:flex;gap:10px;align-items:center;min-width:0;flex:1}
+    .logo{
+      width:46px;height:46px;border-radius:16px;background:#fff;overflow:hidden;display:grid;place-items:center;
+      box-shadow:0 8px 20px rgba(0,0,0,.18);flex:0 0 auto
+    }
+    .logo img{width:100%;height:100%;object-fit:cover}
+    .brand h1{margin:0;font-size:17px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand p{margin:3px 0 0;font-size:12px;opacity:.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;width:100%}
+    .pill{
+      border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.10); color:#fff;
+      border-radius:999px; padding:10px 14px; min-height:46px; font-weight:800; display:inline-flex;
+      align-items:center; gap:8px; cursor:pointer; white-space:nowrap; transition:.15s; backdrop-filter:blur(8px)
+    }
+    .pill:active,.btn:active,.card:active{transform:scale(.985)}
+    .pill.secondary{background:#fff;color:#0f172a;border-color:#fff}
+    .pill.deal{background:linear-gradient(135deg,#111827,#7c3aed);border-color:#7c3aed}
+    .pill.flash{background:linear-gradient(135deg,#dc2626,#f59e0b);border-color:#f59e0b}
+    .pill.flash.active{animation:flashPulse 1.2s ease-in-out infinite}
+    @keyframes flashPulse{0%,100%{filter:saturate(1);transform:translateY(0)}50%{filter:saturate(1.3);transform:translateY(-1px)}}
+    .subbar{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .badge,.smallpill{
+      display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 11px;font-size:12px;font-weight:800
+    }
+    .badge{background:#eff6ff;color:#1d4ed8;border:1px solid rgba(255,255,255,.16)}
+    .smallpill{background:#f8fafc;color:#0f172a;border:1px solid var(--line)}
+    .layout{flex:1;padding:12px;display:flex;flex-direction:column;gap:12px}
+    .view{display:none;animation:fade .16s ease}
+    .view.active{display:block}
+    @keyframes fade{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .section-title{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:2px 2px 12px;font-size:15px;font-weight:900}
+    .section-title .subtle{font-size:12px;color:var(--muted);font-weight:700}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media (min-width:680px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (min-width:980px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    .card,.panel{
+      background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)
+    }
+    .card{padding:14px;transition:transform .15s ease, box-shadow .15s ease}
+    .card:hover{box-shadow:var(--shadow2)}
+    .company-card,.tier-card{cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:180px}
+    .company-card img,.product-card .img img,.offer-card .img img{width:100%;height:100%;object-fit:contain}
+    .company-card .img,.tier-card .img{width:100%;height:106px;border-radius:18px;border:1px solid #f1f5f9;background:#fff;overflow:hidden;display:grid;place-items:center}
+    .product-card,.offer-card{display:flex;flex-direction:column;gap:12px;min-height:100%;padding:14px}
+    .product-card .img,.offer-card .img{width:100%;border-radius:22px;border:1px solid #f1f5f9;background:#fff;overflow:hidden;display:grid;place-items:center}
+    .product-card .img{height:190px}
+    .offer-card .img{height:150px}
+    .title{margin:0;font-size:16px;line-height:1.5;font-weight:900}
+    .muted{color:var(--muted);font-size:12px;line-height:1.5}
+    .backbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin:4px 2px 12px}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .btn{
+      border:0;border-radius:16px;padding:12px 14px;font-weight:900;cursor:pointer;transition:.15s;
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px
+    }
+    .btn.primary{background:var(--blue);color:#fff}
+    .btn.primary:hover{background:var(--blue2)}
+    .btn.green{background:var(--green);color:#fff}
+    .btn.red{background:var(--red);color:#fff}
+    .btn.soft{background:#eef2ff;color:#1d4ed8}
+    .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
+    .btn.block{width:100%}
+    .panel{padding:14px}
+    .field{display:grid;gap:6px}
+    .field label{font-size:12px;color:var(--muted);font-weight:800}
+    .field input,.field select,.field textarea{
+      width:100%;border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:#fff;outline:none
+    }
+    .field textarea{min-height:88px;resize:vertical}
+    .form{display:grid;gap:10px}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .tab{padding:12px;border-radius:16px;border:1px solid var(--line);background:#fff;font-weight:900;cursor:pointer}
+    .tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+    @media (max-width:540px){.summary{grid-template-columns:1fr}}
+    .box{border:1px solid var(--line);border-radius:18px;padding:12px;background:#f8fafc}
+    .box .label{font-size:12px;color:var(--muted);font-weight:700}
+    .box .value{margin-top:4px;font-size:20px;font-weight:1000;line-height:1.1}
+    .unit-row,.footer-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .unit-chip{
+      border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer
+    }
+    .unit-chip.active{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
+    .price-line{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+    .price{font-size:22px;font-weight:1000;line-height:1.1}
+    .old{font-size:13px;color:var(--red);text-decoration:line-through;font-weight:800}
+    .qty-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding-top:10px;border-top:1px dashed #e2e8f0;flex-wrap:wrap}
+    .stepper{display:flex;gap:8px;align-items:center}
+    .stepper button{
+      width:34px;height:34px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:1000;cursor:pointer
+    }
+    .qty{min-width:30px;text-align:center;font-weight:900}
+    .list{display:grid;gap:10px}
+    .list-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff;display:grid;gap:8px}
+    .list-item .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .empty{
+      padding:18px;border:1px dashed #cbd5e1;border-radius:18px;background:#fff;color:var(--muted);
+      text-align:center;font-weight:700
+    }
+    .status-pill{
+      display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900
+    }
+    .status-pill.active{background:#ecfdf5;color:#166534;border:1px solid #bbf7d0}
+    .status-pill.pending{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+    .status-pill.expired{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+    .cartbar{
+      position:sticky;bottom:0;z-index:19;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
+      border-top:1px solid var(--line);padding:12px 12px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(15,23,42,.06)
+    }
+    .cartbar .row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .footer-remaining{display:flex;flex-direction:column;gap:5px;min-width:150px;align-items:flex-end;flex:1}
+    .footer-remaining .value{font-size:18px;font-weight:1000;line-height:1.1}
+    .footer-total strong{font-size:30px;line-height:1;color:#0f172a}
+    .toast{
+      position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#0f172a;color:#fff;
+      padding:11px 14px;border-radius:14px;box-shadow:var(--shadow2);z-index:100;opacity:0;pointer-events:none;
+      transition:.22s;max-width:92vw;text-align:center;font-size:13px
+    }
+    .toast.show{opacity:1;bottom:106px}
+    .error-banner{
+      margin:12px 12px 0;padding:12px 14px;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;
+      border-radius:18px;display:none
+    }
+    .error-banner.show{display:block}
+    .modal{
+      position:fixed;inset:0;background:rgba(15,23,42,.52);z-index:90;display:none;align-items:flex-end
+    }
+    .modal.open{display:flex}
+    .sheet{
+      width:100%;max-height:92vh;overflow:auto;background:#fff;border-radius:28px 28px 0 0;
+      padding:14px 12px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -18px 38px rgba(0,0,0,.16)
+    }
+    .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+    .sheet-head h3{margin:0;font-size:16px}
+    .sheet-head .close{border:0;background:#eef2ff;color:#1d4ed8;border-radius:14px;padding:10px 12px;font-weight:900;cursor:pointer}
+    .login-screen{
+      position:fixed;inset:0;z-index:200;background:linear-gradient(180deg,#08162f 0%,#123d80 42%,#f5f1ea 42%,#f5f1ea 100%);
+      display:flex;align-items:center;justify-content:center;padding:14px
+    }
+    .login-card{
+      width:min(560px,100%);background:#fff;border-radius:30px;box-shadow:0 24px 60px rgba(15,23,42,.22);overflow:hidden
+    }
+    .login-head{
+      padding:18px 16px 14px;color:#fff;background:linear-gradient(135deg,#08162f 0%,#123d80 100%)
+    }
+    .login-head h2{margin:0 0 6px;font-size:20px}
+    .login-head p{margin:0;font-size:13px;opacity:.92;line-height:1.6}
+    .login-body{padding:16px;display:grid;gap:12px}
+    .login-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .countdown{display:inline-flex;align-items:center;gap:6px;direction:ltr;unicode-bidi:isolate}
+    .countdown small{direction:rtl;unicode-bidi:plaintext}
+    .searchbar{display:flex;gap:8px;flex-wrap:wrap}
+    .searchbar input{flex:1;min-width:180px}
+    .filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .mini-list{display:grid;gap:10px}
+    .mini-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  </style>
 </head>
-
 <body>
-
-<div class="header">
-  <button onclick="openLogin()">👤 دخول</button>
-  <div>الأهرام</div>
-  <button onclick="openCart()">🛒</button>
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-head">
+      <h2>تسجيل دخول</h2>
+      <p>دخول آمن عبر جدول users. إذا نجح التحقق تُفتح الواجهة حسب الدور مباشرة.</p>
+    </div>
+    <div class="login-body">
+      <div class="field">
+        <label>code</label>
+        <input id="loginCode" autocomplete="username" inputmode="text" placeholder="أدخل الكود" />
+      </div>
+      <div class="field">
+        <label>password</label>
+        <input id="loginPassword" autocomplete="current-password" type="password" placeholder="••••••••" />
+      </div>
+      <div class="login-actions">
+        <button class="btn primary" id="loginBtn">دخول</button>
+        <button class="btn soft" id="registerBtn">تسجيل جديد</button>
+      </div>
+      <div class="muted" id="loginHint">جاهز للدخول</div>
+    </div>
+  </div>
 </div>
 
-<div class="top-actions">
-  <button onclick="openTiers()">الشرائح</button>
-  <button onclick="openDeals()">صفقة اليوم</button>
-  <button onclick="openFlash()">عرض الساعة</button>
+<div class="app hidden" id="appShell">
+  <header class="header">
+    <div class="top">
+      <div class="brand" role="button" tabindex="0" id="brandHomeBtn">
+        <div class="logo" id="brandLogoWrap"><span id="brandLogoFallback" style="display:none;font-weight:1000;color:#1d4ed8">A</span><img id="brandLogo" alt="logo" class="hidden"></div>
+        <div style="min-width:0">
+          <h1 id="appName">الأهرام للتجارة والتوزيع</h1>
+          <p id="appHint">B2B Controlled Distribution System</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="pill secondary" id="tierBtn">الشرائح</button>
+        <button class="pill deal" id="dealBtn">صفقة اليوم</button>
+        <button class="pill flash" id="flashBtn">عرض الساعة</button>
+        <button class="pill secondary" id="myCustomersBtn">عملائي</button>
+        <button class="pill secondary" id="managementBtn">إدارة</button>
+        <button class="pill secondary" id="userPill"><span id="userRoleLabel">زائر</span><strong id="userNameLabel">—</strong></button>
+      </div>
+    </div>
+    <div class="subbar">
+      <div class="badge" id="tierBadge">الشريحة: تاجر نشط</div>
+      <div class="smallpill" id="connectionState">جاهز</div>
+    </div>
+  </header>
+
+  <div class="error-banner" id="errorBanner"></div>
+  <div class="layout">
+    <section class="view active" id="homeView">
+      <div class="section-title"><span>الشركات</span><span class="subtle" id="companyCount"></span></div>
+      <div class="searchbar" style="margin-bottom:12px">
+        <input id="companySearch" placeholder="بحث في الشركات..." />
+        <button class="btn ghost" id="clearCompanySearch">×</button>
+      </div>
+      <div class="grid" id="companiesGrid"></div>
+    </section>
+
+    <section class="view" id="productsView">
+      <div class="backbar">
+        <div class="toolbar">
+          <button class="btn ghost" id="backToHomeBtn">⬅ رجوع</button>
+          <span class="smallpill" id="currentCompanyLabel">—</span>
+        </div>
+        <span class="smallpill" id="productCount">0 صنف</span>
+      </div>
+      <div class="section-title"><span>المنتجات</span><span class="subtle">عرض فقط الوحدات المتاحة</span></div>
+      <div class="searchbar" style="margin-bottom:12px">
+        <input id="productSearch" placeholder="بحث في المنتجات..." />
+        <button class="btn ghost" id="clearProductSearch">×</button>
+      </div>
+      <div class="grid" id="productsGrid"></div>
+    </section>
+
+    <section class="view" id="dailyDealsView">
+      <div class="backbar">
+        <div class="toolbar">
+          <button class="btn ghost" id="backFromDealsBtn">⬅ رجوع</button>
+          <span class="smallpill">صفقة اليوم</span>
+        </div>
+        <span class="smallpill" id="dailyDealCount">0 صفقة</span>
+      </div>
+      <div class="grid" id="dailyDealsGrid"></div>
+    </section>
+
+    <section class="view" id="flashOffersView">
+      <div class="backbar">
+        <div class="toolbar">
+          <button class="btn ghost" id="backFromFlashBtn">⬅ رجوع</button>
+          <span class="smallpill">عرض الساعة</span>
+        </div>
+        <span class="smallpill" id="flashOfferCount">0 عرض</span>
+      </div>
+      <div class="grid" id="flashOffersGrid"></div>
+    </section>
+
+    <section class="view" id="tiersView">
+      <div class="backbar">
+        <div class="toolbar">
+          <button class="btn ghost" id="backFromTiersBtn">⬅ رجوع</button>
+          <span class="smallpill">الشرائح</span>
+        </div>
+        <span class="smallpill" id="tierCount">0 شريحة</span>
+      </div>
+      <div class="grid" id="tiersGrid"></div>
+    </section>
+
+    <section class="view" id="checkoutView">
+      <div class="backbar">
+        <div class="toolbar">
+          <button class="btn ghost" id="backFromCheckoutBtn">⬅ رجوع</button>
+          <span class="smallpill">المراجعة</span>
+        </div>
+        <span class="smallpill" id="invoiceStatusPill">جاهز للإرسال</span>
+      </div>
+      <div class="panel">
+        <div class="section-title"><span>ملخص الطلب</span><span class="subtle" id="checkoutTierLabel"></span></div>
+        <div class="summary">
+          <div class="box"><div class="label">العميل / الجهة</div><div class="value" id="invoiceActorLabel">—</div></div>
+          <div class="box"><div class="label">عدد الأصناف</div><div class="value" id="invoiceItemsCount">0</div></div>
+          <div class="box"><div class="label">الحد الأدنى</div><div class="value" id="invoiceMinOrder">0</div></div>
+          <div class="box"><div class="label">الإجمالي</div><div class="value" id="invoiceTotal">0</div></div>
+        </div>
+        <div class="field hidden" id="actingRepField" style="margin-bottom:12px">
+          <label>الطلب باسم مندوب</label>
+          <select id="actingRepSelect"></select>
+        </div>
+        <div class="invoice" id="invoiceList"></div>
+        <div class="footer-actions" style="margin-top:12px">
+          <button class="btn primary block" id="sendBtn">إرسال الطلب عبر واتساب</button>
+          <button class="btn soft block" id="verifyBtn">تأكيد البيانات</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="customersView">
+      <div class="backbar">
+        <div class="toolbar">
+          <button class="btn ghost" id="backFromCustomersBtn">⬅ رجوع</button>
+          <span class="smallpill">اختيار عميل</span>
+        </div>
+        <span class="smallpill" id="customersCount">0</span>
+      </div>
+      <div class="panel">
+        <div class="section-title"><span>عملائي</span><span class="subtle">قبل أي تسوق لازم اختيار عميل</span></div>
+        <div class="footer-actions" style="margin-bottom:12px">
+          <button class="btn green" id="addCustomerBtn">إضافة عميل جديد</button>
+        </div>
+        <div class="mini-list" id="customersList"></div>
+      </div>
+    </section>
+
+    <section class="view" id="managementView">
+      <div class="backbar">
+        <div class="toolbar">
+          <button class="btn ghost" id="backFromManagementBtn">⬅ رجوع</button>
+          <span class="smallpill">إدارة</span>
+        </div>
+        <span class="smallpill" id="managementRoleLabel">—</span>
+      </div>
+      <div class="panel">
+        <div class="tabs">
+          <button class="tab active" data-mtab="customers">العملاء</button>
+          <button class="tab" data-mtab="orders">الطلبات</button>
+        </div>
+        <div id="managementCustomersPane"></div>
+        <div id="managementOrdersPane" class="hidden"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="cartbar">
+    <div class="row">
+      <div class="footer-remaining" role="button" tabindex="0" id="remainingBox">
+        <button class="btn soft block" id="footerRemainingTitle" type="button">المتبقي للشريحة</button>
+        <div class="value" id="footerRemainingValue">0 جنيه</div>
+      </div>
+      <div class="footer-total">
+        <strong id="footerTotal">0</strong>
+        <div><small id="footerSub">إجمالي السلة</small></div>
+      </div>
+      <div class="footer-actions">
+        <button class="btn green" id="checkoutBtn">إتمام الشراء</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="companies" class="grid"></div>
+<div class="toast" id="toast"></div>
 
-<div class="footer">
-  <div id="remaining">المتبقي</div>
-  <div id="total">0</div>
-  <div onclick="checkout()">إتمام</div>
+<div class="modal" id="registerModal">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3>تسجيل عميل جديد</h3>
+      <button class="close" id="closeRegisterBtn">إغلاق</button>
+    </div>
+    <div class="form">
+      <div class="field"><label>الاسم</label><input id="regName" /></div>
+      <div class="field"><label>اسم النشاط</label><input id="regBusiness" /></div>
+      <div class="field"><label>رقم الهاتف (code)</label><input id="regPhone" inputmode="tel" /></div>
+      <div class="field"><label>password</label><input id="regPassword" type="password" /></div>
+      <div class="field"><label>العنوان</label><input id="regAddress" /></div>
+      <div class="field"><label>الموقع</label><input id="regLocation" readonly placeholder="اضغط زر GPS" /></div>
+      <div class="footer-actions">
+        <button class="btn soft" id="gpsBtn">GPS</button>
+        <button class="btn primary" id="submitRegisterBtn">حفظ العميل</button>
+      </div>
+      <div class="muted">سيتم الحفظ في customers و users مباشرةً.</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="userMenuModal">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3 id="userMenuTitle">القائمة</h3>
+      <button class="close" id="closeUserMenuBtn">إغلاق</button>
+    </div>
+    <div class="list" id="userMenuList"></div>
+  </div>
 </div>
 
 <script>
-const supabase = supabase.createClient(
-  "YOUR_URL",
-  "YOUR_KEY"
-);
+(() => {
+  const CONFIG = {
+    supabaseUrl: 'https://upzuslyqfcvpbkqyzyxp.supabase.co',
+    supabaseKey: 'sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg'
+  };
 
-/* ========================= */
-/* STATE */
-/* ========================= */
-const state = {
-  user: null,
-  cart: [],
-  products: []
-};
+  const db = supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 
-/* ========================= */
-/* LOAD COMPANIES */
-/* ========================= */
-async function loadCompanies() {
-  const { data } = await supabase
-    .from("companies")
-    .select("*")
-    .eq("visible", true);
+  const APP = {
+    session: safeParse(localStorage.getItem('session'), { type: 'guest' }),
+    user: safeParse(localStorage.getItem('session'), { type: 'guest' }),
+    selectedCustomer: safeParse(localStorage.getItem('selectedCustomer'), null),
+    actingRepId: localStorage.getItem('actingRepId') || '',
+    currentTier: localStorage.getItem('tier') || 'base',
+    currentTierLabel: localStorage.getItem('tierLabel') || 'تاجر نشط',
+    cart: normalizeCart(safeParse(localStorage.getItem('cart'), [])),
+    unitSelectionByProduct: safeObject(safeParse(localStorage.getItem('unitSelectionByProduct'), {})),
+    draftQtyByProduct: safeObject(safeParse(localStorage.getItem('draftQtyByProduct'), {})),
+    settings: null,
+    companies: [],
+    tiers: [],
+    reps: [],
+    customers: [],
+    orders: [],
+    productsByCompany: new Map(),
+    dailyDeals: [],
+    flashOffers: [],
+    currentCompany: null,
+    currentView: 'homeView',
+    currentQuery: '',
+    currentProductQuery: '',
+    serverNowMs: Date.now(),
+    timeSyncAt: Date.now(),
+    orderSending: false,
+    selectedManagementTab: 'customers'
+  };
 
-  const container = document.getElementById("companies");
-  container.innerHTML = "";
+  const els = {};
+  [
+    'loginScreen','appShell','loginCode','loginPassword','loginBtn','loginHint','registerBtn','toast',
+    'brandHomeBtn','brandLogo','brandLogoFallback','brandLogoWrap','appName','appHint','tierBtn','dealBtn','flashBtn',
+    'myCustomersBtn','managementBtn','userPill','userRoleLabel','userNameLabel','tierBadge','connectionState',
+    'errorBanner','companyCount','companiesGrid','companySearch','clearCompanySearch','productCount','productsGrid',
+    'productSearch','clearProductSearch','currentCompanyLabel','dailyDealCount','dailyDealsGrid','flashOfferCount','flashOffersGrid',
+    'tierCount','tiersGrid','invoiceStatusPill','checkoutTierLabel','invoiceActorLabel','invoiceItemsCount','invoiceMinOrder','invoiceTotal',
+    'invoiceList','sendBtn','verifyBtn','footerTotal','footerSub','footerRemainingTitle','footerRemainingValue',
+    'checkoutBtn','remainingBox','backToHomeBtn','backFromDealsBtn','backFromFlashBtn','backFromTiersBtn','backFromCheckoutBtn',
+    'customersView','customersList','customersCount','backFromCustomersBtn','addCustomerBtn',
+    'managementView','managementCustomersPane','managementOrdersPane','backFromManagementBtn','managementRoleLabel',
+    'actingRepField','actingRepSelect',
+    'registerModal','closeRegisterBtn','regName','regBusiness','regPhone','regPassword','regAddress','regLocation','gpsBtn','submitRegisterBtn',
+    'userMenuModal','userMenuTitle','userMenuList','closeUserMenuBtn'
+  ].forEach(id => els[id] = document.getElementById(id));
 
-  data.forEach(c => {
-    container.innerHTML += `
-      <div class="card" onclick="openProducts('${c.company_id}')">
-        <img src="${c.company_logo}" width="100%">
-        <h4>${c.company_name}</h4>
-      </div>
-    `;
-  });
-}
+  function safeParse(raw, fallback) {
+    if (raw == null || raw === '' || raw === 'null' || raw === 'undefined') return fallback;
+    try { const p = JSON.parse(raw); return p === undefined ? fallback : p; } catch { return fallback; }
+  }
+  function safeObject(v, fallback = {}) { return v && typeof v === 'object' && !Array.isArray(v) ? v : fallback; }
+  function safeText(v) { return (v ?? '').toString().trim(); }
+  function boolish(v, fallback = false) {
+    if (typeof v === 'boolean') return v;
+    if (v === 1 || v === '1' || v === 'true' || v === 'TRUE' || v === 'active' || v === 'ACTIVE') return true;
+    if (v === 0 || v === '0' || v === 'false' || v === 'FALSE' || v === 'inactive' || v === 'INACTIVE') return false;
+    return fallback;
+  }
+  function money(n) {
+    const num = Number(n || 0);
+    return new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 }).format(Math.round(num));
+  }
+  function escAttr(s) {
+    return safeText(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function showToast(msg) {
+    els.toast.textContent = String(msg || '');
+    els.toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => els.toast.classList.remove('show'), 2600);
+  }
+  function reportError(msg) {
+    els.errorBanner.textContent = msg;
+    els.errorBanner.classList.add('show');
+    clearTimeout(reportError._t);
+    reportError._t = setTimeout(() => els.errorBanner.classList.remove('show'), 5500);
+    showToast(msg);
+  }
+  function setConnection(text) { els.connectionState.textContent = text; }
 
-/* ========================= */
-/* LOAD PRODUCTS */
-/* ========================= */
-async function openProducts(company_id) {
-  const { data } = await supabase
-    .from("v_products_full")
-    .select("*")
-    .eq("company_id", company_id);
-
-  state.products = data;
-
-  renderProducts();
-}
-
-/* ========================= */
-/* RENDER PRODUCTS */
-/* ========================= */
-function renderProducts() {
-  const container = document.getElementById("companies");
-  container.innerHTML = "";
-
-  state.products.forEach(p => {
-    const inCart = isInCart(p.product_id);
-
-    container.innerHTML += `
-      <div class="card">
-        <img src="${p.product_image}" width="100%">
-        <h4>${p.product_name}</h4>
-        <p>${p.carton_price || ''}</p>
-
-        <button onclick="toggleCart('${p.product_id}')">
-          ${inCart ? 'إزالة' : 'شراء'}
-        </button>
-      </div>
-    `;
-  });
-}
-
-/* ========================= */
-/* CART ENGINE */
-/* ========================= */
-function isInCart(product_id) {
-  return state.cart.find(i => i.id === product_id);
-}
-
-function addToCart(product) {
-  if (isInCart(product.product_id)) return;
-
-  state.cart.push({
-    id: product.product_id,
-    type: "product",
-    title: product.product_name,
-    price: product.carton_price || 0,
-    qty: 1
-  });
-
-  updateUI();
-}
-
-function removeFromCart(product_id) {
-  state.cart = state.cart.filter(i => i.id !== product_id);
-  updateUI();
-}
-
-function toggleCart(product_id) {
-  const product = state.products.find(p => p.product_id === product_id);
-
-  if (isInCart(product_id)) {
-    removeFromCart(product_id);
-  } else {
-    addToCart(product);
+  function saveState() {
+    localStorage.setItem('session', JSON.stringify(APP.user));
+    localStorage.setItem('selectedCustomer', JSON.stringify(APP.selectedCustomer));
+    localStorage.setItem('actingRepId', APP.actingRepId || '');
+    localStorage.setItem('tier', APP.currentTier);
+    localStorage.setItem('tierLabel', APP.currentTierLabel);
+    localStorage.setItem('cart', JSON.stringify(APP.cart));
+    localStorage.setItem('unitSelectionByProduct', JSON.stringify(APP.unitSelectionByProduct));
+    localStorage.setItem('draftQtyByProduct', JSON.stringify(APP.draftQtyByProduct));
   }
 
-  renderProducts();
-}
-
-/* ========================= */
-/* UI UPDATE */
-/* ========================= */
-function updateUI() {
-  const total = state.cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-
-  document.getElementById("total").innerText = total;
-
-  localStorage.setItem("cart", JSON.stringify(state.cart));
-}
-
-/* ========================= */
-/* LOAD CART */
-/* ========================= */
-const savedCart = localStorage.getItem("cart");
-if (savedCart) {
-  state.cart = JSON.parse(savedCart);
-  updateUI();
-}
-
-/* ========================= */
-/* LOGIN */
-/* ========================= */
-async function login(code, password) {
-  const { data, error } = await supabase.rpc("login_user", {
-    p_code: code,
-    p_password: password
-  });
-
-  if (error) {
-    alert("بيانات غلط");
-    return;
+  function normalizeCartItem(item) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return null;
+    const normalized = { ...item };
+    normalized.type = ['product','deal','flash_offer'].includes(normalized.type) ? normalized.type : 'product';
+    normalized.id = safeText(normalized.id ?? normalized.product_id ?? normalized.deal_id ?? normalized.offer_id ?? '');
+    normalized.title = safeText(normalized.title || normalized.name || '');
+    normalized.qty = Math.max(1, Math.floor(Number(normalized.qty) || 1));
+    normalized.price = Number(normalized.price || 0);
+    normalized.unit = normalized.type === 'product' ? (['carton','pack','piece'].includes(normalized.unit) ? normalized.unit : 'carton') : undefined;
+    normalized.unit_label = normalized.type === 'product'
+      ? (normalized.unit_label || (normalized.unit === 'carton' ? 'كرتونة' : normalized.unit === 'pack' ? 'دستة' : 'قطعة'))
+      : (normalized.type === 'deal' ? 'صفقة اليوم' : 'عرض الساعة');
+    return normalized;
+  }
+  function normalizeCart(value) {
+    const source = Array.isArray(value) ? value : safeObject(value, {}).items;
+    if (!Array.isArray(source)) return [];
+    return source.map(normalizeCartItem).filter(Boolean);
+  }
+  function getCart() {
+    APP.cart = normalizeCart(APP.cart);
+    return APP.cart;
   }
 
-  state.user = data;
-  localStorage.setItem("user", JSON.stringify(data));
+  function normalizeRole(role) {
+    const raw = safeText(role).toLowerCase();
+    if (!raw) return 'guest';
+    if (['general_manager', 'sales_manager', 'manager'].includes(raw)) return 'manager';
+    if (['supervisor', 'admin', 'customer', 'rep'].includes(raw)) return raw;
+    return raw;
+  }
+  function currentRole() { return normalizeRole(APP.user?.role_group || APP.user?.role || APP.user?.type || 'guest'); }
+  function currentRoleRaw() { return safeText(APP.user?.role_raw || APP.user?.role || APP.user?.type || 'guest'); }
+  function isManagerRole(role = currentRole()) { return ['supervisor', 'manager', 'admin'].includes(role); }
+  function isRepRole(role = currentRole()) { return role === 'rep'; }
+  function currentUserName() { return safeText(APP.user?.name || '—'); }
+  function displayTierLabel() { return APP.currentTier === 'base' ? 'تاجر نشط' : (APP.currentTierLabel || 'تاجر نشط'); }
+  function tierMinOrder() {
+    const row = APP.tiers.find(t => safeText(t.tier_name) === safeText(APP.currentTier)) || APP.tiers.find(t => safeText(t.tier_name) === 'base') || { min_order: 0 };
+    return Number(row.min_order || 0);
+  }
+  function cartTotals() {
+    const cart = getCart();
+    let productsTotal = 0, dealsTotal = 0, flashTotal = 0;
+    for (const item of cart) {
+      const line = Number(item.price || 0) * Number(item.qty || 0);
+      if (item.type === 'deal') dealsTotal += line;
+      else if (item.type === 'flash_offer') flashTotal += line;
+      else productsTotal += line;
+    }
+    return { productsTotal, dealsTotal, flashTotal, total: productsTotal + dealsTotal + flashTotal };
+  }
+  function tierRemaining() { return Math.max(0, tierMinOrder() - cartTotals().productsTotal); }
+  function currentWhatsAppNumber() {
+    return safeText(APP.settings?.whatsapp_number || APP.settings?.whatsapp || '');
+  }
+  function userSessionLabel() {
+    const role = currentRole();
+    if (role === 'guest') return 'زائر';
+    return role === 'customer' ? 'عميل' : role === 'rep' ? 'مندوب' : role === 'supervisor' ? 'مشرف' : role === 'manager' ? 'مدير' : role === 'admin' ? 'مدير نظام' : role;
+  }
 
-  alert("أهلاً " + data.name);
-}
+  function setView(view, params = {}, push = true) {
+    APP.currentView = view;
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById(view);
+    if (target) target.classList.add('active');
+    if (push) history.pushState({ view, params }, '', `#${view}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-/* ========================= */
-/* INIT */
-/* ========================= */
-loadCompanies();
+  function syncTopUI() {
+    const role = currentRole();
+    els.userRoleLabel.textContent = userSessionLabel();
+    els.userNameLabel.textContent = currentUserName();
+    els.tierBadge.textContent = `الشريحة: ${displayTierLabel()}`;
+    els.tierBtn.textContent = APP.currentTier === 'base' ? 'الشرائح' : displayTierLabel();
+    els.managementBtn.classList.toggle('hidden', !isManagerRole());
+    els.myCustomersBtn.classList.toggle('hidden', !(isRepRole() || isManagerRole()));
+    els.userPill.classList.remove('hidden');
+    if (role === 'guest') {
+      els.userPill.innerHTML = '<span>🔐</span><span>تسجيل الدخول</span>';
+    } else {
+      els.userPill.innerHTML = `<span>${escAttr(userSessionLabel())}</span><strong>${escAttr(currentUserName())}</strong>`;
+    }
+    const topFlash = getBestFlashOffer();
+    if (topFlash) {
+      if (topFlash.lifecycle.status === 'active') {
+        els.flashBtn.innerHTML = `<span class="countdown"><small>ينتهي خلال</small><strong>${formatCountdown(topFlash.lifecycle.remainingMs)}</strong></span>`;
+        els.flashBtn.classList.add('active');
+      } else if (topFlash.lifecycle.status === 'pending') {
+        els.flashBtn.innerHTML = `<span class="countdown"><small>يبدأ خلال</small><strong>${formatCountdown(topFlash.lifecycle.remainingMs)}</strong></span>`;
+        els.flashBtn.classList.remove('active');
+      } else {
+        els.flashBtn.innerHTML = 'عرض الساعة';
+        els.flashBtn.classList.remove('active');
+      }
+    }
+    els.footerTotal.textContent = money(cartTotals().total);
+    els.footerRemainingValue.textContent = `${money(tierRemaining())} جنيه`;
+  }
+
+  function updateFooter() {
+    const totals = cartTotals();
+    els.footerTotal.textContent = money(totals.total);
+    els.footerRemainingValue.textContent = `${money(tierRemaining())} جنيه`;
+    els.footerSub.textContent = 'إجمالي السلة';
+  }
+
+  function formatCountdown(ms) {
+    const sec = Math.max(0, Math.floor((Number(ms) || 0) / 1000));
+    const s = sec % 60;
+    const m = Math.floor(sec / 60) % 60;
+    const h = Math.floor(sec / 3600);
+    return [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
+  }
+
+  function normalizeServerTimeResult(value) {
+    if (value == null) return null;
+    if (Array.isArray(value)) return normalizeServerTimeResult(value[0]);
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string') {
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? null : d.getTime();
+    }
+    if (typeof value === 'object') {
+      for (const key of ['current_time','currentTime','now','server_time','serverTime','time','timestamp','value']) {
+        if (value[key] != null) {
+          const parsed = normalizeServerTimeResult(value[key]);
+          if (parsed != null) return parsed;
+        }
+      }
+    }
+    return null;
+  }
+
+  function getFlashLifecycle(offer) {
+    const now = (APP.serverNowMs || Date.now()) + (Date.now() - APP.timeSyncAt);
+    const start = offer.start_time ? new Date(offer.start_time).getTime() : null;
+    const end = offer.end_time ? new Date(offer.end_time).getTime() : null;
+    let status = 'expired';
+    let remainingMs = 0;
+    let can_buy = false;
+    if (start != null && now < start) {
+      status = 'pending'; remainingMs = start - now;
+    } else if (start != null && end != null && now >= start && now <= end) {
+      status = 'active'; remainingMs = end - now; can_buy = boolish(offer.is_active, true) && Number(offer.stock || 0) > 0;
+    } else {
+      status = 'expired'; remainingMs = 0;
+    }
+    return { status, remainingMs, can_buy };
+  }
+  function getBestFlashOffer() {
+    return (APP.flashOffers || []).map(o => ({ ...o, lifecycle: getFlashLifecycle(o) }))
+      .sort((a,b) => (a.lifecycle.status === 'active' ? 0 : a.lifecycle.status === 'pending' ? 1 : 2) - (b.lifecycle.status === 'active' ? 0 : b.lifecycle.status === 'pending' ? 1 : 2))[0] || null;
+  }
+  function refreshFlashButton() {
+    const top = getBestFlashOffer();
+    if (!top) { els.flashBtn.textContent = 'عرض الساعة'; els.flashBtn.classList.remove('active'); return; }
+    if (top.lifecycle.status === 'active') {
+      els.flashBtn.innerHTML = `<span class="countdown"><small>ينتهي خلال</small><strong>${formatCountdown(top.lifecycle.remainingMs)}</strong></span>`;
+      els.flashBtn.classList.add('active');
+    } else if (top.lifecycle.status === 'pending') {
+      els.flashBtn.innerHTML = `<span class="countdown"><small>يبدأ خلال</small><strong>${formatCountdown(top.lifecycle.remainingMs)}</strong></span>`;
+      els.flashBtn.classList.remove('active');
+    } else {
+      els.flashBtn.textContent = 'عرض الساعة';
+      els.flashBtn.classList.remove('active');
+    }
+  }
+
+  function openLogin() {
+    openAuthModal();
+  }
+  function openApp() {
+    els.loginScreen.classList.add('hidden');
+    els.appShell.classList.remove('hidden');
+  }
+
+  function isAuthorized() {
+    return true;
+  }
+
+  function ensureAppEntry() {
+    openApp();
+    return true;
+  }
+
+  async function loadSettings() {
+    try {
+      const { data, error } = await db.from('app_settings').select('*').limit(1);
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      APP.settings = row || null;
+      if (row?.company_name) els.appName.textContent = row.company_name;
+      els.appHint.textContent = row?.company_title || 'B2B Controlled Distribution System';
+      if (row?.company_logo) {
+        els.brandLogo.src = row.company_logo;
+        els.brandLogo.classList.remove('hidden');
+        els.brandLogoFallback.style.display = 'none';
+      } else {
+        els.brandLogo.classList.add('hidden');
+        els.brandLogoFallback.style.display = 'block';
+      }
+      setConnection('متصل');
+    } catch (err) {
+      console.warn(err);
+      setConnection('متصل جزئياً');
+    }
+  }
+
+  async function loadCompanies() {
+    try {
+      const { data, error } = await db.from('companies').select('company_id,company_name,company_logo,visible,allow_discount').eq('visible', true).order('company_name', { ascending: true });
+      if (error) throw error;
+      APP.companies = data || [];
+      renderCompanies();
+      els.companyCount.textContent = `${APP.companies.length} شركة`;
+    } catch (err) {
+      console.warn(err);
+      APP.companies = [];
+      renderCompanies();
+      els.companyCount.textContent = '0 شركة';
+    }
+  }
+
+  async function loadTiers() {
+    try {
+      const { data, error } = await db.from('tiers').select('*').order('min_order', { ascending: true });
+      if (error) throw error;
+      APP.tiers = (data || []).filter(r => boolish(r.visible, true));
+      els.tierCount.textContent = `${APP.tiers.length} شريحة`;
+    } catch (err) {
+      console.warn(err);
+      APP.tiers = [];
+      els.tierCount.textContent = '0 شريحة';
+    }
+  }
+
+  async function loadReps() {
+    try {
+      const { data, error } = await db.from('sales_reps').select('*').order('rep_name', { ascending: true });
+      if (error) throw error;
+      APP.reps = data || [];
+      renderRepSelector();
+    } catch (err) {
+      console.warn(err);
+      APP.reps = [];
+      renderRepSelector();
+    }
+  }
+
+  async function loadServerTime() {
+    try {
+      const attempts = [
+        () => db.rpc('current_time'),
+        () => db.rpc('get_current_time'),
+        () => db.rpc('server_time'),
+        () => db.rpc('now')
+      ];
+      for (const fn of attempts) {
+        try {
+          const { data, error } = await fn();
+          if (error) throw error;
+          const ms = normalizeServerTimeResult(data);
+          if (ms != null) {
+            APP.serverNowMs = ms;
+            APP.timeSyncAt = Date.now();
+            return;
+          }
+        } catch (inner) {
+          console.warn(inner?.message || inner);
+        }
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+    APP.serverNowMs = Date.now();
+    APP.timeSyncAt = Date.now();
+  }
+
+  async function loadDailyDeals() {
+    try {
+      const { data, error } = await db.from('v_daily_deals').select('*').order('id', { ascending: false });
+      if (error) throw error;
+      APP.dailyDeals = data || [];
+      els.dailyDealCount.textContent = `${APP.dailyDeals.length} صفقة`;
+    } catch (err) {
+      console.warn(err);
+      APP.dailyDeals = [];
+      els.dailyDealCount.textContent = `0 صفقة`;
+    }
+  }
+
+  async function loadFlashOffers() {
+    try {
+      const { data, error } = await db.from('v_flash_offers').select('*').order('id', { ascending: false });
+      if (error) throw error;
+      APP.flashOffers = data || [];
+      els.flashOfferCount.textContent = `${APP.flashOffers.length} عرض`;
+      refreshFlashButton();
+    } catch (err) {
+      console.warn(err);
+      APP.flashOffers = [];
+      els.flashOfferCount.textContent = '0 عرض';
+      refreshFlashButton();
+    }
+  }
+
+  function currentDiscountPercent() {
+    const row = APP.tiers.find(t => safeText(t.tier_name) === safeText(APP.currentTier)) || APP.tiers.find(t => safeText(t.tier_name) === 'base') || { discount_percent: 0 };
+    return Number(row.discount_percent || 0);
+  }
+
+  function pickTierPrice(rows, productId, unit) {
+    const tier = safeText(APP.currentTier);
+    const normalized = rows.filter(r => safeText(r.product_id) === safeText(productId) && ['base', tier].includes(safeText(r.tier_name).toLowerCase()));
+    const current = normalized.find(r => safeText(r.tier_name).toLowerCase() === tier.toLowerCase());
+    const base = normalized.find(r => safeText(r.tier_name).toLowerCase() === 'base');
+    const picked = current || base || null;
+    return picked ? Number(picked.price || 0) : 0;
+  }
+
+  function buildProductPriceMap(cartonRows, packRows, pieceRows) {
+    const map = new Map();
+    for (const r of cartonRows) {
+      const id = safeText(r.product_id);
+      if (!map.has(id)) map.set(id, {});
+      map.get(id).carton = Number(r.price || 0);
+    }
+    for (const r of packRows) {
+      const id = safeText(r.product_id);
+      if (!map.has(id)) map.set(id, {});
+      map.get(id).pack = Number(r.price || 0);
+    }
+    for (const r of pieceRows) {
+      const id = safeText(r.product_id);
+      if (!map.has(id)) map.set(id, {});
+      map.get(id).piece = Number(r.price || 0);
+    }
+    return map;
+  }
+
+  async function fetchProductsForCompany(companyId) {
+    const company = APP.companies.find(c => String(c.company_id) === String(companyId));
+    if (!company) return [];
+    const { data, error } = await db.from('v_products_full')
+      .select('product_id,product_name,product_image,company_name,company_logo,carton_price,pack_price,has_carton,has_pack')
+      .eq('company_name', company.company_name)
+      .order('product_name', { ascending: true });
+    if (error) throw error;
+
+    const rows = data || [];
+    const ids = rows.map(r => String(r.product_id));
+    let pieceMap = new Map();
+    if (ids.length) {
+      try {
+        const { data: pieceRows } = await db.from('prices_piece').select('product_id,tier_name,price,visible').in('product_id', ids).in('tier_name', ['base', APP.currentTier]);
+        pieceMap = buildProductPriceMap([], [], pieceRows || []);
+      } catch (pieceErr) {
+        console.warn(pieceErr);
+      }
+    }
+
+    return rows.map(r => ({
+      ...r,
+      company_id: company.company_id,
+      status: 'active',
+      visible: true,
+      prices: {
+        carton: Number(r.carton_price || 0),
+        pack: Number(r.pack_price || 0),
+        piece: Number((pieceMap.get(String(r.product_id)) || {}).piece || 0)
+      }
+    }));
+  }
+
+  function unitMeta(product) {
+    const out = [];
+    const p = product.prices || {};
+    const discount = currentDiscountPercent();
+    if (boolish(product.has_carton, false) && Number(p.carton || 0) > 0) {
+      const price = Math.max(0, Math.round(Number(p.carton) - (Number(p.carton) * discount / 100)));
+      out.push({ key:'carton', label:'كرتونة', price });
+    }
+    if (boolish(product.has_pack, false) && Number(p.pack || 0) > 0) {
+      const price = Math.max(0, Math.round(Number(p.pack) - (Number(p.pack) * discount / 100)));
+      out.push({ key:'pack', label:'دستة', price });
+    }
+    if (Number(p.piece || 0) > 0) {
+      const price = Math.max(0, Math.round(Number(p.piece) - (Number(p.piece) * discount / 100)));
+      out.push({ key:'piece', label:'قطعة', price });
+    }
+    return out;
+  }
+
+  function cartKey(type, id, unit = '') { return `${type}:${id}:${unit}`; }
+  function findCart(type, id, unit = '') { return getCart().find(x => cartKey(x.type, x.id, x.unit || '') === cartKey(type, id, unit)); }
+  function setQtyInDraft(productId, qty) {
+    APP.draftQtyByProduct[String(productId)] = Math.max(1, Math.floor(Number(qty) || 1));
+    saveState();
+  }
+  function draftQty(productId) { return Math.max(1, Math.floor(Number(APP.draftQtyByProduct[String(productId)] || 1))); }
+  function selectedUnit(productId, fallback = 'carton') {
+    return APP.unitSelectionByProduct[String(productId)] || fallback;
+  }
+
+  function renderCompanies() {
+    const q = safeText(APP.currentQuery).toLowerCase();
+    const companies = APP.companies.filter(c => !q || safeText(c.company_name).toLowerCase().includes(q));
+    els.companiesGrid.innerHTML = companies.length ? companies.map(c => `
+      <div class="card company-card" data-company-id="${escAttr(c.company_id)}">
+        <div class="img"><img src="${escAttr(c.company_logo || '')}" alt="${escAttr(c.company_name)}" onerror="this.src='https://via.placeholder.com/600x300?text=Company'"></div>
+        <h3 class="title">${escAttr(c.company_name)}</h3>
+        <div class="muted">افتح منتجات الشركة مباشرة</div>
+      </div>
+    `).join('') : `<div class="empty">لا توجد شركات مطابقة</div>`;
+    document.querySelectorAll('[data-company-id]').forEach(el => {
+      el.addEventListener('click', () => openCompany(el.getAttribute('data-company-id')));
+    });
+  }
+
+  function renderProducts(list = null) {
+    const products = list || (APP.currentProducts || []);
+    const q = safeText(APP.currentProductQuery).toLowerCase();
+    const filtered = products.filter(p => !q || safeText(p.product_name).toLowerCase().includes(q));
+    els.productCount.textContent = `${filtered.length} صنف`;
+    if (!filtered.length) {
+      els.productsGrid.innerHTML = `<div class="empty">لا توجد منتجات مطابقة</div>`;
+      return;
+    }
+    els.productsGrid.innerHTML = filtered.map(p => {
+      const units = unitMeta(p);
+      const chosen = safeText(APP.unitSelectionByProduct[String(p.product_id)] || (units[0]?.key || 'carton'));
+      const selected = units.find(u => u.key === chosen) || units[0];
+      const inCart = findCart('product', String(p.product_id), chosen);
+      const status = safeText(p.status || 'active');
+      const statusClass = status === 'active' ? 'active' : status === 'pending' ? 'pending' : 'expired';
+      return `
+      <div class="card product-card" data-product-id="${escAttr(p.product_id)}">
+        <div class="img"><img src="${escAttr(p.product_image || '')}" alt="${escAttr(p.product_name)}" onerror="this.src='https://via.placeholder.com/640x480?text=Product'"></div>
+        <div class="price-line">
+          <div>
+            <h3 class="title">${escAttr(p.product_name)}</h3>
+            <div class="muted"><span class="status-pill ${statusClass}">${escAttr(status)}</span></div>
+          </div>
+          ${selected ? `<div style="text-align:end"><div class="price">${money(selected.price)} ج</div><div class="muted">${escAttr(selected.label)}</div></div>` : `<div class="muted">لا توجد وحدة متاحة</div>`}
+        </div>
+        <div class="unit-row">
+          ${units.map(u => `<button class="unit-chip ${u.key===chosen ? 'active' : ''}" data-unit="${u.key}" data-product="${escAttr(p.product_id)}">${escAttr(u.label)} • ${money(u.price)} ج</button>`).join('')}
+        </div>
+        <div class="qty-row">
+          <div class="stepper">
+            <button data-step="-1" data-product="${escAttr(p.product_id)}">−</button>
+            <span class="qty">${draftQty(p.product_id)}</span>
+            <button data-step="1" data-product="${escAttr(p.product_id)}">+</button>
+          </div>
+          <button class="btn ${selected ? (inCart ? 'red' : 'green') : 'ghost'}" data-toggle-product="${escAttr(p.product_id)}" data-unit="${escAttr(chosen)}" ${selected ? '' : 'disabled'}>
+            ${selected ? (inCart ? 'إزالة' : 'شراء') : 'غير متاح'}
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+    bindProductCardEvents();
+  }
+
+  function bindProductCardEvents() {
+    document.querySelectorAll('[data-unit]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pid = btn.getAttribute('data-product');
+        const unit = btn.getAttribute('data-unit');
+        APP.unitSelectionByProduct[String(pid)] = unit;
+        saveState();
+        renderProducts(APP.currentProducts || []);
+      });
+    });
+    document.querySelectorAll('[data-step]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pid = btn.getAttribute('data-product');
+        const step = Number(btn.getAttribute('data-step') || 0);
+        setQtyInDraft(pid, draftQty(pid) + step);
+        renderProducts(APP.currentProducts || []);
+      });
+    });
+    document.querySelectorAll('[data-toggle-product]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pid = btn.getAttribute('data-toggle-product');
+        const unit = btn.getAttribute('data-unit') || selectedUnit(pid);
+        const product = (APP.currentProducts || []).find(x => String(x.product_id) === String(pid));
+        if (!product) return;
+        const units = unitMeta(product);
+        const selected = units.find(u => u.key === unit);
+        if (!selected) return showToast('هذه الوحدة غير متاحة');
+        const exist = findCart('product', String(pid), unit);
+        if (exist) {
+          APP.cart = getCart().filter(x => cartKey(x.type, x.id, x.unit || '') !== cartKey('product', String(pid), unit));
+          showToast('تمت الإزالة من السلة');
+        } else {
+          APP.cart.push({
+            type: 'product',
+            id: String(pid),
+            product_id: String(pid),
+            title: safeText(product.product_name),
+            unit,
+            unit_label: selected.label,
+            price: selected.price,
+            base_price: selected.price,
+            qty: draftQty(pid),
+            image: product.product_image || ''
+          });
+          showToast('تمت الإضافة للسلة');
+        }
+        saveState();
+        updateFooter();
+        renderProducts(APP.currentProducts || []);
+      });
+    });
+  }
+
+  function requireCustomerForRep() {
+    if (currentRole() !== 'customer' && !APP.selectedCustomer) {
+      showToast('اختر عميل أولاً');
+      openCustomersView();
+      return false;
+    }
+    return true;
+  }
+
+  async function openCompany(companyId) {
+    if (!requireCustomerForRep()) return;
+    const company = APP.companies.find(c => String(c.company_id) === String(companyId));
+    if (!company) return showToast('الشركة غير موجودة');
+    APP.currentCompany = company;
+    els.currentCompanyLabel.textContent = company.company_name;
+    APP.currentProductQuery = '';
+    els.productSearch.value = '';
+    try {
+      const products = await fetchProductsForCompany(companyId);
+      APP.currentProducts = products;
+      setView('productsView');
+      renderProducts(products);
+    } catch (err) {
+      console.error(err);
+      reportError('تعذر تحميل المنتجات');
+      APP.currentProducts = [];
+      setView('productsView');
+      renderProducts([]);
+    }
+  }
+
+  function renderTiers() {
+    const tiers = APP.tiers.length ? APP.tiers : [{ tier_name:'base', visible_label:'تاجر نشط', min_order:0, discount_percent:0 }];
+    els.tierCount.textContent = `${tiers.length} شريحة`;
+    els.tiersGrid.innerHTML = tiers.map(t => {
+      const chosen = safeText(t.tier_name) === safeText(APP.currentTier);
+      return `
+      <div class="card tier-card" data-tier="${escAttr(t.tier_name)}" data-label="${escAttr(t.visible_label || t.tier_name)}">
+        <div class="img"><div style="font-size:36px;font-weight:1000;color:#1d4ed8">${chosen ? '✓' : '◌'}</div></div>
+        <h3 class="title">${escAttr(t.visible_label || t.tier_name)}</h3>
+        <div class="muted">الحد الأدنى: ${money(t.min_order || 0)} ج • خصم: ${money(t.discount_percent || 0)}%</div>
+      </div>`;
+    }).join('');
+    document.querySelectorAll('[data-tier]').forEach(el => {
+      el.addEventListener('click', () => selectTier(el.getAttribute('data-tier'), el.getAttribute('data-label')));
+    });
+  }
+
+  function selectTier(tier, label) {
+    APP.currentTier = safeText(tier || 'base') || 'base';
+    APP.currentTierLabel = safeText(label || tier || 'تاجر نشط');
+    saveState();
+    syncTopUI();
+    renderTiers();
+    if (APP.currentProducts) renderProducts(APP.currentProducts);
+    showToast('تم اختيار الشريحة');
+    history.replaceState({ view:'homeView' }, '', '#homeView');
+    setView('homeView', {}, false);
+  }
+
+  function renderDailyDeals() {
+    els.dailyDealCount.textContent = `${APP.dailyDeals.length} صفقة`;
+    els.dailyDealsGrid.innerHTML = APP.dailyDeals.length ? APP.dailyDeals.map(d => {
+      const canBuy = boolish(d.can_buy, true);
+      return `
+      <div class="card offer-card">
+        <div class="img"><img src="${escAttr(d.image || '')}" alt="${escAttr(d.title)}" onerror="this.src='https://via.placeholder.com/640x400?text=Deal'"></div>
+        <h3 class="title">${escAttr(d.title)}</h3>
+        <div class="muted">${escAttr(d.description || '')}</div>
+        <div class="price-line">
+          <div class="price">${money(d.price)} ج</div>
+          <span class="status-pill ${canBuy ? 'active' : 'expired'}">${canBuy ? 'متاح' : 'غير متاح'}</span>
+        </div>
+        <button class="btn ${canBuy ? 'green' : 'ghost'} block" data-deal="${escAttr(d.id)}" ${canBuy ? '' : 'disabled'}>${canBuy ? 'شراء' : 'نفذت الكمية'}</button>
+      </div>`;
+    }).join('') : `<div class="empty">لا توجد صفقات اليوم</div>`;
+    document.querySelectorAll('[data-deal]').forEach(btn => btn.addEventListener('click', () => addDeal(btn.getAttribute('data-deal'))));
+  }
+
+  function renderFlashOffers() {
+    els.flashOfferCount.textContent = `${APP.flashOffers.length} عرض`;
+    els.flashOffersGrid.innerHTML = APP.flashOffers.length ? APP.flashOffers.map(o => {
+      const life = getFlashLifecycle(o);
+      return `
+      <div class="card offer-card">
+        <div class="img"><img src="${escAttr(o.image || '')}" alt="${escAttr(o.title)}" onerror="this.src='https://via.placeholder.com/640x400?text=Flash'"></div>
+        <h3 class="title">${escAttr(o.title)}</h3>
+        <div class="muted">${escAttr(o.description || '')}</div>
+        <div class="price-line">
+          <div class="price">${money(o.price)} ج</div>
+          <span class="status-pill ${life.status}">${life.status === 'active' ? 'متاح' : life.status === 'pending' ? 'قادم' : 'منتهي'}</span>
+        </div>
+        <div class="muted">${life.status === 'active' ? `ينتهي خلال ${formatCountdown(life.remainingMs)}` : life.status === 'pending' ? `يبدأ خلال ${formatCountdown(life.remainingMs)}` : 'انتهى العرض'}</div>
+        <button class="btn ${life.can_buy ? 'green' : 'ghost'} block" data-flash="${escAttr(o.id)}" ${life.can_buy ? '' : 'disabled'}>${life.can_buy ? 'شراء' : 'غير متاح'}</button>
+      </div>`;
+    }).join('') : `<div class="empty">لا توجد عروض ساعة</div>`;
+    document.querySelectorAll('[data-flash]').forEach(btn => btn.addEventListener('click', () => addFlash(btn.getAttribute('data-flash'))));
+  }
+
+  function renderRepSelector() {
+    if (!els.actingRepSelect) return;
+    const reps = APP.reps || [];
+    els.actingRepSelect.innerHTML = reps.length
+      ? reps.map(r => `<option value="${escAttr(r.rep_id)}">${escAttr(r.rep_name || r.rep_id)} (${escAttr(r.rep_id)})</option>`).join('')
+      : `<option value="">لا يوجد</option>`;
+    if (APP.actingRepId && reps.some(r => String(r.rep_id) === String(APP.actingRepId))) {
+      els.actingRepSelect.value = APP.actingRepId;
+    } else if (reps[0]) {
+      APP.actingRepId = String(reps[0].rep_id);
+      els.actingRepSelect.value = APP.actingRepId;
+      saveState();
+    }
+  }
+
+  function resolveOrderParty() {
+    const role = currentRole();
+    const customer = APP.selectedCustomer || (role === 'customer' ? APP.user?.customer_row || null : null);
+    const customerId = customer?.customer_id ? String(customer.customer_id) : null;
+    let userId = null;
+    if (role === 'customer') userId = safeText(APP.user?.code || APP.user?.phone || APP.user?.name || '');
+    else if (role === 'rep') userId = safeText(APP.user?.rep_id || APP.user?.code || '');
+    else if (['supervisor','manager','admin'].includes(role)) userId = safeText(APP.actingRepId || APP.user?.rep_id || APP.user?.code || '');
+    return { userType: role, userId, customerId };
+  }
+
+  function renderCart() {
+    const cart = getCart();
+    const totals = cartTotals();
+    els.invoiceTotal.textContent = money(totals.total) + ' ج';
+    els.invoiceItemsCount.textContent = String(cart.reduce((s, i) => s + Number(i.qty || 0), 0));
+    els.invoiceActorLabel.textContent = currentRole() === 'customer'
+      ? (APP.selectedCustomer?.business_name || APP.selectedCustomer?.trader_name || APP.user?.name || 'عميل')
+      : currentRole() === 'rep'
+        ? (APP.selectedCustomer?.business_name || APP.selectedCustomer?.trader_name || 'اختر عميل')
+        : (APP.selectedCustomer?.business_name || APP.selectedCustomer?.trader_name || currentUserName() || '—');
+    els.checkoutTierLabel.textContent = displayTierLabel();
+    els.invoiceMinOrder.textContent = money(tierMinOrder()) + ' ج';
+    els.invoiceStatusPill.textContent = cart.length ? `جاهز • منتجات ${money(totals.productsTotal)} ج` : 'السلة فارغة';
+    els.invoiceList.innerHTML = cart.length ? cart.map(item => {
+      const line = Number(item.price || 0) * Number(item.qty || 0);
+      const isProduct = item.type === 'product';
+      return `
+      <div class="list-item">
+        <div class="top">
+          <div>
+            <strong>${escAttr(item.title || '—')}</strong>
+            <div class="muted">${escAttr(item.unit_label || (item.type === 'deal' ? 'صفقة اليوم' : 'عرض الساعة'))}</div>
+          </div>
+          <strong>${money(line)} ج</strong>
+        </div>
+        <div class="top">
+          <span class="smallpill">سعر الوحدة: ${money(item.price || 0)} ج</span>
+          <span class="smallpill">الكمية: ${Number(item.qty || 0)}</span>
+        </div>
+        <div class="footer-actions">
+          ${isProduct ? `<button class="btn soft" data-qty="${escAttr(item.type)}|${escAttr(item.id)}|${escAttr(item.unit || '')}|1">+</button>
+          <input class="field-input" style="width:68px;border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center;font-weight:900" type="number" min="1" value="${Number(item.qty || 1)}" data-setqty="${escAttr(item.type)}|${escAttr(item.id)}|${escAttr(item.unit || '')}">
+          <button class="btn soft" data-qty="${escAttr(item.type)}|${escAttr(item.id)}|${escAttr(item.unit || '')}|-1">−</button>` : `<span class="smallpill">كمية ثابتة</span>`}
+          <button class="btn red" data-remove="${escAttr(item.type)}|${escAttr(item.id)}|${escAttr(item.unit || '')}">حذف</button>
+        </div>
+      </div>`;
+    }).join('') : `<div class="empty">السلة فارغة</div>`;
+    bindCartEvents();
+    updateFooter();
+  }
+
+  function bindCartEvents() {
+    document.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const [type, id, unit] = btn.getAttribute('data-remove').split('|');
+        APP.cart = getCart().filter(x => cartKey(x.type, x.id, x.unit || '') !== cartKey(type, id, unit));
+        saveState();
+        renderCart();
+        if (APP.currentProducts) renderProducts(APP.currentProducts);
+        showToast('تمت الإزالة');
+      });
+    });
+    document.querySelectorAll('[data-qty]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const [type, id, unit, delta] = btn.getAttribute('data-qty').split('|');
+        const item = findCart(type, id, unit);
+        if (!item) return;
+        item.qty = Math.max(1, Number(item.qty || 1) + Number(delta || 0));
+        saveState();
+        renderCart();
+      });
+    });
+    document.querySelectorAll('[data-setqty]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const [type, id, unit] = inp.getAttribute('data-setqty').split('|');
+        const item = findCart(type, id, unit);
+        if (!item) return;
+        item.qty = Math.max(1, Math.floor(Number(inp.value) || 1));
+        saveState();
+        renderCart();
+      });
+    });
+  }
+
+  function addDeal(id) {
+    const deal = (APP.dailyDeals || []).find(x => String(x.id) === String(id));
+    if (!deal) return showToast('الصفقة غير متاحة');
+    if (findCart('deal', String(id), '')) return showToast('مضافة مسبقاً');
+    if (!boolish(deal.can_buy, true)) return showToast('نفذت الكمية');
+    APP.cart.push({ type:'deal', id:String(id), title:safeText(deal.title), price:Number(deal.price || 0), qty:1, image:deal.image || '' });
+    saveState(); renderCart(); showToast('تمت الإضافة');
+  }
+
+  function addFlash(id) {
+    const offer = (APP.flashOffers || []).find(x => String(x.id) === String(id));
+    if (!offer) return showToast('العرض غير متاح');
+    const life = getFlashLifecycle(offer);
+    if (!life.can_buy) return showToast(life.status === 'pending' ? 'العرض لم يبدأ بعد' : 'انتهى العرض');
+    if (findCart('flash_offer', String(id), '')) return showToast('مضاف مسبقاً');
+    APP.cart.push({ type:'flash_offer', id:String(id), title:safeText(offer.title), price:Number(offer.price || 0), qty:1, image:offer.image || '' });
+    saveState(); renderCart(); showToast('تمت الإضافة');
+  }
+
+  function rpcCandidatesLogin(code, password) {
+    return [
+      { code, password },
+      { p_code: code, p_password: password },
+      { login_code: code, login_password: password },
+      { user_code: code, user_password: password }
+    ];
+  }
+
+  async function rpcLoginUser(code, password) {
+    let lastError = null;
+    for (const args of rpcCandidatesLogin(code, password)) {
+      try {
+        const { data, error } = await db.rpc('login_user', args);
+        if (error) throw error;
+        if (data) return data;
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    throw lastError || new Error('login_user failed');
+  }
+
+  function rpcCandidatesOrder(customerId, repId, cart) {
+    return [
+      { customer_id: customerId, rep_id: repId, cart_items: cart },
+      { p_customer_id: customerId, p_rep_id: repId, p_cart_items: cart },
+      { customer_id: customerId, rep_id: repId, items: cart },
+      { p_customer_id: customerId, p_rep_id: repId, items: cart },
+      { customer_id: customerId, rep_id: repId, order_items: cart },
+      { p_customer_id: customerId, p_rep_id: repId, order_items: cart }
+    ];
+  }
+
+  async function rpcCreateOrderWithItems(customerId, repId, cart, totals, orderNumber) {
+    let lastError = null;
+    for (const args of rpcCandidatesOrder(customerId, repId, cart)) {
+      try {
+        const payload = { ...args, order_number: orderNumber, total_amount: Number(totals.total || 0), products_total: Number(totals.productsTotal || 0), deals_total: Number(totals.dealsTotal || 0), flash_total: Number(totals.flashTotal || 0) };
+        const { data, error } = await db.rpc('create_order_with_items', payload);
+        if (error) throw error;
+        return data;
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    throw lastError || new Error('create_order_with_items failed');
+  }
+
+  async function persistOrder(cart, totals, orderNumber) {
+    const party = resolveOrderParty();
+    if (currentRole() !== 'customer' && !party.customerId) throw new Error('يجب اختيار عميل قبل الإرسال');
+    const result = await rpcCreateOrderWithItems(party.customerId, party.userId, cart, totals, orderNumber);
+    return result || { id: null, order_number: orderNumber };
+  }
+
+  function buildOrderMessage(orderNumber, totals, cart) {
+    const lines = [
+      `طلب جديد من ${APP.settings?.company_name || 'الأهرام'}`,
+      `رقم الطلب: ${orderNumber}`,
+      `العميل: ${els.invoiceActorLabel.textContent}`,
+      `الشريحة: ${displayTierLabel()}`,
+      `الإجمالي: ${money(totals.total)} ج`,
+      `المنتجات: ${money(totals.productsTotal)} ج`,
+      `الصفقات: ${money(totals.dealsTotal)} ج`,
+      `عروض الساعة: ${money(totals.flashTotal)} ج`,
+      '---'
+    ];
+    cart.forEach(item => {
+      lines.push(`${item.title} | ${item.unit_label || item.type} | ${item.qty} × ${money(item.price)} = ${money(Number(item.qty || 0) * Number(item.price || 0))}`);
+    });
+    return lines.join('\n');
+  }
+
+  function buildOrderNumber() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    const rnd = Math.random().toString(36).slice(2,7).toUpperCase();
+    return `ORD-${y}${m}${day}-${rnd}`;
+  }
+
+  async function sendOrder() {
+    if (APP.orderSending) return;
+    const cart = getCart();
+    if (!cart.length) return showToast('السلة فارغة');
+    if (currentRole() === 'guest') {
+      openCustomerForm('guest_checkout');
+      return;
+    }
+    if (currentRole() === 'rep' && !APP.selectedCustomer) {
+      showToast('اختر عميل أولاً');
+      openCustomersView();
+      return;
+    }
+    return submitOrderAndOpenWhatsApp();
+  }
+
+  function verifyCheckout() {
+    const cart = getCart();
+    if (!cart.length) return showToast('السلة فارغة');
+    showToast('البيانات جاهزة للإرسال');
+  }
+
+  function setRegisterMode(mode) {
+    APP.formMode = mode || 'customer_register';
+    const title = els.registerModal.querySelector('.sheet-head h3');
+    const businessField = els.regBusiness?.parentElement;
+    const passwordField = els.regPassword?.parentElement;
+    const isGuestCheckout = APP.formMode === 'guest_checkout';
+    const isRepAdd = APP.formMode === 'rep_add_customer';
+    if (title) {
+      title.textContent = isGuestCheckout ? 'إتمام الطلب كضيف' : isRepAdd ? 'إضافة عميل جديد' : 'تسجيل عميل جديد';
+    }
+    if (businessField) businessField.classList.toggle('hidden', isGuestCheckout);
+    if (passwordField) passwordField.classList.toggle('hidden', isGuestCheckout);
+    if (els.submitRegisterBtn) {
+      els.submitRegisterBtn.textContent = isGuestCheckout ? 'متابعة وإرسال الطلب' : 'حفظ العميل';
+    }
+  }
+
+  function openCustomerForm(mode = 'customer_register') {
+    setRegisterMode(mode);
+    els.registerModal.classList.add('open');
+    setTimeout(() => {
+      if (mode === 'guest_checkout') els.regName?.focus();
+      else els.regPhone?.focus();
+    }, 0);
+  }
+
+  function closeRegisterModal() {
+    els.registerModal.classList.remove('open');
+  }
+
+  function openAuthModal() {
+    els.loginScreen.classList.remove('hidden');
+    els.appShell.classList.remove('hidden');
+    setConnection('جاهز');
+    setTimeout(() => els.loginCode?.focus(), 0);
+  }
+
+  function closeAuthModal() {
+    els.loginScreen.classList.add('hidden');
+  }
+
+  function ensureInvoicesModal() {
+    let modal = document.getElementById('invoicesModal');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'invoicesModal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="sheet">
+        <div class="sheet-head">
+          <h3>فواتيري السابقة</h3>
+          <button class="close" id="closeInvoicesModalBtn">إغلاق</button>
+        </div>
+        <div class="list" id="invoicesList"></div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('open');
+    });
+    modal.querySelector('#closeInvoicesModalBtn').addEventListener('click', () => modal.classList.remove('open'));
+    return modal;
+  }
+
+  async function loadMyInvoices() {
+    const role = currentRole();
+    const repId = safeText(APP.user?.rep_id || APP.user?.code || '');
+    const customerId = APP.selectedCustomer?.customer_id ? String(APP.selectedCustomer.customer_id) : '';
+    let query = db.from('orders').select('*').order('created_at', { ascending: false }).limit(50);
+    if (role === 'rep' && repId) query = query.eq('user_id', repId).eq('user_type', 'rep');
+    else if (role === 'customer' && customerId) query = query.eq('customer_id', customerId).eq('user_type', 'customer');
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  }
+
+  function renderInvoicesHistory(rows) {
+    const modal = ensureInvoicesModal();
+    const list = modal.querySelector('#invoicesList');
+    if (!rows.length) {
+      list.innerHTML = '<div class="empty">لا توجد فواتير</div>';
+      return;
+    }
+    list.innerHTML = rows.map(r => `
+      <div class="list-item">
+        <div class="top">
+          <div>
+            <strong>${escAttr(r.order_number || r.id || 'فاتورة')}</strong>
+            <div class="muted">النوع: ${escAttr(r.user_type || '')}</div>
+            <div class="muted">العميل: ${escAttr(r.customer_id || '')}</div>
+          </div>
+          <strong>${money(r.total_amount || 0)} ج</strong>
+        </div>
+        <div class="muted">الحالة: ${escAttr(r.status || '')} • ${escAttr(r.created_at || '')}</div>
+      </div>
+    `).join('');
+  }
+
+  async function openInvoicesModal() {
+    try {
+      const rows = await loadMyInvoices();
+      renderInvoicesHistory(rows);
+      ensureInvoicesModal().classList.add('open');
+    } catch (err) {
+      console.error(err);
+      reportError(err?.message || 'تعذر تحميل الفواتير');
+    }
+  }
+
+  async function submitOrderAndOpenWhatsApp() {
+    const cart = getCart();
+    if (!cart.length) return showToast('السلة فارغة');
+    const phone = currentWhatsAppNumber();
+    if (!phone) return showToast('رقم الواتساب غير متوفر في الإعدادات');
+    const totals = cartTotals();
+    const orderNumber = buildOrderNumber();
+    const message = encodeURIComponent(buildOrderMessage(orderNumber, totals, cart));
+    try {
+      APP.orderSending = true;
+      els.sendBtn.disabled = true;
+      els.sendBtn.textContent = 'جارٍ حفظ الطلب...';
+      await persistOrder(cart, totals, orderNumber);
+      APP.cart = [];
+      saveState();
+      renderCart();
+      renderProducts(APP.currentProducts || []);
+      showToast('تم حفظ الطلب');
+      window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+    } catch (err) {
+      console.error(err);
+      reportError(err?.message || 'تعذر حفظ أو إرسال الطلب');
+    } finally {
+      APP.orderSending = false;
+      els.sendBtn.disabled = false;
+      els.sendBtn.textContent = 'إرسال الطلب عبر واتساب';
+    }
+  }
+
+  function normalizeLoginRow(row) {
+    const rawRole = safeText(row?.role || row?.user_type || row?.role_name || 'guest');
+    const roleGroup = normalizeRole(row?.role_group || rawRole);
+    return {
+      code: safeText(row?.code),
+      name: safeText(row?.name || row?.full_name || row?.user_name || row?.code),
+      role: rawRole || roleGroup,
+      role_group: roleGroup,
+      role_raw: rawRole || roleGroup,
+      rep_id: safeText(row?.rep_id || ''),
+      customer_id: row?.customer_id ?? null,
+      session_token: row?.session_token ?? null
+    };
+  }
+
+  async function login() {
+    const code = safeText(els.loginCode.value);
+    const password = safeText(els.loginPassword.value);
+    if (!code) return showToast('أدخل code');
+    if (!password) return showToast('أدخل password');
+    try {
+      setConnection('جارٍ التحقق...');
+      const result = await rpcLoginUser(code, password);
+      const row = Array.isArray(result) ? result[0] : result;
+      if (!row) return showToast('بيانات الدخول غير صحيحة');
+
+      APP.user = normalizeLoginRow(row);
+      APP.formMode = null;
+
+      if (APP.user.role_group === 'customer') {
+        const { data: cData } = await db.from('customers').select('*').eq('phone', code).limit(1);
+        APP.selectedCustomer = Array.isArray(cData) ? cData[0] || null : cData || null;
+      } else if (APP.user.role_group === 'rep') {
+        await loadMyCustomers();
+      } else if (isManagerRole(APP.user.role_group)) {
+        await Promise.all([loadAllCustomersForManagers(), loadOrdersForManagers()]);
+      }
+
+      saveState();
+      syncTopUI();
+      closeAuthModal();
+      openApp();
+      showToast(`أهلاً ${currentUserName()}`);
+      setConnection(`أهلاً ${currentUserName()}`);
+      routeAfterLogin();
+    } catch (err) {
+      console.error(err);
+      reportError(err?.message || 'تعذر تسجيل الدخول');
+    } finally {
+      setConnection('متصل');
+    }
+  }
+
+  async function registerCustomer() {
+    const mode = APP.formMode || 'customer_register';
+    const name = safeText(els.regName.value);
+    const business_name = safeText(els.regBusiness.value);
+    const phone = safeText(els.regPhone.value);
+    const password = safeText(els.regPassword.value);
+    const address = safeText(els.regAddress.value);
+    const location = safeText(els.regLocation.value);
+    const isGuestCheckout = mode === 'guest_checkout';
+    const isRepAdd = mode === 'rep_add_customer';
+    if (!name || !phone || !address) return showToast('أكمل البيانات المطلوبة');
+    if (!isGuestCheckout && (!business_name || !password)) return showToast('أكمل البيانات المطلوبة');
+    const customer_id = Date.now();
+    const latlng = location ? location.split(',').map(x => Number(x.trim())) : [];
+    const lat = Number.isFinite(latlng[0]) ? latlng[0] : null;
+    const lng = Number.isFinite(latlng[1]) ? latlng[1] : null;
+    const effectiveBusinessName = isGuestCheckout ? name : business_name;
+    const effectivePassword = isGuestCheckout ? phone : password;
+    const effectiveRepId = currentRole() === 'rep' ? safeText(APP.user?.rep_id || APP.user?.code || '7777') : '7777';
+    try {
+      const customerPayload = {
+        customer_id,
+        customer_name: name,
+        trader_name: name,
+        business_name: effectiveBusinessName,
+        phone,
+        address,
+        tier_name: 'base',
+        created_by: effectiveRepId,
+        visible: true,
+        status: 'unassigned',
+        shop_image: null,
+        lat,
+        lng
+      };
+      const userPayload = {
+        code: phone,
+        password: effectivePassword,
+        role: 'customer',
+        name,
+        rep_id: effectiveRepId
+      };
+
+      const { data: customerRow, error: customerError } = await db.from('customers').insert(customerPayload).select('*').single();
+      if (customerError) throw customerError;
+      const { error: userError } = await db.from('users').insert(userPayload);
+      if (userError) throw userError;
+
+      APP.user = {
+        code: phone,
+        name,
+        role: 'customer',
+        role_group: 'customer',
+        role_raw: 'customer',
+        rep_id: effectiveRepId,
+        customer_id: customerRow?.customer_id ?? customer_id
+      };
+      APP.selectedCustomer = customerRow || customerPayload;
+      saveState();
+      syncTopUI();
+
+      els.registerModal.classList.remove('open');
+      APP.formMode = null;
+      els.regName.value = els.regBusiness.value = els.regPhone.value = els.regPassword.value = els.regAddress.value = els.regLocation.value = '';
+
+      if (isGuestCheckout) {
+        await submitOrderAndOpenWhatsApp();
+        return;
+      }
+
+      renderMyCustomers();
+      showToast('تم تسجيل العميل');
+      if (currentRole() === 'rep' || isRepAdd) setView('homeView');
+    } catch (err) {
+      console.error(err);
+      reportError(err?.message || 'تعذر تسجيل العميل');
+    }
+  }
+
+  async function loadMyCustomers() {
+    try {
+      const role = currentRole();
+      if (role !== 'rep') {
+        APP.customers = [];
+        renderMyCustomers();
+        return;
+      }
+      const repId = safeText(APP.user?.rep_id || APP.user?.code || '');
+      const { data, error } = await db.from('customers').select('*').eq('created_by', repId).order('created_at', { ascending: false });
+      if (error) throw error;
+      APP.customers = data || [];
+      renderMyCustomers();
+    } catch (err) {
+      console.warn(err);
+      APP.customers = [];
+      renderMyCustomers();
+    }
+  }
+
+  function renderMyCustomers() {
+    els.customersCount.textContent = `${APP.customers.length}`;
+    els.customersList.innerHTML = APP.customers.length ? APP.customers.map(c => `
+      <div class="mini-item">
+        <div>
+          <strong>${escAttr(c.business_name || c.trader_name || c.customer_name || 'عميل')}</strong>
+          <div class="muted">${escAttr(c.phone || '')}</div>
+          <div class="muted">${escAttr(c.address || '')}</div>
+        </div>
+        <button class="btn soft" data-select-customer="${escAttr(c.customer_id)}">اختيار</button>
+      </div>
+    `).join('') : `<div class="empty">لا توجد عملاء</div>`;
+    document.querySelectorAll('[data-select-customer]').forEach(btn => {
+      btn.addEventListener('click', () => selectCustomer(btn.getAttribute('data-select-customer')));
+    });
+  }
+
+  async function selectCustomer(customerId) {
+    try {
+      const { data, error } = await db.from('customers').select('*').eq('customer_id', String(customerId)).limit(1);
+      if (error) throw error;
+      APP.selectedCustomer = Array.isArray(data) ? data[0] || null : data || null;
+      saveState();
+      showToast(`تم اختيار ${APP.selectedCustomer?.business_name || APP.selectedCustomer?.customer_name || 'العميل'}`);
+      renderMyCustomers();
+      syncTopUI();
+      if (currentRole() === 'rep') setView('homeView');
+    } catch (err) {
+      console.warn(err);
+      showToast('تعذر اختيار العميل');
+    }
+  }
+
+  function routeAfterLogin() {
+    const role = currentRole();
+    if (role === 'rep' && !APP.selectedCustomer) {
+      openCustomersView();
+      return;
+    }
+    setView('homeView');
+  }
+
+  async function openCustomersView() {
+    if (!ensureAppEntry()) return;
+    if (currentRole() === 'rep') {
+      await loadMyCustomers();
+      renderMyCustomers();
+    } else if (isManagerRole()) {
+      await loadAllCustomersForManagers();
+    }
+    setView('customersView');
+  }
+
+  async function loadAllCustomersForManagers() {
+    try {
+      const { data, error } = await db.from('customers').select('*').order('created_at', { ascending: false }).limit(200);
+      if (error) throw error;
+      APP.customers = data || [];
+      renderMyCustomers();
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
+  async function loadOrdersForManagers() {
+    try {
+      const { data, error } = await db.from('orders').select('*').order('created_at', { ascending: false }).limit(100);
+      if (error) throw error;
+      APP.orders = data || [];
+      renderManagement();
+    } catch (err) {
+      console.warn(err);
+      APP.orders = [];
+      renderManagement();
+    }
+  }
+
+  function renderManagement() {
+    els.managementRoleLabel.textContent = currentRole();
+    const customersHtml = APP.customers.length ? APP.customers.map(c => `
+      <div class="mini-item">
+        <div>
+          <strong>${escAttr(c.business_name || c.trader_name || c.customer_name || 'عميل')}</strong>
+          <div class="muted">${escAttr(c.phone || '')}</div>
+          <div class="muted">created_by: ${escAttr(c.created_by || '')}</div>
+        </div>
+        <span class="smallpill">${escAttr(c.status || 'active')}</span>
+      </div>
+    `).join('') : `<div class="empty">لا توجد بيانات</div>`;
+    const ordersHtml = APP.orders.length ? APP.orders.map(o => `
+      <div class="mini-item">
+        <div>
+          <strong>${escAttr(o.order_number || o.id)}</strong>
+          <div class="muted">user_type: ${escAttr(o.user_type || '')}</div>
+          <div class="muted">customer_id: ${escAttr(o.customer_id || '')}</div>
+        </div>
+        <div style="text-align:end">
+          <div><strong>${money(o.total_amount || 0)} ج</strong></div>
+          <div class="muted">${escAttr(o.status || '')}</div>
+        </div>
+      </div>
+    `).join('') : `<div class="empty">لا توجد طلبات</div>`;
+    els.managementCustomersPane.innerHTML = customersHtml;
+    els.managementOrdersPane.innerHTML = ordersHtml;
+  }
+
+  function openManagementView() {
+    if (!isManagerRole()) return showToast('غير متاح');
+    renderManagement();
+    setView('managementView');
+  }
+
+  function renderUserMenu() {
+    const role = currentRole();
+    els.userMenuTitle.textContent = role === 'guest' ? 'تسجيل الدخول' : currentUserName();
+    const items = [];
+    if (role === 'guest') {
+      items.push(['تسجيل الدخول', openAuthModal]);
+    } else if (role === 'rep') {
+      items.push(['عملائي', openCustomersView]);
+      items.push(['إضافة عميل جديد', () => openCustomerForm('rep_add_customer')]);
+      items.push(['فواتيري السابقة', openInvoicesModal]);
+      items.push(['تسجيل خروج', logout]);
+    } else if (isManagerRole()) {
+      items.push(['الإدارة', openManagementEntry]);
+      items.push(['عملائي', openCustomersView]);
+      items.push(['تسجيل خروج', logout]);
+    } else {
+      items.push(['تسجيل خروج', logout]);
+    }
+    els.userMenuList.innerHTML = items.map((it, idx) => `<button class="btn ghost block" data-user-action="${idx}">${escAttr(it[0])}</button>`).join('');
+    els.userMenuList.querySelectorAll('[data-user-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.getAttribute('data-user-action'));
+        closeUserMenu();
+        items[idx]?.[1]?.();
+      });
+    });
+  }
+
+  function logout() {
+    APP.user = { type:'guest', role:'guest', role_group:'guest' };
+    APP.selectedCustomer = null;
+    APP.actingRepId = '';
+    APP.formMode = null;
+    saveState();
+    syncTopUI();
+    openApp();
+    closeUserMenu();
+    showToast('تم تسجيل الخروج');
+  }
+
+  function openRegisterModal() {
+    openCustomerForm('customer_register');
+  }
+  function closeRegisterModal() {
+    els.registerModal.classList.remove('open');
+  }
+  function openUserMenu() {
+    const role = currentRole();
+    if (role === 'guest') {
+      openAuthModal();
+      return;
+    }
+    renderUserMenu();
+    els.userMenuModal.classList.add('open');
+  }
+  function closeUserMenu() {
+    els.userMenuModal.classList.remove('open');
+  }
+
+  function goHome() {
+    if (!ensureAppEntry()) return;
+    setView('homeView');
+  }
+
+  function updateCurrentCustomerLabel() {
+    if (!APP.selectedCustomer) return '—';
+    return APP.selectedCustomer.business_name || APP.selectedCustomer.trader_name || APP.selectedCustomer.customer_name || '—';
+  }
+
+  function openCheckout() {
+    ensureAppEntry();
+    if (!getCart().length) return showToast('السلة فارغة');
+    if (currentRole() === 'guest') {
+      openCustomerForm('guest_checkout');
+      return;
+    }
+    if (currentRole() === 'rep' && !APP.selectedCustomer) {
+      showToast('اختر عميل أولاً');
+      openCustomersView();
+      return;
+    }
+    if (isManagerRole()) els.actingRepField.classList.remove('hidden');
+    else els.actingRepField.classList.add('hidden');
+    renderCart();
+    renderRepSelector();
+    setView('checkoutView');
+  }
+
+  function renderRepSelector() {
+    if (!els.actingRepSelect) return;
+    els.actingRepSelect.innerHTML = APP.reps.length ? APP.reps.map(r => `<option value="${escAttr(r.rep_id)}">${escAttr(r.rep_name || r.rep_id)}</option>`).join('') : '<option value="">لا يوجد</option>';
+    if (APP.actingRepId) els.actingRepSelect.value = APP.actingRepId;
+  }
+
+  async function openManagementEntry() {
+    if (!ensureAppEntry()) return;
+    if (!isManagerRole()) return showToast('مقتصر على الإدارة');
+    await Promise.all([loadAllCustomersForManagers(), loadOrdersForManagers()]);
+    renderManagement();
+    setView('managementView');
+  }
+
+  function openTiersView() {
+    if (!ensureAppEntry()) return;
+    if (!requireCustomerForRep()) return;
+    renderTiers();
+    setView('tiersView');
+  }
+  function openDailyDealsView() {
+    if (!ensureAppEntry()) return;
+    if (!requireCustomerForRep()) return;
+    renderDailyDeals();
+    setView('dailyDealsView');
+  }
+  function openFlashOffersView() {
+    if (!ensureAppEntry()) return;
+    if (!requireCustomerForRep()) return;
+    renderFlashOffers();
+    setView('flashOffersView');
+  }
+
+  function bindHistory() {
+    window.addEventListener('popstate', () => {
+      if (!ensureAppEntry()) return;
+      setView('homeView', {}, false);
+    });
+    history.replaceState({ view:'homeView' }, '', '#homeView');
+  }
+
+  function attachEvents() {
+    els.loginBtn.addEventListener('click', login);
+    els.loginPassword.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+    els.loginCode.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+    els.registerBtn.addEventListener('click', () => openCustomerForm('customer_register'));
+    els.closeRegisterBtn.addEventListener('click', closeRegisterModal);
+    els.submitRegisterBtn.addEventListener('click', registerCustomer);
+    els.gpsBtn.addEventListener('click', async () => {
+      if (!navigator.geolocation) return showToast('GPS غير متاح');
+      navigator.geolocation.getCurrentPosition(pos => {
+        els.regLocation.value = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+        showToast('تم تحديد الموقع');
+      }, () => showToast('تعذر الحصول على الموقع'));
+    });
+    els.brandHomeBtn.addEventListener('click', goHome);
+    els.tierBtn.addEventListener('click', openTiersView);
+    els.dealBtn.addEventListener('click', openDailyDealsView);
+    els.flashBtn.addEventListener('click', openFlashOffersView);
+    els.myCustomersBtn.addEventListener('click', openCustomersView);
+    els.managementBtn.addEventListener('click', openManagementEntry);
+    els.userPill.addEventListener('click', openUserMenu);
+    els.closeUserMenuBtn.addEventListener('click', closeUserMenu);
+    els.checkoutBtn.addEventListener('click', openCheckout);
+    els.sendBtn.addEventListener('click', sendOrder);
+    els.verifyBtn.addEventListener('click', verifyCheckout);
+    els.backToHomeBtn.addEventListener('click', goHome);
+    els.backFromDealsBtn.addEventListener('click', goHome);
+    els.backFromFlashBtn.addEventListener('click', goHome);
+    els.backFromTiersBtn.addEventListener('click', goHome);
+    els.backFromCheckoutBtn.addEventListener('click', goHome);
+    els.backFromCustomersBtn.addEventListener('click', goHome);
+    els.backFromManagementBtn.addEventListener('click', goHome);
+    els.remainingBox.addEventListener('click', openTiersView);
+    els.companySearch.addEventListener('input', e => { APP.currentQuery = e.target.value; renderCompanies(); });
+    els.clearCompanySearch.addEventListener('click', () => { APP.currentQuery = ''; els.companySearch.value = ''; renderCompanies(); });
+    els.productSearch.addEventListener('input', e => { APP.currentProductQuery = e.target.value; renderProducts(APP.currentProducts || []); });
+    els.clearProductSearch.addEventListener('click', () => { APP.currentProductQuery = ''; els.productSearch.value = ''; renderProducts(APP.currentProducts || []); });
+    els.addCustomerBtn.addEventListener('click', () => openCustomerForm('rep_add_customer'));
+    els.actingRepSelect.addEventListener('change', e => {
+      APP.actingRepId = e.target.value;
+      saveState();
+    });
+    document.querySelectorAll('[data-mtab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-mtab');
+        APP.selectedManagementTab = tab;
+        document.querySelectorAll('[data-mtab]').forEach(b => b.classList.toggle('active', b === btn));
+        els.managementCustomersPane.classList.toggle('hidden', tab !== 'customers');
+        els.managementOrdersPane.classList.toggle('hidden', tab !== 'orders');
+      });
+    });
+  }
+
+  function installErrors() {
+    window.addEventListener('error', e => reportError(`خطأ تشغيل: ${e?.error?.message || e?.message || 'غير معروف'}`));
+    window.addEventListener('unhandledrejection', e => reportError(`فشل غير متوقع: ${e?.reason?.message || e?.reason || 'غير معروف'}`));
+  }
+
+  async function boot() {
+    try {
+      installErrors();
+      attachEvents();
+      bindHistory();
+      renderRepSelector();
+      openApp();
+      await Promise.all([loadSettings(), loadCompanies(), loadTiers(), loadReps(), loadServerTime(), loadDailyDeals(), loadFlashOffers()]);
+      syncTopUI();
+      updateFooter();
+      if (currentRole() === 'rep') await loadMyCustomers();
+      if (isManagerRole()) await Promise.all([loadAllCustomersForManagers(), loadOrdersForManagers()]);
+      setInterval(() => {
+        APP.serverNowMs += 1000;
+        refreshOfferCountdownUI();
+      }, 1000);
+      document.getElementById('managementCustomersPane').classList.remove('hidden');
+      document.getElementById('managementOrdersPane').classList.add('hidden');
+      if (APP.selectedManagementTab === 'orders') {
+        document.querySelector('[data-mtab="orders"]').click();
+      }
+      renderCart();
+      renderCompanies();
+      setConnection('جاهز');
+    } catch (err) {
+      console.error(err);
+      reportError('تعذر تشغيل التطبيق');
+    }
+  }
+
+  window.__app = { openCompany, selectTier, addDeal, addFlash };
+
+  window.goHome = goHome;
+  window.openTiersView = openTiersView;
+  window.openDailyDealsView = openDailyDealsView;
+  window.openFlashOffersView = openFlashOffersView;
+  window.openCheckout = openCheckout;
+  window.openCustomersView = openCustomersView;
+  window.openManagementEntry = openManagementEntry;
+  window.login = login;
+  window.registerCustomer = registerCustomer;
+  window.sendOrder = sendOrder;
+  window.verifyCheckout = verifyCheckout;
+  window.logout = logout;
+  window.openUserMenu = openUserMenu;
+  window.closeUserMenu = closeUserMenu;
+  window.openRegisterModal = openRegisterModal;
+  window.closeRegisterModal = closeRegisterModal;
+
+  boot();
+
+  window.selectCustomer = selectCustomer;
+})();
 </script>
-
 </body>
 </html>
