@@ -1029,7 +1029,7 @@
   }
 
   function requireCustomerForRep() {
-    if (currentRole() !== 'customer' && !APP.selectedCustomer) {
+    if (currentRole() === 'rep' && !APP.selectedCustomer) {
       showToast('اختر عميل أولاً');
       openCustomersView();
       return false;
@@ -1125,6 +1125,50 @@
       </div>`;
     }).join('') : `<div class="empty">لا توجد عروض ساعة</div>`;
     document.querySelectorAll('[data-flash]').forEach(btn => btn.addEventListener('click', () => addFlash(btn.getAttribute('data-flash'))));
+  }
+
+  function refreshOfferCountdownUI() {
+    const top = getBestFlashOffer();
+    if (!top) {
+      els.flashBtn.textContent = 'عرض الساعة';
+      els.flashBtn.classList.remove('active');
+      return;
+    }
+    if (top.lifecycle.status === 'active') {
+      els.flashBtn.innerHTML = `<span class="countdown"><small>ينتهي خلال</small><strong>${formatCountdown(top.lifecycle.remainingMs)}</strong></span>`;
+      els.flashBtn.classList.add('active');
+    } else if (top.lifecycle.status === 'pending') {
+      els.flashBtn.innerHTML = `<span class="countdown"><small>يبدأ خلال</small><strong>${formatCountdown(top.lifecycle.remainingMs)}</strong></span>`;
+      els.flashBtn.classList.remove('active');
+    } else {
+      els.flashBtn.textContent = 'عرض الساعة';
+      els.flashBtn.classList.remove('active');
+    }
+    if (document.getElementById('flashOffersView')?.classList.contains('active')) renderFlashOffers();
+  }
+
+  async function refreshLiveData() {
+    await Promise.allSettled([loadSettings(), loadCompanies(), loadTiers(), loadReps(), loadDailyDeals(), loadFlashOffers()]);
+    if (currentRole() === 'rep') await loadMyCustomers();
+    if (isManagerRole()) await Promise.allSettled([loadAllCustomersForManagers(), loadOrdersForManagers()]);
+    syncTopUI();
+    updateFooter();
+  }
+
+  function subscribeLiveTables() {
+    if (!db?.channel) return;
+    const channel = db.channel('ahram-live-sync');
+    const tables = ['app_settings', 'companies', 'tiers', 'daily_deals', 'flash_offers', 'customers', 'orders', 'users', 'products', 'prices_carton', 'prices_pack', 'prices_piece'];
+    tables.forEach(table => {
+      channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+        clearTimeout(APP.liveReloadTimer);
+        APP.liveReloadTimer = setTimeout(() => {
+          refreshLiveData().catch(console.warn);
+        }, 250);
+      });
+    });
+    channel.subscribe();
+    APP.liveChannel = channel;
   }
 
   function renderRepSelector() {
@@ -1303,17 +1347,22 @@
   }
 
   function buildOrderMessage(orderNumber, totals, cart) {
+    const customerLabel = APP.selectedCustomer?.business_name || APP.selectedCustomer?.trader_name || APP.selectedCustomer?.customer_name || els.invoiceActorLabel.textContent || 'عميل';
+    const addressLabel = APP.selectedCustomer?.address ? `العنوان: ${APP.selectedCustomer.address}` : '';
+    const phoneLabel = APP.selectedCustomer?.phone ? `الهاتف: ${APP.selectedCustomer.phone}` : '';
     const lines = [
       `طلب جديد من ${APP.settings?.company_name || 'الأهرام'}`,
       `رقم الطلب: ${orderNumber}`,
-      `العميل: ${els.invoiceActorLabel.textContent}`,
+      `العميل: ${customerLabel}`,
+      phoneLabel,
+      addressLabel,
       `الشريحة: ${displayTierLabel()}`,
       `الإجمالي: ${money(totals.total)} ج`,
       `المنتجات: ${money(totals.productsTotal)} ج`,
       `الصفقات: ${money(totals.dealsTotal)} ج`,
       `عروض الساعة: ${money(totals.flashTotal)} ج`,
       '---'
-    ];
+    ].filter(Boolean);
     cart.forEach(item => {
       lines.push(`${item.title} | ${item.unit_label || item.type} | ${item.qty} × ${money(item.price)} = ${money(Number(item.qty || 0) * Number(item.price || 0))}`);
     });
@@ -1359,12 +1408,13 @@
     const isGuestCheckout = APP.formMode === 'guest_checkout';
     const isRepAdd = APP.formMode === 'rep_add_customer';
     if (title) {
-      title.textContent = isGuestCheckout ? 'إتمام الطلب كضيف' : isRepAdd ? 'إضافة عميل جديد' : 'تسجيل عميل جديد';
+      title.textContent = isGuestCheckout ? 'إتمام الطلب كعميل جديد' : isRepAdd ? 'إضافة عميل جديد' : 'تسجيل عميل جديد';
     }
     if (businessField) businessField.classList.toggle('hidden', isGuestCheckout);
-    if (passwordField) passwordField.classList.toggle('hidden', isGuestCheckout);
+    if (passwordField) passwordField.classList.remove('hidden');
+    if (els.regBusiness) els.regBusiness.placeholder = isGuestCheckout ? 'اسم الجهة (اختياري)' : 'اسم النشاط';
     if (els.submitRegisterBtn) {
-      els.submitRegisterBtn.textContent = isGuestCheckout ? 'متابعة وإرسال الطلب' : 'حفظ العميل';
+      els.submitRegisterBtn.textContent = isGuestCheckout ? 'تسجيل وإرسال الطلب' : 'حفظ العميل';
     }
   }
 
@@ -1471,7 +1521,8 @@
       APP.orderSending = true;
       els.sendBtn.disabled = true;
       els.sendBtn.textContent = 'جارٍ حفظ الطلب...';
-      await persistOrder(cart, totals, orderNumber);
+      const result = await persistOrder(cart, totals, orderNumber);
+      APP.lastOrder = { orderNumber, result, totals, createdAt: new Date().toISOString() };
       APP.cart = [];
       saveState();
       renderCart();
@@ -1552,13 +1603,14 @@
     const isGuestCheckout = mode === 'guest_checkout';
     const isRepAdd = mode === 'rep_add_customer';
     if (!name || !phone || !address) return showToast('أكمل البيانات المطلوبة');
-    if (!isGuestCheckout && (!business_name || !password)) return showToast('أكمل البيانات المطلوبة');
+    if (!password) return showToast('أدخل كلمة المرور');
+    if (!isGuestCheckout && !business_name) return showToast('أكمل البيانات المطلوبة');
     const customer_id = Date.now();
     const latlng = location ? location.split(',').map(x => Number(x.trim())) : [];
     const lat = Number.isFinite(latlng[0]) ? latlng[0] : null;
     const lng = Number.isFinite(latlng[1]) ? latlng[1] : null;
-    const effectiveBusinessName = isGuestCheckout ? name : business_name;
-    const effectivePassword = isGuestCheckout ? phone : password;
+    const effectiveBusinessName = isGuestCheckout ? (business_name || name) : business_name;
+    const effectivePassword = password;
     const effectiveRepId = currentRole() === 'rep' ? safeText(APP.user?.rep_id || APP.user?.code || '7777') : '7777';
     try {
       const customerPayload = {
@@ -1951,6 +2003,7 @@
       updateFooter();
       if (currentRole() === 'rep') await loadMyCustomers();
       if (isManagerRole()) await Promise.all([loadAllCustomersForManagers(), loadOrdersForManagers()]);
+      subscribeLiveTables();
       setInterval(() => {
         APP.serverNowMs += 1000;
         refreshOfferCountdownUI();
