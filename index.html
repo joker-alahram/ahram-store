@@ -1,1 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Alahram</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{font-family:Arial;margin:0;background:#f5f5f5}
+.header{background:#0a7cff;color:#fff;padding:10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
+.card{background:#fff;padding:10px;border-radius:10px;text-align:center}
+.footer{position:fixed;bottom:0;width:100%;background:#fff;padding:10px;display:flex;justify-content:space-between}
+button{padding:6px 10px}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">الأهرام</div>
+
+<div id="companies" class="grid"></div>
+
+<div class="footer">
+<span id="total">0</span>
+<button onclick="sendOrder()">إتمام</button>
+</div>
+
+<script>
+
+// 🔴 الاتصال الصح
+const supabaseClient = supabase.createClient(
+  "https://upzuslyqfcvpbkqyzyxp.supabase.co",
+  "sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg"
+);
+
+let cart = [];
+
+// 🟢 تحميل الشركات
+async function loadCompanies(){
+
+  const {data,error} = await supabaseClient
+    .from("companies")
+    .select("*");
+
+  if(error){
+    console.error(error);
+    alert("مشكلة في الاتصال");
+    return;
+  }
+
+  console.log("DATA:", data);
+
+  let box = document.getElementById("companies");
+  box.innerHTML = "";
+
+  data.forEach(c => {
+
+    let div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <p>${c.company_name}</p>
+      <button>اختيار</button>
+    `;
+
+    div.onclick = () => addToCart(c.company_id);
+
+    box.appendChild(div);
+  });
+}
+
+// 🟢 إضافة للسلة (تجربة)
+function addToCart(id){
+  cart.push({
+    product_id: id,
+    price: 10,
+    qty: 1
+  });
+
+  updateTotal();
+}
+
+// 🟢 تحديث الإجمالي
+function updateTotal(){
+  let total = 0;
+  cart.forEach(i => total += i.price * i.qty);
+  document.getElementById("total").innerText = total;
+}
+
+// 🟢 إرسال الطلب
+async function sendOrder(){
+
+  if(cart.length === 0){
+    alert("السلة فاضية");
+    return;
+  }
+
+  let total = 0;
+  cart.forEach(i => total += i.price * i.qty);
+
+  const {data:order,error} = await supabaseClient
+    .from("orders")
+    .insert({ total: total })
+    .select()
+    .single();
+
+  if(error){
+    console.error(error);
+    alert("فشل الطلب");
+    return;
+  }
+
+  const items = cart.map(i => ({
+    order_id: order.order_id,
+    product_id: i.product_id,
+    price: i.price,
+    qty: i.qty
+  }));
+
+  await supabaseClient.from("order_items").insert(items);
+
+  alert("تم الطلب");
+
+  cart = [];
+  updateTotal();
+}
+
+// تشغيل
+loadCompanies();
+
+</script>
+
+</body>
+</html>
