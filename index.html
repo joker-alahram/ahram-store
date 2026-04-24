@@ -1,300 +1,206 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html><html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Alahram</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
+<title>الأهرام للتجارة</title><style>
 body{
-margin:0;
-font-family:system-ui;
-background:#f2f4f8;
+  margin:0;
+  font-family:system-ui;
+  background:#f5f6fa;
 }
 
 /* HEADER */
 .header{
-height:20vh;
-background:linear-gradient(135deg,#0a7cff,#0046b8);
-color:#fff;
-display:flex;
-flex-direction:column;
-justify-content:center;
-padding:15px;
-}
-.header h2{margin:0}
-.actions{margin-top:10px}
-.actions button{
-background:#fff;
-border:none;
-padding:6px 12px;
-border-radius:20px;
-margin-left:5px;
+  height:20vh;
+  background:linear-gradient(135deg,#0d47a1,#1976d2);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  font-weight:bold;
 }
 
 /* GRID */
 .grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-padding:10px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  padding:10px;
 }
 
 /* CARD */
 .card{
-background:#fff;
-border-radius:15px;
-padding:10px;
-box-shadow:0 3px 8px rgba(0,0,0,.08);
-display:flex;
-flex-direction:column;
-justify-content:space-between;
+  background:#fff;
+  border-radius:12px;
+  padding:10px;
+  text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* PRODUCT IMAGE */
-.card img{
-height:90px;
-object-fit:contain;
+/* PRODUCT CARD */
+.product{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  height:180px;
 }
 
-/* TEXT */
-.name{
-font-size:14px;
-margin:5px 0;
-height:38px;
-overflow:hidden;
+.product img{
+  width:100%;
+  height:70px;
+  object-fit:contain;
 }
 
-/* PRICE */
-.price-old{
-font-size:12px;
-text-decoration:line-through;
-color:#999;
-}
-.price-new{
-color:#0a7cff;
-font-weight:bold;
-}
-
-/* INPUT */
-.qty{
-margin-top:5px;
-padding:5px;
-border-radius:8px;
-border:1px solid #ccc;
-}
-
-/* BUTTON */
 .btn{
-margin-top:6px;
-padding:7px;
-border:none;
-border-radius:10px;
-background:#0a7cff;
-color:#fff;
-font-weight:bold;
+  background:#1976d2;
+  color:#fff;
+  border:none;
+  padding:6px;
+  border-radius:8px;
+  cursor:pointer;
 }
-.btn.red{background:#e63946}
+
+.buy{
+  background:#2e7d32;
+}
 
 /* FOOTER */
 .footer{
-position:fixed;
-bottom:0;
-width:100%;
-background:#fff;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:10px;
-box-shadow:0 -3px 10px rgba(0,0,0,.1);
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  border-top:1px solid #ccc;
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
 }
-.total{font-weight:bold}
-.checkout{
-background:#2ecc71;
-color:#fff;
-padding:10px 20px;
-border:none;
-border-radius:10px;
-font-weight:bold;
-}
-</style>
-</head>
-
-<body>
-
-<div class="header">
-<h2>الأهرام للتجارة</h2>
-<div class="actions">
-<button onclick="goHome()">الرئيسية</button>
-</div>
-</div>
-
-<!-- الشركات -->
-<div id="companies" class="grid"></div>
-
-<!-- المنتجات -->
-<div id="products" class="grid" style="display:none"></div>
-
-<!-- الفوتر -->
-<div class="footer">
-<div class="total" id="total">0 ج</div>
-<button class="checkout" onclick="checkout()">إتمام الشراء</button>
-</div>
-
-<script>
-
-const supabaseClient = supabase.createClient(
-  "https://upzuslyqfcvpbkqyzyxp.supabase.co",
-  "sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg"
+</style></head><body><div class="header">الأهرام للتجارة</div><div id="app"></div><div class="footer">
+  <div id="total">0 ج</div>
+  <button class="btn buy" onclick="checkout()">إتمام الشراء</button>
+</div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+// 🔴 بياناتك
+const supabase = window.supabase.createClient(
+"https://upzuslyqfcvpbkqyzyxp.supabase.co",
+"sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg"
 );
 
 let cart = [];
 
-/* ===================== الشركات ===================== */
+/* تحميل الشركات */
 async function loadCompanies(){
-  let {data,error} = await supabaseClient
+  try{
+    const {data,error} = await supabase
     .from("companies")
     .select("*");
 
-  if(error){
-    alert("مشكلة في الاتصال");
-    return;
+    if(error) throw error;
+
+    const app = document.getElementById("app");
+    app.innerHTML = '<div class="grid"></div>';
+    const grid = app.querySelector(".grid");
+
+    data.forEach(c=>{
+      grid.innerHTML += `
+      <div class="card">
+        <h4>${c.company_name}</h4>
+        <button class="btn" onclick="loadProducts(${c.company_id})">اختيار</button>
+      </div>`;
+    });
+
+  }catch(e){
+    alert("فشل تحميل الشركات");
+    console.error(e);
   }
-
-  let box = document.getElementById("companies");
-  box.innerHTML="";
-
-  data.forEach(c=>{
-    let div=document.createElement("div");
-    div.className="card";
-
-    div.innerHTML=`
-      <b>${c.company_name}</b>
-      <button class="btn">عرض المنتجات</button>
-    `;
-
-    div.onclick=()=>loadProducts(c.company_id);
-
-    box.appendChild(div);
-  });
 }
 
-/* ===================== المنتجات ===================== */
+/* تحميل المنتجات */
 async function loadProducts(company_id){
-
-  document.getElementById("companies").style.display="none";
-  document.getElementById("products").style.display="grid";
-
-  let {data,error} = await supabaseClient
+  try{
+    const {data,error} = await supabase
     .from("v_products_full")
     .select("*")
-    .eq("company_id",company_id);
+    .eq("company_id", company_id);
 
-  if(error){
+    if(error) throw error;
+
+    const app = document.getElementById("app");
+    app.innerHTML = '<div class="grid"></div>';
+    const grid = app.querySelector(".grid");
+
+    data.forEach(p=>{
+      grid.innerHTML += `
+      <div class="card product">
+        <img src="${p.product_image || ''}">
+        <div>${p.product_name}</div>
+        <div>${p.carton_price || p.pack_price || 0} ج</div>
+        <input type="number" min="1" value="1" id="q${p.product_id}">
+        <button class="btn buy" onclick="add(${p.product_id},${p.carton_price || p.pack_price || 0})">شراء</button>
+      </div>`;
+    });
+
+  }catch(e){
     alert("فشل تحميل المنتجات");
-    return;
+    console.error(e);
   }
-
-  let box=document.getElementById("products");
-  box.innerHTML="";
-
-  data.forEach(p=>{
-
-    let price = p.carton_price || p.pack_price || 0;
-
-    let div=document.createElement("div");
-    div.className="card";
-
-    div.innerHTML=`
-      <img src="${p.product_image || ''}">
-      <div class="name">${p.product_name}</div>
-      <div class="price-new">${price} ج</div>
-      <input class="qty" type="number" placeholder="الكمية">
-      <button class="btn">شراء</button>
-    `;
-
-    let qty=div.querySelector(".qty");
-    let btn=div.querySelector(".btn");
-
-    btn.onclick=()=>{
-
-      let q = Number(qty.value) || 1;
-
-      let index = cart.findIndex(i=>i.id===p.product_id);
-
-      if(index>-1){
-        cart.splice(index,1);
-        btn.classList.remove("red");
-        btn.innerText="شراء";
-      }else{
-        cart.push({
-          id:p.product_id,
-          price:price,
-          qty:q
-        });
-        btn.classList.add("red");
-        btn.innerText="إزالة";
-      }
-
-      updateTotal();
-    };
-
-    box.appendChild(div);
-  });
 }
 
-/* ===================== إجمالي ===================== */
+/* إضافة للسلة */
+function add(id,price){
+  const q = document.getElementById("q"+id).value || 1;
+
+  cart.push({
+    id,
+    price,
+    qty:parseInt(q)
+  });
+
+  updateTotal();
+}
+
+/* حساب الإجمالي */
 function updateTotal(){
-  let total=0;
-  cart.forEach(i=> total+= i.price*i.qty);
+  let total = 0;
+  cart.forEach(i=>{
+    total += i.price * i.qty;
+  });
+
   document.getElementById("total").innerText = total + " ج";
 }
 
-/* ===================== رجوع ===================== */
-function goHome(){
-  document.getElementById("products").style.display="none";
-  document.getElementById("companies").style.display="grid";
-}
-
-/* ===================== الطلب ===================== */
+/* إتمام الطلب */
 async function checkout(){
-
-  if(cart.length===0){
-    alert("السلة فارغة");
+  if(cart.length === 0){
+    alert("السلة فاضية");
     return;
   }
 
-  let total=0;
-  cart.forEach(i=> total+= i.price*i.qty);
+  try{
+    const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
 
-  let {data:order} = await supabaseClient
+    const {data,error} = await supabase
     .from("orders")
-    .insert({ total })
-    .select()
-    .single();
+    .insert([{
+      total: total,
+      status:"pending"
+    }]);
 
-  let items = cart.map(i=>({
-    order_id: order.order_id,
-    product_id: i.id,
-    price: i.price,
-    qty: i.qty
-  }));
+    if(error) throw error;
 
-  await supabaseClient.from("order_items").insert(items);
+    alert("تم تسجيل الطلب");
+    cart = [];
+    updateTotal();
 
-  alert("تم الطلب بنجاح");
-
-  cart=[];
-  updateTotal();
+  }catch(e){
+    alert("فشل تسجيل الطلب");
+    console.error(e);
+  }
 }
 
 /* تشغيل */
 loadCompanies();
 
-</script>
-
-</body>
+</script></body>
 </html>
