@@ -144,6 +144,8 @@
         <button class="pill secondary" id="tierBtn" onclick="openTiersView()">الشرائح</button>
         <button class="pill deal" id="dealBtn" onclick="openDailyDealsView()">صفقة اليوم</button>
         <button class="pill flash" id="flashBtn" onclick="openFlashOffersView()">عرض الساعة</button>
+        <button class="pill secondary" id="repEntryBtn" onclick="openCustomerForm('rep')"><span style="font-size:15px">👔</span><span>مندوب</span></button>
+        <button class="pill secondary" id="customerEntryBtn" onclick="openCustomerForm('customer')"><span style="font-size:15px">👤</span><span>عميل</span></button>
         <button class="pill" id="userPill" onclick="openUserMenu()"><span id="userRoleLabel">زائر</span><strong id="userNameLabel">—</strong></button>
       </div>
     </div>
@@ -348,7 +350,8 @@
     serverNowMs: Date.now(),
     timeSyncAt: 0,
     loaded: { settings: false, companies: false, tiers: false, dailyDeals: false, flashOffers: false },
-    loading: { settings: false, companies: false, tiers: false, products: false, dailyDeals: false, flashOffers: false }
+    loading: { settings: false, companies: false, tiers: false, products: false, dailyDeals: false, flashOffers: false },
+    orderSending: false
   };
 
   const els = Object.fromEntries([
@@ -873,7 +876,7 @@
               <input class="draft-input" inputmode="numeric" type="number" min="1" value="${draftQty}" data-draft-qty oninput='window.__app.setDraftQty(${JSON.stringify(String(p.product_id))}, this.value)' />
               <button type="button" onclick='window.__app.incQty(${JSON.stringify(String(p.product_id))})'>+</button>
             </div>
-            <button class="btn primary" onclick='window.__app.addProduct(${JSON.stringify(String(p.product_id))})'>إضافة</button>
+            <button class="btn ${isInCart(p.product_id, defaultUnit) ? 'red' : 'primary'} product-action-btn" data-product-action="${escAttr(String(p.product_id))}" data-unit-action="${escAttr(String(defaultUnit))}" onclick='window.__app.${isInCart(p.product_id, defaultUnit) ? "removeProductFromCart" : "addProduct"}(${JSON.stringify(String(p.product_id))})'>${isInCart(p.product_id, defaultUnit) ? 'إزالة' : 'شراء'}</button>
           </div>
         </div>`);
     }
@@ -883,6 +886,25 @@
   }
 
   function escapeHtmlTierNote(discount) { return discount > 0 ? `خصم الشريحة ${discount}%` : 'سعر أساسي'; }
+
+  
+  function updateProductActionButtons() {
+    document.querySelectorAll('#productsGrid .product-card').forEach(card => {
+      const pid = safeText(card.dataset.productId);
+      const product = (state.productsByCompany.get(String(state.currentCompanyId ?? '')) || []).find(x => safeText(x.product_id) === pid);
+      if (!product) return;
+      const activeUnitEl = card.querySelector('.unit-chip.active');
+      const unit = activeUnitEl?.dataset.unit || productUnits(product)[0]?.key || 'carton';
+      const btn = card.querySelector('.product-action-btn');
+      if (!btn) return;
+      const inCart = isInCart(pid, unit);
+      btn.textContent = inCart ? 'إزالة' : 'شراء';
+      btn.classList.toggle('red', inCart);
+      btn.classList.toggle('primary', !inCart);
+      btn.onclick = () => inCart ? removeCartItem('product', pid, unit) : addProduct(pid);
+      btn.dataset.unitAction = unit;
+    });
+  }
 
   function updateRenderedProductPrices() {
     const currentProducts = state.productsByCompany.get(String(state.currentCompanyId ?? '')) || [];
@@ -965,6 +987,11 @@
     return getCartSafe().find(i => i.type === 'product' && safeText(i.product_id) === safeText(productId) && i.unit === unit);
   }
 
+  
+  function isInCart(productId, unit) {
+    return !!findCartItem(productId, unit);
+  }
+
   function findCartEntry(type, id, unit = '') {
     return getCartSafe().find(i => safeText(i.type || 'product') === safeText(type) && safeText(i.id ?? i.product_id ?? i.deal_id ?? i.offer_id) === safeText(id) && safeText(i.unit || '') === safeText(unit));
   }
@@ -1030,6 +1057,12 @@
     renderCartMini();
   }
 
+  function removeProductFromCart(productId) {
+    const unit = getSelectedUnitForProduct(productId);
+    removeCartItem('product', productId, unit);
+    updateRenderedProductPrices();
+  }
+
   function incQty(productId) {
     setDraftQty(productId, getDraftQty(productId) + 1);
   }
@@ -1076,6 +1109,7 @@
   function updateCartWidgets() {
     updateFooter();
     syncTopUI();
+    updateProductActionButtons();
   }
 
   function renderCartMini() { updateCartWidgets(); }
@@ -1089,7 +1123,7 @@
     els.invoiceActorLabel.textContent = currentActorLabel();
     els.checkoutTierLabel.textContent = state.currentTier === 'base' ? 'عادي' : state.currentTierLabel;
     els.invoiceMinOrder.textContent = money(tierMinOrder()) + ' ج';
-    els.invoiceStatusPill.textContent = cart.length ? `جاهز • منتجات ${money(totals.productsTotal)} ج` : 'السلة فارغة';
+    els.invoiceStatusPill.textContent = state.orderSending ? 'جارٍ حفظ الطلب...' : (cart.length ? `جاهز • منتجات ${money(totals.productsTotal)} ج` : 'السلة فارغة');
     if (!cart.length) {
       els.invoiceList.innerHTML = `<div class="empty">السلة فارغة</div>`;
       return;
@@ -1135,15 +1169,31 @@
     toast(total > 0 ? 'تمت مراجعة الطلب' : 'راجع البيانات');
   }
 
-  async function sendOrder() {
-    const cart = getCartSafe();
-    if (!cart.length) { toast('السلة فارغة'); return; }
-    const phone = currentWhatsAppNumber();
-    if (!phone) { toast('رقم الواتساب غير متوفر في الإعدادات'); return; }
-    const totals = calculateTotals();
+  function resolveOrderParty() {
+    const userType = state.user?.type === 'rep' ? 'rep' : 'customer';
+    const currentCustomer = state.currentCustomer || {};
+    const selectedRepCustomer = state.selectedRepCustomer;
+    const customerId = currentCustomer.customer_id || selectedRepCustomer || currentCustomer.phone || state.user?.customer_id || null;
+    const userId = state.user?.id || state.user?.phone || state.user?.customer_id || state.user?.rep_id || null;
+    const customerName = currentCustomer.name || currentCustomer.business_name || currentCustomer.trader_name || state.user?.name || 'عميل';
+    return { userType, userId, customerId, customerName };
+  }
+
+  function buildOrderNumber() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const rnd = Math.random().toString(36).slice(2, 7).toUpperCase();
+    return `ORD-${y}${m}${day}-${rnd}`;
+  }
+
+  function buildOrderMessage(orderNumber, totals, party, cart) {
     const lines = [
       `طلب جديد - ${state.settings?.company_name || 'الأهرام'}`,
-      `العميل: ${currentActorLabel()}`,
+      `رقم الطلب: ${orderNumber}`,
+      `العميل: ${party.customerName}`,
+      `نوع العميل: ${party.userType === 'rep' ? 'مندوب' : 'عميل'}`,
       `الشريحة: ${state.currentTier === 'base' ? 'عادي' : state.currentTierLabel}`,
       `إجمالي: ${money(totals.total)} ج`,
       `المنتجات: ${money(totals.productsTotal)} ج`,
@@ -1157,18 +1207,72 @@
       const lineTotal = Number(item.price || 0) * Number(item.qty || 0);
       lines.push(`${name} | ${typeLabel} | ${item.qty} × ${money(item.price)} = ${money(lineTotal)}`);
     }
-    const text = encodeURIComponent(lines.join('\\n'));
+    return lines.join('\n');
+  }
+
+  async function persistOrder(cart, totals, orderNumber) {
+    const party = resolveOrderParty();
+    const orderPayload = {
+      order_number: orderNumber,
+      user_type: party.userType,
+      user_id: party.userId ? String(party.userId) : null,
+      customer_id: party.customerId ? String(party.customerId) : null,
+      total_amount: Number(totals.total || 0),
+      products_total: Number(totals.productsTotal || 0),
+      deals_total: Number(totals.dealsTotal || 0),
+      flash_total: Number(totals.flashTotal || 0),
+      status: 'submitted'
+    };
+    const { data: orderRow, error: orderError } = await db.from('orders').insert(orderPayload).select('*').single();
+    if (orderError) throw orderError;
+    const order_id = orderRow?.id;
+    const items = cart.map(item => ({
+      order_id,
+      product_id: item.type === 'product' ? String(item.product_id ?? item.id) : null,
+      type: item.type || 'product',
+      qty: Number(item.qty || 0),
+      price: Number(item.price || 0),
+      unit: item.type === 'product' ? String(item.unit || 'carton') : null
+    }));
+    const { error: itemsError } = await db.from('order_items').insert(items);
+    if (itemsError) throw itemsError;
+    return orderRow;
+  }
+
+  function setSendButtonLoading(loading) {
+    state.orderSending = !!loading;
+    if (!els.sendBtn) return;
+    els.sendBtn.disabled = !!loading;
+    els.sendBtn.textContent = loading ? 'جارٍ حفظ الطلب...' : 'إرسال الطلب عبر واتساب';
+  }
+
+  async function sendOrder() {
+    if (state.orderSending) return;
+    const cart = getCartSafe();
+    if (!cart.length) { toast('السلة فارغة'); return; }
+    const phone = currentWhatsAppNumber();
+    if (!phone) { toast('رقم الواتساب غير متوفر في الإعدادات'); return; }
+    const totals = calculateTotals();
+    const party = resolveOrderParty();
+    const orderNumber = buildOrderNumber();
+    const message = buildOrderMessage(orderNumber, totals, party, cart);
+    const text = encodeURIComponent(message);
     try {
+      setSendButtonLoading(true);
+      const savedOrder = await persistOrder(cart, totals, orderNumber);
       state.cart = [];
       saveState();
       updateCartWidgets();
       renderCart();
       renderCartMini();
-      toast('تم تجهيز الطلب');
+      updateRenderedProductPrices();
+      toast(`تم حفظ الطلب ${savedOrder?.order_number || orderNumber}`);
       window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
     } catch (err) {
       console.error(err);
-      reportError('تعذر إرسال الطلب');
+      reportError('تعذر حفظ أو إرسال الطلب');
+    } finally {
+      setSendButtonLoading(false);
     }
   }
 
@@ -1379,7 +1483,7 @@
 
   function openCustomerForm(mode = 'rep') {
     switchCustomerForm(mode);
-    showView('customerFormView', {}, true);
+    showView('customerFormView', { mode }, true);
   }
 
   function switchCustomerForm(mode) {
@@ -1516,6 +1620,7 @@
     if (view === 'dailyDealsView') renderDailyDeals();
     if (view === 'flashOffersView') renderFlashOffers();
     if (view === 'checkoutView') renderCart();
+    if (view === 'customerFormView') switchCustomerForm(route.params.mode || 'rep');
     if (view === 'myCustomersView') openMyCustomers();
   }
 
@@ -1570,6 +1675,9 @@
       } else if (route.view === 'checkoutView') {
         renderCart();
         showView('checkoutView', {}, false);
+      } else if (route.view === 'customerFormView') {
+        switchCustomerForm(route.params.mode || 'rep');
+        showView('customerFormView', route.params || {}, false);
       } else {
         goHome();
       }
@@ -1592,6 +1700,8 @@
     setUnit,
     setDraftQty,
     addProduct,
+    removeProductFromCart,
+    isInCart,
     addDailyDeal,
     purchase_flash_offer,
     incQty,
