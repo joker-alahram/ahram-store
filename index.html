@@ -1,1 +1,659 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>الأهرام للتجارة والتوزيع</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;
+      --blue:#2563eb;--blue2:#1d4ed8;--green:#16a34a;--red:#dc2626;--amber:#f59e0b;
+      --shadow:0 10px 28px rgba(15,23,42,.08);--shadow2:0 16px 42px rgba(15,23,42,.12)
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;overflow-x:hidden}
+    body{min-height:100vh}
+    button,input{font:inherit}
+    button{touch-action:manipulation; -webkit-tap-highlight-color: transparent}
+    .app{max-width:980px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
 
+    header{
+      height:20vh;min-height:170px;max-height:240px;
+      background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 55%,#0f172a 100%);
+      color:#fff;padding:12px 12px 14px;box-shadow:0 10px 32px rgba(15,23,42,.22);
+      display:grid;grid-template-rows:auto 1fr auto;gap:10px;position:sticky;top:0;z-index:30
+    }
+    .brand-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .brand-logo{width:42px;height:42px;border-radius:16px;background:#fff;color:#1d4ed8;display:grid;place-items:center;font-weight:1000;flex:0 0 auto;box-shadow:0 10px 18px rgba(0,0,0,.12)}
+    .brand h1{margin:0;font-size:17px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand p{margin:2px 0 0;font-size:12px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .header-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .pill{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.1);backdrop-filter:blur(8px);color:#fff;border-radius:999px;padding:10px 12px;font-weight:900;font-size:13px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:.15s;white-space:nowrap}
+    .pill:active,.btn:active,.card:active{transform:scale(.985)}
+    .pill.secondary{background:#fff;color:#0f172a;border-color:#fff}
+    .pill.deal{background:linear-gradient(135deg,#111827,#7c3aed);border-color:#7c3aed}
+    .pill.flash{background:linear-gradient(135deg,#dc2626,#f59e0b);border-color:#f59e0b}
+    .pill.flash.active{animation:pulse 1.25s ease-in-out infinite}
+    .countdown{display:inline-flex;align-items:center;gap:6px;direction:ltr;unicode-bidi:isolate}
+    .countdown small{direction:rtl;unicode-bidi:plaintext}
+    @keyframes pulse{0%,100%{filter:saturate(1);transform:translateY(0)}50%{filter:saturate(1.3);transform:translateY(-1px)}}
+    .banner{
+      border-radius:24px;overflow:hidden;box-shadow:var(--shadow2);background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.16);padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0
+    }
+    .banner-copy{min-width:0}
+    .banner-copy strong{display:block;font-size:15px;line-height:1.4}
+    .banner-copy span{display:block;margin-top:3px;font-size:12px;opacity:.92}
+    .banner-stats{display:grid;gap:6px;justify-items:end;flex:0 0 auto}
+    .banner-stats .mini{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px;font-weight:800;white-space:nowrap}
+
+    main{flex:1;padding:12px 12px 96px}
+    .view{display:none;animation:fade .16s ease}
+    .view.active{display:block}
+    @keyframes fade{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 2px 12px}
+    .toolbar .left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .toolbar .right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .smallpill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);padding:8px 10px;border-radius:999px;font-size:12px;font-weight:800;color:var(--text)}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 2px 12px;font-size:15px;font-weight:1000}
+    .section-title .subtle{font-size:12px;color:var(--muted);font-weight:700}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    @media (min-width:760px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:12px;transition:transform .15s ease,box-shadow .15s ease;overflow:hidden
+    }
+    .card:hover{box-shadow:var(--shadow2)}
+    .company-card{cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:154px}
+    .company-logo{width:100%;height:86px;border-radius:18px;background:linear-gradient(135deg,#dbeafe,#eff6ff);display:grid;place-items:center;font-size:24px;font-weight:1000;color:#1d4ed8;border:1px solid #dbeafe}
+    .company-card h3,.product-title,.tier-card h3,.offer-card h3{margin:0;font-size:15px;line-height:1.45;font-weight:1000}
+    .muted{color:var(--muted);font-size:12px}
+    .card .name{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .card .name strong{display:block;line-height:1.35}
+
+    .panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:12px;box-shadow:var(--shadow)}
+    .product-grid{grid-auto-rows:minmax(214px,1fr)}
+    .product-card{cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:214px;height:100%;overflow:hidden;position:relative}
+    .product-card.selected{outline:2px solid rgba(22,163,74,.18);border-color:#bbf7d0}
+    .product-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .product-price{font-size:17px;font-weight:1000}
+    .product-old{font-size:12px;color:#94a3b8;text-decoration:line-through}
+    .unit-row{display:flex;gap:8px;flex-wrap:wrap}
+    .unit-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:900;cursor:pointer}
+    .unit-chip.active{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
+    .qty-row{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px;border-top:1px dashed #e2e8f0}
+    .qty-box{display:flex;align-items:center;gap:8px;min-width:0}
+    .qty-input{width:66px;border:1px solid var(--line);border-radius:12px;padding:8px 8px;text-align:center;font-weight:1000;background:#fff;outline:none}
+    .btn{border:0;border-radius:16px;padding:11px 14px;font-weight:1000;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+    .btn.primary{background:var(--blue);color:#fff}
+    .btn.primary:hover{background:var(--blue2)}
+    .btn.green{background:var(--green);color:#fff}
+    .btn.red{background:var(--red);color:#fff}
+    .btn.soft{background:#eef2ff;color:#1d4ed8}
+    .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
+    .btn.block{width:100%}
+    .view-footer{margin-top:14px;padding-bottom:4px}
+    .view-footer .btn{width:100%}
+
+    .tier-card,.offer-card{display:flex;flex-direction:column;gap:10px;min-height:100%}
+    .status-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900}
+    .status-pill.pending{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+    .status-pill.active{background:#ecfdf5;color:#166534;border:1px solid #bbf7d0}
+    .status-pill.expired{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+    .empty{padding:18px;border:1px dashed #cbd5e1;border-radius:18px;background:#fff;color:var(--muted);text-align:center;font-weight:700;grid-column:1/-1}
+
+    .summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+    .box{border:1px solid var(--line);border-radius:18px;padding:12px;background:#f8fafc}
+    .box .label{font-size:12px;color:var(--muted);font-weight:800}
+    .box .value{font-size:16px;font-weight:1000;margin-top:4px}
+    .invoice{display:grid;gap:10px}
+    .list-item{border:1px solid var(--line);border-radius:18px;padding:12px;background:#fff;display:grid;gap:8px}
+    .list-item .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+
+    .footer{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(15,23,42,.06)}
+    .footer .row{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .footer .main-total{min-width:94px;text-align:center}
+    .footer .main-total strong{display:block;font-size:16px}
+    .footer .main-total small{display:block;color:var(--muted);font-size:12px}
+    .footer .remaining{flex:1;display:grid;gap:4px}
+    .footer .remaining .value{font-size:13px;font-weight:1000;color:var(--text)}
+    .footer .remaining .label{font-size:12px;color:var(--muted)}
+    .footer .checkout{min-width:124px}
+
+    .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:11px 14px;border-radius:14px;box-shadow:var(--shadow2);z-index:100;opacity:0;pointer-events:none;transition:.22s;max-width:92vw;text-align:center;font-size:13px}
+    .toast.show{opacity:1;bottom:106px}
+
+    .modal{position:fixed;inset:0;background:rgba(15,23,42,.52);z-index:90;display:none;align-items:flex-end}
+    .modal.open{display:flex}
+    .sheet{width:100%;max-height:92vh;overflow:auto;background:#fff;border-radius:28px 28px 0 0;padding:14px 12px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -18px 38px rgba(0,0,0,.16)}
+    .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+    .sheet-head h3{margin:0;font-size:16px}
+    .field{display:grid;gap:6px;margin-bottom:10px}
+    .field label{font-size:12px;color:var(--muted);font-weight:800}
+    .field input{width:100%;border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:#fff;outline:none}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .tab{padding:12px;border-radius:16px;border:1px solid var(--line);background:#fff;font-weight:900;cursor:pointer}
+    .tab.active{background:#2563eb;color:#fff;border-color:#2563eb}
+    .hidden{display:none!important}
+    .stack{display:grid;gap:10px}
+
+    @media (max-width:420px){
+      header{min-height:165px;padding:11px}
+      .banner{padding:10px}
+      .footer .row{gap:8px}
+      .footer .checkout{min-width:112px}
+      .grid{gap:10px}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand-row">
+      <div class="brand" role="button" tabindex="0" onclick="goHome()">
+        <div class="brand-logo">A</div>
+        <div style="min-width:0">
+          <h1>الأهرام للتجارة والتوزيع</h1>
+          <p>واجهة B2B خفيفة — UI فقط</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <button class="pill secondary" id="tierBtn" onclick="openTiersView()">الشريحة</button>
+        <button class="pill deal" onclick="openDailyDealsView()">صفقة اليوم</button>
+        <button class="pill flash" id="flashBtn" onclick="openFlashOffersView()">عرض الساعة</button>
+        <button class="pill" onclick="openLoginView()">تسجيل دخول</button>
+      </div>
+    </div>
+    <div class="banner">
+      <div class="banner-copy">
+        <strong id="bannerTitle">منصة جاهزة للعرض والتنقل السريع</strong>
+        <span id="bannerSubtitle">بدون Backend — حالات بسيطة — استقرار أعلى على الموبايل</span>
+      </div>
+      <div class="banner-stats">
+        <span class="mini" id="bannerStat1">0 شركة</span>
+        <span class="mini" id="bannerStat2">0 منتج</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+      <div class="smallpill" id="tierChip">الشريحة: عادي</div>
+      <div class="smallpill" id="statusChip">جاهز</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="view active" id="homeView">
+      <div class="section-title"><span>الشركات</span><span class="subtle">اضغط على الكارت بالكامل</span></div>
+      <div class="grid" id="companiesGrid"></div>
+      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
+    </section>
+
+    <section class="view" id="productsView">
+      <div class="toolbar">
+        <div class="left">
+          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
+          <span class="smallpill" id="currentCompanyLabel">—</span>
+        </div>
+        <div class="right"><span class="smallpill" id="productCount">0 صنف</span></div>
+      </div>
+      <div class="section-title"><span>المنتجات</span><span class="subtle">اسم ثم سعر ثم وحدات ثم كمية ثم زر</span></div>
+      <div class="grid product-grid" id="productsGrid"></div>
+      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
+    </section>
+
+    <section class="view" id="tiersView">
+      <div class="toolbar">
+        <div class="left">
+          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
+          <span class="smallpill">الشرائح</span>
+        </div>
+        <div class="right"><span class="smallpill" id="tierCount">0 شريحة</span></div>
+      </div>
+      <div class="section-title"><span>اختيار الشريحة</span><span class="subtle">تأثير مباشر على الإجمالي</span></div>
+      <div class="grid" id="tiersGrid"></div>
+      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
+    </section>
+
+    <section class="view" id="dailyDealsView">
+      <div class="toolbar">
+        <div class="left">
+          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
+          <span class="smallpill">صفقة اليوم</span>
+        </div>
+        <div class="right"><span class="smallpill" id="dailyDealCount">0 صفقة</span></div>
+      </div>
+      <div class="section-title"><span>صفقة اليوم</span><span class="subtle">واجهة عرض مستقلة</span></div>
+      <div class="grid" id="dailyDealsGrid"></div>
+      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
+    </section>
+
+    <section class="view" id="flashOffersView">
+      <div class="toolbar">
+        <div class="left">
+          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
+          <span class="smallpill">عرض الساعة</span>
+        </div>
+        <div class="right"><span class="smallpill" id="flashOfferCount">0 عرض</span></div>
+      </div>
+      <div class="section-title"><span>عرض الساعة</span><span class="subtle">يتحول الشعار العلوي حسب الوقت</span></div>
+      <div class="grid" id="flashOffersGrid"></div>
+      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
+    </section>
+
+    <section class="view" id="checkoutView">
+      <div class="toolbar">
+        <div class="left">
+          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
+          <span class="smallpill">المراجعة</span>
+        </div>
+        <div class="right"><span class="smallpill" id="checkoutTierLabel">—</span></div>
+      </div>
+      <div class="panel">
+        <div class="section-title"><span>ملخص الطلب</span><span class="subtle">UI فقط</span></div>
+        <div class="summary">
+          <div class="box"><div class="label">الإجمالي</div><div class="value" id="invoiceTotal">0</div></div>
+          <div class="box"><div class="label">المتبقي</div><div class="value" id="invoiceRemaining">0</div></div>
+          <div class="box"><div class="label">الشريحة</div><div class="value" id="invoiceTier">عادي</div></div>
+          <div class="box"><div class="label">الحالة</div><div class="value" id="invoiceStatus">جاهز</div></div>
+        </div>
+        <div class="invoice" id="invoiceList"></div>
+      </div>
+      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
+    </section>
+
+    <section class="view" id="loginView">
+      <div class="toolbar">
+        <div class="left">
+          <button class="btn ghost" onclick="goBack()">⬅ رجوع</button>
+          <span class="smallpill">تسجيل دخول</span>
+        </div>
+        <div class="right"><span class="smallpill">واجهة فقط</span></div>
+      </div>
+      <div class="panel">
+        <div class="tabs">
+          <button class="tab active" id="tabRep" onclick="switchLoginTab('rep')">مندوب</button>
+          <button class="tab" id="tabCustomer" onclick="switchLoginTab('customer')">عميل</button>
+        </div>
+        <div class="stack" id="repLoginBox">
+          <div class="field"><label>رقم المندوب</label><input inputmode="numeric" placeholder="ID" /></div>
+          <div class="field"><label>كلمة المرور</label><input type="password" placeholder="••••••" /></div>
+          <button class="btn primary">دخول كمندوب</button>
+        </div>
+        <div class="stack hidden" id="customerLoginBox">
+          <div class="field"><label>رقم الهاتف</label><input inputmode="tel" placeholder="01xxxxxxxxx" /></div>
+          <div class="field"><label>كلمة المرور</label><input type="password" placeholder="••••••" /></div>
+          <button class="btn primary">دخول كعميل</button>
+        </div>
+      </div>
+      <div class="view-footer"><button class="btn ghost block" onclick="goBack()">رجوع</button></div>
+    </section>
+  </main>
+
+  <div class="footer">
+    <div class="row">
+      <div class="remaining" role="button" tabindex="0" onclick="openTiersView()">
+        <div class="label">المتبقي لتحقيق الشريحة</div>
+        <div class="value" id="footerRemaining">0 جنيه</div>
+      </div>
+      <div class="main-total">
+        <strong id="footerTotal">0</strong>
+        <small>الإجمالي</small>
+      </div>
+      <div class="checkout">
+        <button class="btn green block" onclick="openCheckoutView()">إتمام</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="userModal" onclick="closeUserMenu(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-head">
+      <h3>القائمة</h3>
+      <button class="btn soft" onclick="closeUserMenu()">إغلاق</button>
+    </div>
+    <div class="stack">
+      <button class="btn ghost block" onclick="openTiersView(); closeUserMenu();">الشرائح</button>
+      <button class="btn ghost block" onclick="openDailyDealsView(); closeUserMenu();">صفقة اليوم</button>
+      <button class="btn ghost block" onclick="openFlashOffersView(); closeUserMenu();">عرض الساعة</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const moneyFmt = new Intl.NumberFormat('ar-EG', { maximumFractionDigits: 0 });
+  const companies = [
+    { id:'1', name:'الشرقية', initials:'ش', color:'#dbeafe' },
+    { id:'2', name:'النور', initials:'ن', color:'#e0e7ff' },
+    { id:'3', name:'المجد', initials:'م', color:'#dcfce7' },
+    { id:'4', name:'السلام', initials:'س', color:'#fae8ff' },
+    { id:'5', name:'الكوثر', initials:'ك', color:'#ffedd5' },
+    { id:'6', name:'الصفوة', initials:'ص', color:'#fee2e2' }
+  ];
+  const tiers = [
+    { name:'عادي', key:'base', min:0, discount:0 },
+    { name:'VIP 1', key:'vip1', min:5000, discount:2 },
+    { name:'VIP 2', key:'vip2', min:10000, discount:4 }
+  ];
+  const productsByCompany = {
+    '1': [
+      { id:'p101', name:'حليب 1 لتر', price:42, units:['كرتونة','دستة','قطعة'] },
+      { id:'p102', name:'بسكوت سادة', price:28, units:['كرتونة','قطعة'] },
+      { id:'p103', name:'عصير برتقال', price:35, units:['كرتونة','دستة','قطعة'] },
+      { id:'p104', name:'شاي أحمر', price:68, units:['كرتونة','قطعة'] }
+    ],
+    '2': [
+      { id:'p201', name:'مناديل', price:55, units:['كرتونة','دستة','قطعة'] },
+      { id:'p202', name:'صابون', price:19, units:['كرتونة','قطعة'] },
+      { id:'p203', name:'شامبو', price:74, units:['كرتونة','دستة','قطعة'] }
+    ],
+    '3': [
+      { id:'p301', name:'زيت 1 لتر', price:89, units:['كرتونة','قطعة'] },
+      { id:'p302', name:'سمن', price:120, units:['كرتونة','دستة','قطعة'] },
+      { id:'p303', name:'أرز', price:145, units:['كرتونة','قطعة'] }
+    ],
+    '4': [
+      { id:'p401', name:'مشروب غازي', price:17, units:['كرتونة','دستة','قطعة'] },
+      { id:'p402', name:'مياه', price:9, units:['كرتونة','قطعة'] },
+      { id:'p403', name:'قهوة', price:66, units:['كرتونة','قطعة'] }
+    ],
+    '5': [
+      { id:'p501', name:'صابون أطباق', price:26, units:['كرتونة','دستة','قطعة'] },
+      { id:'p502', name:'منظف', price:48, units:['كرتونة','قطعة'] },
+      { id:'p503', name:'معطر', price:31, units:['كرتونة','دستة','قطعة'] }
+    ],
+    '6': [
+      { id:'p601', name:'شيبس', price:14, units:['كرتونة','دستة','قطعة'] },
+      { id:'p602', name:'بسكوت محشو', price:22, units:['كرتونة','قطعة'] },
+      { id:'p603', name:'حلاوة', price:33, units:['كرتونة','دستة','قطعة'] }
+    ]
+  };
+  const deals = [
+    { id:'d1', title:'صفقة اليوم 1', price:199, stock:14, active:true },
+    { id:'d2', title:'صفقة اليوم 2', price:149, stock:6, active:true }
+  ];
+  const flashOffers = [
+    { id:'f1', title:'عرض الساعة', price:99, stock:8, status:'active', remainingMs: 42 * 60 * 1000 },
+    { id:'f2', title:'عرض مقبل', price:79, stock:10, status:'pending', remainingMs: 17 * 60 * 1000 }
+  ];
+
+  const state = {
+    view:'homeView',
+    history:['homeView'],
+    currentCompanyId:null,
+    currentTier:'base',
+    currentTierLabel:'عادي',
+    cart: safeParse(localStorage.getItem('ui_cart'), {}),
+    selectedUnits: safeParse(localStorage.getItem('ui_units'), {}),
+    draftQty: safeParse(localStorage.getItem('ui_qty'), {}),
+    loginTab:'rep'
+  };
+
+  const els = Object.fromEntries([
+    'companiesGrid','productsGrid','tiersGrid','dailyDealsGrid','flashOffersGrid','invoiceList','footerTotal','footerRemaining',
+    'productCount','tierCount','dailyDealCount','flashOfferCount','tierChip','statusChip','checkoutTierLabel','invoiceTotal','invoiceRemaining','invoiceTier','invoiceStatus',
+    'currentCompanyLabel','bannerStat1','bannerStat2','tierBtn','flashBtn','toast','userModal','tabRep','tabCustomer','repLoginBox','customerLoginBox'
+  ].map(id => [id, document.getElementById(id)]));
+
+  function safeParse(v){ try { return v ? JSON.parse(v) : {}; } catch { return {}; } }
+  function save(){ localStorage.setItem('ui_cart', JSON.stringify(state.cart)); localStorage.setItem('ui_units', JSON.stringify(state.selectedUnits)); localStorage.setItem('ui_qty', JSON.stringify(state.draftQty)); }
+  function money(n){ return moneyFmt.format(Math.max(0, Math.round(Number(n)||0))); }
+  function toast(msg){ els.toast.textContent = msg; els.toast.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(()=>els.toast.classList.remove('show'), 2200); }
+  function currentProducts(){ return productsByCompany[state.currentCompanyId] || []; }
+  function currentTier(){ return tiers.find(t => t.key === state.currentTier) || tiers[0]; }
+  function productPrice(product){ return product.price; }
+  function qtyOf(pid){ return Math.max(1, Number(state.draftQty[pid] || 1)); }
+  function unitOf(pid, product){ return state.selectedUnits[pid] || product.units[0]; }
+  function isSelected(pid){ return !!state.cart[pid]; }
+  function totals(){
+    let total = 0;
+    Object.entries(state.cart).forEach(([pid, item]) => { total += (Number(item.price)||0) * (Number(item.qty)||0); });
+    const remain = Math.max(0, currentTier().min - total);
+    return { total, remain };
+  }
+
+  function setView(view, push = true){
+    state.view = view;
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(view)?.classList.add('active');
+    if (push) state.history.push(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    renderAll();
+  }
+  function goBack(){
+    if (state.history.length > 1) state.history.pop();
+    const prev = state.history[state.history.length - 1] || 'homeView';
+    setView(prev, false);
+  }
+  function goHome(){ state.history = ['homeView']; setView('homeView', false); }
+  function openTiersView(){ setView('tiersView'); }
+  function openDailyDealsView(){ setView('dailyDealsView'); }
+  function openFlashOffersView(){ setView('flashOffersView'); }
+  function openCheckoutView(){ setView('checkoutView'); }
+  function openLoginView(){ setView('loginView'); }
+  function closeUserMenu(event){ if (event && event.target !== els.userModal) return; els.userModal.classList.remove('open'); }
+  function openUserMenu(){ els.userModal.classList.add('open'); }
+  function switchLoginTab(tab){
+    state.loginTab = tab;
+    els.tabRep.classList.toggle('active', tab === 'rep');
+    els.tabCustomer.classList.toggle('active', tab === 'customer');
+    els.repLoginBox.classList.toggle('hidden', tab !== 'rep');
+    els.customerLoginBox.classList.toggle('hidden', tab !== 'customer');
+  }
+
+  function renderCompanies(){
+    els.bannerStat1.textContent = `${companies.length} شركة`;
+    els.bannerStat2.textContent = `${Object.values(productsByCompany).flat().length} منتج`;
+    els.companiesGrid.innerHTML = companies.map(c => `
+      <div class="card company-card" role="button" tabindex="0" onclick="window.__app.openCompany('${c.id}')">
+        <div class="company-logo" style="background:${c.color}">${c.initials}</div>
+        <div class="name"><strong>${c.name}</strong></div>
+      </div>
+    `).join('');
+  }
+
+  function renderProducts(){
+    const list = currentProducts();
+    els.productCount.textContent = `${list.length} صنف`;
+    els.currentCompanyLabel.textContent = companies.find(c => c.id === state.currentCompanyId)?.name || '—';
+    if (!list.length){ els.productsGrid.innerHTML = `<div class="empty">لا توجد منتجات متاحة</div>`; return; }
+    els.productsGrid.innerHTML = list.map(p => {
+      const unit = unitOf(p.id, p);
+      const selected = isSelected(p.id);
+      const qty = qtyOf(p.id);
+      const price = productPrice(p);
+      return `
+        <div class="card product-card ${selected ? 'selected' : ''}" role="button" tabindex="0" onclick="window.__app.toggleProduct('${p.id}')">
+          <div class="product-head">
+            <div style="min-width:0;flex:1">
+              <h3 class="product-title">${p.name}</h3>
+              <div class="muted">${selected ? 'مضاف للسلة' : 'اضغط لإضافة أو إزالة'}</div>
+            </div>
+            <div style="text-align:left">
+              <div class="product-price">${money(price)} ج</div>
+              <div class="muted">سعر أساسي</div>
+            </div>
+          </div>
+          <div class="unit-row">
+            ${p.units.map(u => `<button class="unit-chip ${u === unit ? 'active' : ''}" onclick="event.stopPropagation(); window.__app.setUnit('${p.id}','${u}')">${u}</button>`).join('')}
+          </div>
+          <div class="qty-row">
+            <div class="qty-box">
+              <input class="qty-input" type="text" inputmode="numeric" value="${qty}" placeholder="1" oninput="event.stopPropagation(); window.__app.setQty('${p.id}', this.value)" onclick="event.stopPropagation()" />
+            </div>
+            <button class="btn ${selected ? 'red' : 'primary'}" onclick="event.stopPropagation(); window.__app.toggleProduct('${p.id}')">${selected ? 'إزالة' : 'شراء'}</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderTiers(){
+    els.tierCount.textContent = `${tiers.length} شريحة`;
+    els.tierBtn.textContent = state.currentTier === 'base' ? 'الشريحة' : currentTier().name;
+    els.tierChip.textContent = `الشريحة: ${currentTier().name}`;
+    els.tiersGrid.innerHTML = tiers.map(t => `
+      <div class="card tier-card">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+          <div>
+            <h3>${t.name}</h3>
+            <div class="muted">${t.key}</div>
+          </div>
+          ${state.currentTier === t.key ? '<span class="smallpill">مختارة</span>' : ''}
+        </div>
+        <div class="stack">
+          <div class="smallpill">الحد الأدنى: ${money(t.min)} ج</div>
+          <div class="smallpill">الخصم: ${t.discount}%</div>
+        </div>
+        <button class="btn ${state.currentTier === t.key ? 'red' : 'primary'} block" onclick="window.__app.selectTier('${t.key}')">${state.currentTier === t.key ? 'إلغاء' : 'اختيار'}</button>
+      </div>
+    `).join('');
+  }
+
+  function renderDeals(){
+    els.dailyDealCount.textContent = `${deals.length} صفقة`;
+    els.dailyDealsGrid.innerHTML = deals.map(d => `
+      <div class="card offer-card">
+        <div class="name"><strong>${d.title}</strong><span class="smallpill">${d.active ? 'متاح' : 'منتهي'}</span></div>
+        <div class="muted">واجهة عرض مستقلة عن الشريحة</div>
+        <div class="product-price">${money(d.price)} ج</div>
+        <div class="smallpill">المخزون: ${money(d.stock)}</div>
+        <button class="btn ${d.active ? 'primary' : 'ghost'} block" ${d.active ? `onclick="window.__app.addDeal('${d.id}')"` : 'disabled'}>${d.active ? 'اشترِ الآن' : 'انتهت الصفقة'}</button>
+      </div>
+    `).join('');
+  }
+
+  function renderFlash(){
+    els.flashOfferCount.textContent = `${flashOffers.length} عرض`;
+    const active = flashOffers.find(x => x.status === 'active');
+    if (active){
+      els.flashBtn.classList.add('active');
+      els.flashBtn.innerHTML = `<span class="countdown"><small>ينتهي خلال</small><strong>${formatMs(active.remainingMs)}</strong></span>`;
+    } else {
+      els.flashBtn.classList.remove('active');
+      els.flashBtn.textContent = 'عرض الساعة';
+    }
+    els.flashOffersGrid.innerHTML = flashOffers.map(f => `
+      <div class="card offer-card">
+        <div class="name"><strong>${f.title}</strong><span class="status-pill ${f.status}">${f.status === 'active' ? 'نشط' : f.status === 'pending' ? 'يبدأ قريبًا' : 'منتهي'}</span></div>
+        <div class="muted">يعتمد على الوقت الفعلي داخل الواجهة</div>
+        <div class="product-price">${money(f.price)} ج</div>
+        <div class="smallpill">${f.status === 'active' ? `ينتهي خلال ${formatMs(f.remainingMs)}` : `يبدأ خلال ${formatMs(f.remainingMs)}`}</div>
+        <button class="btn ${f.status === 'active' ? 'primary' : 'ghost'} block" ${f.status === 'active' ? `onclick="window.__app.addFlash('${f.id}')"` : 'disabled'}>${f.status === 'active' ? 'شراء' : 'بانتظار البداية'}</button>
+      </div>
+    `).join('');
+  }
+
+  function renderCheckout(){
+    const { total, remain } = totals();
+    els.checkoutTierLabel.textContent = currentTier().name;
+    els.invoiceTotal.textContent = `${money(total)} ج`;
+    els.invoiceRemaining.textContent = `${money(remain)} ج`;
+    els.invoiceTier.textContent = currentTier().name;
+    els.invoiceStatus.textContent = Object.keys(state.cart).length ? 'جاهز' : 'السلة فارغة';
+    const entries = Object.entries(state.cart);
+    els.invoiceList.innerHTML = entries.length ? entries.map(([pid, item]) => `
+      <div class="list-item">
+        <div class="top">
+          <div>
+            <strong>${item.name}</strong>
+            <div class="muted">${item.unit}</div>
+          </div>
+          <strong>${money((item.price || 0) * (item.qty || 0))} ج</strong>
+        </div>
+        <div class="muted">الكمية: ${money(item.qty || 0)} • سعر الوحدة: ${money(item.price || 0)} ج</div>
+      </div>
+    `).join('') : `<div class="empty">السلة فارغة</div>`;
+  }
+
+  function updateFooter(){
+    const { total, remain } = totals();
+    els.footerTotal.textContent = money(total);
+    els.footerRemaining.textContent = `${money(remain)} جنيه`;
+    els.statusChip.textContent = Object.keys(state.cart).length ? `${Object.keys(state.cart).length} أصناف مختارة` : 'جاهز';
+  }
+
+  function formatMs(ms){
+    const total = Math.max(0, Math.floor(Number(ms) || 0) / 1000);
+    const s = Math.floor(total % 60);
+    const m = Math.floor((total / 60) % 60);
+    const h = Math.floor(total / 3600);
+    return [h,m,s].map(v => String(v).padStart(2,'0')).join(':');
+  }
+
+  function renderAll(){
+    renderCompanies(); renderTiers(); renderDeals(); renderFlash(); renderCheckout(); renderProducts(); formatState(); updateFooter();
+  }
+
+  function openCompany(id){ state.currentCompanyId = id; state.history.push('productsView'); setView('productsView', false); }
+  function setUnit(pid, unit){
+    state.selectedUnits[pid] = unit;
+    save();
+    renderProducts();
+    toast('تم تغيير الوحدة');
+  }
+  function setQty(pid, value){
+    const cleaned = String(value || '').replace(/[^0-9]/g, '');
+    state.draftQty[pid] = cleaned === '' ? '' : Math.max(1, Number(cleaned));
+    save();
+    renderCheckout();
+    updateFooter();
+  }
+  function toggleProduct(pid){
+    const product = currentProducts().find(p => p.id === pid);
+    if (!product) return;
+    if (state.cart[pid]){
+      delete state.cart[pid];
+      toast('تمت الإزالة');
+    } else {
+      state.cart[pid] = { id: pid, name: product.name, unit: state.selectedUnits[pid] || product.units[0], qty: qtyOf(pid), price: productPrice(product) };
+      toast('تمت الإضافة');
+    }
+    save();
+    renderProducts(); renderCheckout(); updateFooter();
+  }
+  function selectTier(key){
+    if (state.currentTier === key) state.currentTier = 'base';
+    else state.currentTier = key;
+    save();
+    renderAll();
+    toast('تم تحديث الشريحة');
+  }
+  function addDeal(id){ toast('تمت إضافة صفقة اليوم إلى العرض'); }
+  function addFlash(id){ toast('تمت إضافة عرض الساعة إلى العرض'); }
+
+  function formatState(){
+    const selectedCount = Object.keys(state.cart).length;
+    els.bannerTitle.textContent = selectedCount ? `تم اختيار ${selectedCount} صنف` : 'منصة جاهزة للعرض والتنقل السريع';
+    els.bannerSubtitle.textContent = selectedCount ? 'يمكنك مراجعة الإجمالي من الشريط السفلي ثم الإتمام' : 'بدون Backend — حالات بسيطة — استقرار أعلى على الموبايل';
+  }
+
+  function tick(){
+    renderFlash();
+    renderCheckout();
+    updateFooter();
+  }
+
+  window.__app = { openCompany, setUnit, setQty, toggleProduct, selectTier, addDeal, addFlash };
+  window.goBack = goBack;
+  window.goHome = goHome;
+  window.openTiersView = openTiersView;
+  window.openDailyDealsView = openDailyDealsView;
+  window.openFlashOffersView = openFlashOffersView;
+  window.openCheckoutView = openCheckoutView;
+  window.openLoginView = openLoginView;
+  window.openUserMenu = openUserMenu;
+  window.closeUserMenu = closeUserMenu;
+  window.switchLoginTab = switchLoginTab;
+
+  renderAll();
+  formatState();
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
