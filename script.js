@@ -525,7 +525,7 @@ async function loginUser() {
       id: safeText(data.id),
       name: safeText(data.name),
       role: safeText(data.role),
-      rep_id: data.rep_id ? safeText(data.rep_id) : null,
+      created_by: data.created_by ? safeText(data.created_by) : null,
       code,
     };
     localStorage.setItem("b2b_user_v1", JSON.stringify(state.user));
@@ -558,8 +558,8 @@ async function registerCustomer() {
     });
     if (error) throw error;
     const customerId = data?.customer_id ? String(data.customer_id) : null;
-    if (customerId && state.user?.role === "rep" && state.user.rep_id) {
-      const upd = await db.from("customers").update({ created_by: state.user.rep_id, status: "active" }).eq("customer_id", customerId);
+    if (customerId && state.user?.role === "rep" && state.user.created_by) {
+      const upd = await db.from("customers").update({ created_by: state.user.created_by, status: "active" }).eq("customer_id", customerId);
       if (upd.error) console.error("Failed to assign rep to customer", upd.error);
     }
     notify("Customer registered successfully.", "success");
@@ -593,7 +593,7 @@ async function syncCustomerProfile() {
 
 async function loadMyCustomers() {
   console.log("loadMyCustomers()");
-  if (!isRep() || !state.user?.rep_id) {
+  if (!isRep() || !state.user?.created_by) {
     state.customers = [];
     renderCustomers();
     return [];
@@ -603,7 +603,7 @@ async function loadMyCustomers() {
     if (error) throw error;
     let rows = data || [];
     if (!rows.length) {
-      const fallback = await db.from("customers").select("*").eq("created_by", state.user.rep_id).order("created_at", { ascending: false });
+      const fallback = await db.from("customers").select("*").eq("created_by", state.user.created_by).order("created_at", { ascending: false });
       if (fallback.error) throw fallback.error;
       rows = fallback.data || [];
     }
@@ -630,8 +630,8 @@ async function loadMyOrders() {
     let ordersQuery = db.from("orders").select("*").order("created_at", { ascending: false }).limit(100);
     if (isCustomer() && state.customer?.customer_id) {
       ordersQuery = ordersQuery.eq("customer_id", state.customer.customer_id);
-    } else if (isRep() && state.user.rep_id) {
-      const { data: customersData, error: customersErr } = await db.from("customers").select("customer_id").eq("created_by", state.user.rep_id);
+    } else if (isRep() && state.user.created_by) {
+      const { data: customersData, error: customersErr } = await db.from("customers").select("customer_id").eq("created_by", state.user.created_by);
       if (customersErr) throw customersErr;
       const ids = (customersData || []).map((r) => String(r.customer_id));
       if (!ids.length) {
