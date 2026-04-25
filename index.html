@@ -1582,48 +1582,79 @@
     }
   }
 
-  async function registerCustomerIdentity(payload) {
-    const identity = resolveIdentity();
-    const isRep = identity.role === 'rep' && identity.rep_id;
-    const createBy = isRep ? String(identity.rep_id) : '7777';
+async function registerCustomerIdentity(payload) {
+  let customerInserted = false;
+  const identity = resolveIdentity();
 
-    const regPayload = {
-      p_name: payload.name,
-      p_phone: payload.phone,
-      p_password: payload.password,
-      p_address: payload.address,
-      p_lat: payload.lat ?? null,
-      p_lng: payload.lng ?? null
-    };
+  const name = safeText(payload?.name);
+  const phone = safeText(payload?.phone);
+  const password = safeText(payload?.password);
+  const address = safeText(payload?.address);
+  const business_name = safeText(payload?.business_name || payload?.name);
+  const location = safeText(payload?.location);
+  const shop_image = safeText(payload?.shop_image);
 
-    const { data, error } = await db.rpc('register_customer', regPayload);
-    if (error) throw error;
-
-    if (isRep) {
-      try {
-        await db.from('customers').update({ created_by: createBy }).eq('phone', payload.phone);
-      } catch (repUpdateError) {
-        console.warn(repUpdateError);
-      }
-      try {
-        await db.from('users').update({ rep_id: createBy }).eq('code', payload.phone);
-      } catch (usersUpdateError) {
-        console.warn(usersUpdateError);
-      }
-    }
-
-    const { data: customerRow, error: fetchError } = await db.from('customers').select('*').eq('phone', payload.phone).limit(1);
-    if (fetchError) throw fetchError;
-    const customer = Array.isArray(customerRow) ? customerRow[0] : customerRow;
-    if (!customer) throw new Error('customer not found after register');
-
-    return {
-      rpc: data,
-      customer
-    };
+  if (!name || !phone || !password || !address) {
+    throw new Error("كل البيانات مطلوبة");
   }
 
-  async function saveCustomerProfile() {
+  const { data: existingUser, error: existingUserError } = await db
+    .from("users")
+    .select("id")
+    .eq("code", phone)
+    .maybeSingle();
+
+  if (existingUserError) throw existingUserError;
+  if (existingUser) throw new Error("الرقم مسجل بالفعل");
+
+  const created_by =
+    identity.role === "rep"
+      ? String(identity.rep_id).trim()
+      : "7777";
+
+  const customerPayload = {
+    trader_name: name,
+    business_name: business_name || name,
+    phone: phone,
+    address: address,
+    created_by: created_by,
+    status: "active",
+    visible: true
+  };
+
+  if (location) customerPayload.location = location;
+  if (shop_image) customerPayload.shop_image = shop_image;
+
+  const { data: customer, error: custErr } = await db
+    .from("customers")
+    .insert(customerPayload)
+    .select()
+    .maybeSingle();
+
+  if (custErr) throw custErr;
+  customerInserted = true;
+
+  const { error: userErr } = await db
+    .from("users")
+    .insert({
+      code: phone,
+      password_hash: password,
+      name: name,
+      role: "customer"
+    });
+
+  if (userErr) {
+    if (customerInserted && customer?.customer_id != null) {
+      await db.from("customers").delete().eq("customer_id", customer.customer_id);
+    }
+    throw userErr;
+  }
+
+  return { customer };
+}
+
+async function saveCustomerProfile() {
+
     const payload = {
       name: safeText(els.custName.value),
       business_name: safeText(els.custBusiness.value),
@@ -1699,25 +1730,46 @@
     showToast('تم اختيار العميل');
   }
 
-  async function loadMyCustomers() {
-    const identity = resolveIdentity();
-    if (identity.role !== 'rep' || !identity.rep_id) {
-      state.repCustomers = [];
-      if (els.myCustomersCount) els.myCustomersCount.textContent = '0';
-      return [];
-    }
-    try {
-      const { data, error } = await db.from('customers').select('*').eq('created_by', String(identity.rep_id)).eq('visible', true).order('created_at', { ascending: false }).limit(100);
-      if (error) throw error;
-      state.repCustomers = Array.isArray(data) ? data : [];
-      if (els.myCustomersCount) els.myCustomersCount.textContent = `${state.repCustomers.length}`;
-    } catch (err) {
-      console.error(err);
-      state.repCustomers = [];
-      if (els.myCustomersCount) els.myCustomersCount.textContent = '0';
-    }
-    return state.repCustomers;
+async function loadMyCustomers() {
+  const identity = resolveIdentity();
+
+  if (identity.role !== "rep" || !identity.rep_id) {
+    state.repCustomers = [];
+    if (els.myCustomersCount) els.myCustomersCount.textContent = "0";
+    if (typeof renderMyCustomers === "function") renderMyCustomers();
+    return [];
   }
+
+  try {
+    const repId = String(identity.rep_id).trim();
+
+    const { data, error } = await db
+      .from("customers")
+      .select("*")
+      .eq("created_by", repId);
+
+    if (error) throw error;
+
+    state.repCustomers = data || [];
+
+    if (els.myCustomersCount) {
+      els.myCustomersCount.textContent = state.repCustomers.length;
+    }
+
+    if (typeof renderMyCustomers === "function") {
+      renderMyCustomers();
+    }
+
+    return state.repCustomers;
+
+  } catch (err) {
+    console.error("LOAD CUSTOMERS ERROR:", err);
+    state.repCustomers = [];
+    if (els.myCustomersCount) els.myCustomersCount.textContent = "0";
+    if (typeof renderMyCustomers === "function") renderMyCustomers();
+    return [];
+  }
+}
 
   function logout() {
     state.user = normalizeSessionObject({ role: 'guest', type: 'guest' });
