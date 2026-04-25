@@ -1205,6 +1205,10 @@ function syncUnitPreference(productId, unit) {
 }
 
 function wireGlobalEvents() {
+  els.userBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleUserMenu();
+});
   document.addEventListener('click', async (event) => {
     const target = event.target.closest('[data-action], [data-close], [data-company-id]');
     if (!target) return;
