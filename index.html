@@ -1598,14 +1598,15 @@ async function registerCustomerIdentity(payload) {
     throw new Error("كل البيانات مطلوبة");
   }
 
-  const { data: existingUser, error: existingUserError } = await db
-    .from("users")
-    .select("id")
-    .eq("code", phone)
-    .maybeSingle();
+ const { data: existingUser } = await db
+  .from("users")
+  .select("id")
+  .eq("code", phone)
+  .maybeSingle();
 
-  if (existingUserError) throw existingUserError;
-  if (existingUser) throw new Error("الرقم مسجل بالفعل");
+if (existingUser) {
+  throw new Error("الرقم مسجل بالفعل");
+}
 
   const created_by =
     identity.role === "rep"
@@ -1638,7 +1639,7 @@ async function registerCustomerIdentity(payload) {
     .from("users")
     .insert({
       code: phone,
-      password_hash: password,
+      password_hash: password.trim(),
       name: name,
       role: "customer"
     });
@@ -1741,7 +1742,7 @@ async function loadMyCustomers() {
   }
 
   try {
-    const repId = String(identity.rep_id).trim();
+    const repId = identity.rep_id;
 
     const { data, error } = await db
       .from("customers")
