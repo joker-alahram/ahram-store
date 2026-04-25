@@ -9,76 +9,103 @@
 </head>
 <body>
   <div class="app-shell">
+
     <header class="topbar">
+
       <div class="topbar-row topbar-row-main">
-        <button class="icon-brand" id="homeBtn" type="button" aria-label="العودة للرئيسية">
+
+        <button class="icon-brand" id="homeBtn" type="button">
           <span class="brand-dot"></span>
         </button>
 
-        <div class="topbar-actions">
-          <button class="header-chip tier-chip" id="tierBtn" type="button">اختار شريحتك</button>
-          <button class="header-chip" id="dealsBtn" type="button">صفقة اليوم</button>
-          <button class="header-chip flash-chip" id="flashBtn" type="button">
-            <span id="flashBtnText">عرض الساعة</span>
-            <small id="flashBtnMeta"></small>
-          </button>
-          <button class="cart-chip" id="cartBtn" type="button" aria-label="قيمة السلة فقط">
-            <span class="cart-value" id="cartValue">0</span>
-          </button>
-          <div class="user-wrap">
-            <button class="header-chip user-chip" id="userBtn" type="button">دخول</button>
-            <div class="user-menu hidden" id="userMenu" aria-hidden="true">
-              <button type="button" data-action="invoices">فواتيري</button>
-              <button type="button" data-action="logout">تسجيل الخروج</button>
-            </div>
+        <!-- 🔥 الهيدر صفين -->
+        <div class="topbar-actions two-rows">
+
+          <!-- الصف الأول -->
+          <div class="row row-top">
+            <button class="header-chip tier-chip" id="tierBtn">اختار شريحتك</button>
+            <button class="header-chip" id="dealsBtn">صفقة اليوم</button>
           </div>
+
+          <!-- الصف الثاني -->
+          <div class="row row-bottom">
+
+            <button class="header-chip flash-chip" id="flashBtn">
+              <span id="flashBtnText">عرض الساعة</span>
+              <small id="flashBtnMeta"></small>
+            </button>
+
+            <button class="cart-chip" id="cartBtn">
+              <span class="cart-value" id="cartValue">0</span>
+            </button>
+
+            <div class="user-wrap">
+              <button class="header-chip user-chip" id="userBtn">دخول</button>
+              <div class="user-menu hidden" id="userMenu">
+                <button data-action="invoices">فواتيري</button>
+                <button data-action="logout">تسجيل الخروج</button>
+              </div>
+            </div>
+
+          </div>
+
         </div>
+
       </div>
 
       <div class="topbar-row topbar-row-sub">
-         <div class="flash-headline" id="flashHeadline"></div>
+        <div class="flash-headline" id="flashHeadline"></div>
       </div>
+
     </header>
 
     <main class="main" id="app"></main>
+
   </div>
 
-  <div class="overlay hidden" id="loginModal" aria-hidden="true">
+  <!-- LOGIN -->
+  <div class="overlay hidden" id="loginModal">
     <div class="modal-card">
       <div class="modal-head">
         <h3>تسجيل الدخول</h3>
-        <button class="icon-btn" data-close="loginModal" type="button">×</button>
+        <button class="icon-btn" data-close="loginModal">×</button>
       </div>
+
       <label class="field">
         <span>الهاتف أو اسم المستخدم</span>
-        <input id="loginIdentifier" type="text" placeholder="01000000000 أو username" autocomplete="username" />
+        <input id="loginIdentifier" type="text" />
       </label>
+
       <label class="field">
         <span>كلمة المرور</span>
-        <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" />
+        <input id="loginPassword" type="password" />
       </label>
-      <button class="primary-btn" id="submitLogin" type="button">دخول</button>
-      <p class="helper-text">يتم البحث في العملاء ثم المندوبين.</p>
+
+      <button class="primary-btn" id="submitLogin">دخول</button>
     </div>
   </div>
 
-  <aside class="drawer hidden" id="cartDrawer" aria-hidden="true">
+  <!-- CART -->
+  <aside class="drawer hidden" id="cartDrawer">
     <div class="drawer-head">
       <h3>السلة</h3>
-      <button class="icon-btn" data-close="cartDrawer" type="button">×</button>
+      <button class="icon-btn" data-close="cartDrawer">×</button>
     </div>
+
     <div class="drawer-body" id="cartItems"></div>
+
     <div class="drawer-foot">
       <div class="total-row">
         <span>الإجمالي</span>
         <strong id="cartTotal">0</strong>
       </div>
-      <button class="primary-btn" id="checkoutBtn" type="button">إتمام الطلب</button>
-      <button class="ghost-btn" id="saveCartBtn" type="button">حفظ السلة</button>
+      <button class="primary-btn" id="checkoutBtn">إتمام الطلب</button>
+      <button class="ghost-btn" id="saveCartBtn">حفظ السلة</button>
     </div>
   </aside>
 
   <div class="toast hidden" id="toast"></div>
+
   <script src="app.js"></script>
 </body>
 </html>
