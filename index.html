@@ -1552,9 +1552,15 @@
     const pass = safeText(els.custLoginPass.value);
     if (!phone) return showToast('اكتب رقم الهاتف أولًا');
     try {
+      // #region agent log
+      fetch('http://127.0.0.1:7863/ingest/c25b21bb-d75d-4bbf-9143-bf4e00f830d7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7d5516'},body:JSON.stringify({sessionId:'7d5516',runId:'pre-fix',hypothesisId:'H3',location:'index.html:1555',message:'loginCustomer input prepared',data:{phone,passLength:(pass||'').length},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       const { data, error } = await db.rpc('login_user', { p_code: phone, p_password: pass });
       if (error) throw error;
       const row = safeObject(data, null);
+      // #region agent log
+      fetch('http://127.0.0.1:7863/ingest/c25b21bb-d75d-4bbf-9143-bf4e00f830d7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7d5516'},body:JSON.stringify({sessionId:'7d5516',runId:'pre-fix',hypothesisId:'H3',location:'index.html:1560',message:'login_user rpc response',data:{hasRow:!!row,role:row?.role||null,repId:row?.rep_id||null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       if (!row) throw new Error('login failed');
       if (safeText(row.role).toLowerCase() !== 'customer') {
         throw new Error('not customer');
@@ -1562,6 +1568,9 @@
       const { data: customerRow, error: customerError } = await db.from('customers').select('*').eq('phone', phone).limit(1);
       if (customerError) throw customerError;
       const customer = Array.isArray(customerRow) ? customerRow[0] : customerRow;
+      // #region agent log
+      fetch('http://127.0.0.1:7863/ingest/c25b21bb-d75d-4bbf-9143-bf4e00f830d7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7d5516'},body:JSON.stringify({sessionId:'7d5516',runId:'pre-fix',hypothesisId:'H4',location:'index.html:1568',message:'customer lookup by phone result',data:{phone,found:!!customer,customerId:customer?.customer_id||null,createdBy:customer?.created_by||null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       if (!customer) throw new Error('customer not found');
       state.user = normalizeSessionObject({
         role: 'customer',
@@ -1582,80 +1591,58 @@
     }
   }
 
-async function registerCustomerIdentity(payload) {
-  let customerInserted = false;
-  const identity = resolveIdentity();
+  async function registerCustomerIdentity(payload) {
+    const identity = resolveIdentity();
+    const isRep = identity.role === 'rep' && identity.rep_id;
+    const createBy = isRep ? String(identity.rep_id) : '7777';
+    // #region agent log
+    fetch('http://127.0.0.1:7863/ingest/c25b21bb-d75d-4bbf-9143-bf4e00f830d7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7d5516'},body:JSON.stringify({sessionId:'7d5516',runId:'pre-fix',hypothesisId:'H2',location:'index.html:1591',message:'registerCustomerIdentity start',data:{isRep:!!isRep,repId:isRep?createBy:null,phone:payload?.phone||null},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
-  const name = safeText(payload?.name);
-  const phone = safeText(payload?.phone);
-  const password = safeText(payload?.password);
-  const address = safeText(payload?.address);
-  const business_name = safeText(payload?.business_name || payload?.name);
-  const location = safeText(payload?.location);
-  const shop_image = safeText(payload?.shop_image);
+    const regPayload = {
+      p_name: payload.name,
+      p_phone: payload.phone,
+      p_password: payload.password,
+      p_address: payload.address,
+      p_lat: payload.lat ?? null,
+      p_lng: payload.lng ?? null
+    };
 
-  if (!name || !phone || !password || !address) {
-    throw new Error("كل البيانات مطلوبة");
-  }
+    const { data, error } = await db.rpc('register_customer', regPayload);
+    if (error) throw error;
+    // #region agent log
+    fetch('http://127.0.0.1:7863/ingest/c25b21bb-d75d-4bbf-9143-bf4e00f830d7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7d5516'},body:JSON.stringify({sessionId:'7d5516',runId:'pre-fix',hypothesisId:'H2',location:'index.html:1605',message:'register_customer rpc success',data:{hasData:!!data},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
- const { data: existingUser } = await db
-  .from("users")
-  .select("id")
-  .eq("code", phone)
-  .maybeSingle();
-
-if (existingUser) {
-  throw new Error("الرقم مسجل بالفعل");
-}
-
-  const created_by =
-    identity.role === "rep"
-      ? String(identity.rep_id).trim()
-      : "7777";
-
-  const customerPayload = {
-    trader_name: name,
-    business_name: business_name || name,
-    phone: phone,
-    address: address,
-    created_by: created_by,
-    status: "active",
-    visible: true
-  };
-
-  if (location) customerPayload.location = location;
-  if (shop_image) customerPayload.shop_image = shop_image;
-
-  const { data: customer, error: custErr } = await db
-    .from("customers")
-    .insert(customerPayload)
-    .select()
-    .maybeSingle();
-
-  if (custErr) throw custErr;
-  customerInserted = true;
-
-  const { error: userErr } = await db
-    .from("users")
-    .insert({
-      code: phone,
-      password_hash: password.trim(),
-      name: name,
-      role: "customer"
-    });
-
-  if (userErr) {
-    if (customerInserted && customer?.customer_id != null) {
-      await db.from("customers").delete().eq("customer_id", customer.customer_id);
+    if (isRep) {
+      try {
+        const { error: customerUpdateError } = await db.from('customers').update({ created_by: createBy }).eq('phone', payload.phone);
+        // #region agent log
+        fetch('http://127.0.0.1:7863/ingest/c25b21bb-d75d-4bbf-9143-bf4e00f830d7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7d5516'},body:JSON.stringify({sessionId:'7d5516',runId:'pre-fix',hypothesisId:'H2',location:'index.html:1611',message:'customers created_by update result',data:{hasError:!!customerUpdateError,errorMessage:customerUpdateError?.message||null,phone:payload.phone,createdBy:createBy},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        if (customerUpdateError) throw customerUpdateError;
+      } catch (repUpdateError) {
+        console.warn(repUpdateError);
+      }
+      try {
+        await db.from('users').update({ rep_id: createBy }).eq('code', payload.phone);
+      } catch (usersUpdateError) {
+        console.warn(usersUpdateError);
+      }
     }
-    throw userErr;
+
+    const { data: customerRow, error: fetchError } = await db.from('customers').select('*').eq('phone', payload.phone).limit(1);
+    if (fetchError) throw fetchError;
+    const customer = Array.isArray(customerRow) ? customerRow[0] : customerRow;
+    if (!customer) throw new Error('customer not found after register');
+
+    return {
+      rpc: data,
+      customer
+    };
   }
 
-  return { customer };
-}
-
-async function saveCustomerProfile() {
-
+  async function saveCustomerProfile() {
     const payload = {
       name: safeText(els.custName.value),
       business_name: safeText(els.custBusiness.value),
@@ -1731,46 +1718,31 @@ async function saveCustomerProfile() {
     showToast('تم اختيار العميل');
   }
 
-async function loadMyCustomers() {
-  const identity = resolveIdentity();
-
-  if (identity.role !== "rep" || !identity.rep_id) {
-    state.repCustomers = [];
-    if (els.myCustomersCount) els.myCustomersCount.textContent = "0";
-    if (typeof renderMyCustomers === "function") renderMyCustomers();
-    return [];
-  }
-
-  try {
-    const repId = identity.rep_id;
-
-    const { data, error } = await db
-      .from("customers")
-      .select("*")
-      .eq("created_by", repId);
-
-    if (error) throw error;
-
-    state.repCustomers = data || [];
-
-    if (els.myCustomersCount) {
-      els.myCustomersCount.textContent = state.repCustomers.length;
+  async function loadMyCustomers() {
+    const identity = resolveIdentity();
+    // #region agent log
+    fetch('http://127.0.0.1:7863/ingest/c25b21bb-d75d-4bbf-9143-bf4e00f830d7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7d5516'},body:JSON.stringify({sessionId:'7d5516',runId:'pre-fix',hypothesisId:'H1',location:'index.html:1712',message:'loadMyCustomers identity',data:{role:identity?.role||null,repId:identity?.rep_id||null},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    if (identity.role !== 'rep' || !identity.rep_id) {
+      state.repCustomers = [];
+      if (els.myCustomersCount) els.myCustomersCount.textContent = '0';
+      return [];
     }
-
-    if (typeof renderMyCustomers === "function") {
-      renderMyCustomers();
+    try {
+      const { data, error } = await db.from('customers').select('*').eq('created_by', String(identity.rep_id)).eq('visible', true).order('created_at', { ascending: false }).limit(100);
+      if (error) throw error;
+      // #region agent log
+      fetch('http://127.0.0.1:7863/ingest/c25b21bb-d75d-4bbf-9143-bf4e00f830d7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7d5516'},body:JSON.stringify({sessionId:'7d5516',runId:'pre-fix',hypothesisId:'H1',location:'index.html:1721',message:'loadMyCustomers query result',data:{count:Array.isArray(data)?data.length:0,repId:String(identity.rep_id)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      state.repCustomers = Array.isArray(data) ? data : [];
+      if (els.myCustomersCount) els.myCustomersCount.textContent = `${state.repCustomers.length}`;
+    } catch (err) {
+      console.error(err);
+      state.repCustomers = [];
+      if (els.myCustomersCount) els.myCustomersCount.textContent = '0';
     }
-
     return state.repCustomers;
-
-  } catch (err) {
-    console.error("LOAD CUSTOMERS ERROR:", err);
-    state.repCustomers = [];
-    if (els.myCustomersCount) els.myCustomersCount.textContent = "0";
-    if (typeof renderMyCustomers === "function") renderMyCustomers();
-    return [];
   }
-}
 
   function logout() {
     state.user = normalizeSessionObject({ role: 'guest', type: 'guest' });
@@ -1868,4 +1840,90 @@ async function loadMyCustomers() {
           refreshOfferCountdownUI();
         }, 1000);
       }
-   
+      if (resolveIdentity().role === 'rep') await loadMyCustomers();
+      if (route.view === 'productsView' && route.params.company) {
+        const company = state.companies.find(c => String(c.company_id) === String(route.params.company));
+        if (company) await loadCompanyProducts(company.company_id, company.company_name);
+        else goHome();
+      } else if (route.view === 'tiersView') {
+        openTiersView();
+      } else if (route.view === 'dailyDealsView') {
+        openDailyDealsView();
+      } else if (route.view === 'flashOffersView') {
+        openFlashOffersView();
+      } else if (route.view === 'checkoutView') {
+        renderCart();
+        showView('checkoutView', {}, false);
+      } else {
+        goHome();
+      }
+      if (!state.companies.length) renderCompanies(true);
+      updateRenderedProductPrices();
+      renderCart();
+      refreshOfferCountdownUI();
+    } catch (err) {
+      console.error(err);
+      reportError('تعذر تشغيل التطبيق');
+      goHome();
+    }
+  }
+
+  window.__app = {
+    openCompany: (companyId) => {
+      const company = state.companies.find(c => String(c.company_id) === String(companyId));
+      return loadCompanyProducts(companyId, company?.company_name || 'الشركة');
+    },
+    setUnit,
+    setDraftQty,
+    addProduct,
+    removeProductFromCart,
+    addDailyDeal,
+    purchase_flash_offer,
+    incQty,
+    decQty,
+    removeCartItem,
+    setCartItemQty,
+    updateCartItemQty,
+    selectTier,
+    userMenuAction,
+    selectRepCustomer
+  };
+
+  window.resolveIdentity = resolveIdentity;
+  window.goHome = goHome;
+  window.goBack = goBack;
+  window.openTiersView = openTiersView;
+  window.openDailyDealsView = openDailyDealsView;
+  window.openFlashOffersView = openFlashOffersView;
+  window.openCartView = openCartView;
+  window.openUserMenu = openUserMenu;
+  window.closeUserMenu = closeUserMenu;
+  window.switchCustomerForm = switchCustomerForm;
+  window.loginRep = loginRep;
+  window.loginCustomer = loginCustomer;
+  window.saveCustomerProfile = saveCustomerProfile;
+  window.openMyCustomers = openMyCustomers;
+  window.sendOrder = sendOrder;
+  window.verifyCheckout = verifyCheckout;
+  window.loadCompanyProducts = loadCompanyProducts;
+  window.selectTier = selectTier;
+  window.openCustomerForm = openCustomerForm;
+  window.purchase_flash_offer = purchase_flash_offer;
+  window.__app.resolveIdentity = resolveIdentity;
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      state.cart = normalizeCart(state.cart);
+      state.user = normalizeSessionObject(state.user);
+      state.unitSelectionByProduct = safeObject(state.unitSelectionByProduct, {});
+      syncTopUI();
+      updateCartWidgets();
+    }
+  });
+
+  boot();
+})();
+
+</script>
+</body>
+</html>
