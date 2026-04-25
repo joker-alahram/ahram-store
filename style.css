@@ -15,8 +15,8 @@
   --shadow:0 16px 40px rgba(0,0,0,.38);
   --radius:22px;
 
-  /* 🔥 رفع ارتفاع الهيدر */
-  --header-h:clamp(110px,14vh,140px);
+  /* 🔥 تم تعديل الارتفاع */
+  --header-h:clamp(120px,15vh,150px);
 }
 
 *{box-sizing:border-box}
@@ -29,10 +29,17 @@ html,body{
   radial-gradient(circle at top right, rgba(228,194,106,.08), transparent 25%),
   linear-gradient(180deg,#050608 0%, #0a0c11 100%);
   color:var(--text);
-  font-family:system-ui,-apple-system,"Segoe UI",Tahoma;
+  font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
 }
 
-body{direction:rtl;overflow-x:hidden}
+body{
+  direction:rtl;
+  overflow-x:hidden;
+}
+
+.app-shell{
+  min-height:100vh;
+}
 
 /* ================= HEADER ================= */
 
@@ -51,10 +58,18 @@ body{direction:rtl;overflow-x:hidden}
 
   display:flex;
   flex-direction:column;
-  padding:8px;
+  gap:6px;
+  padding:8px 10px;
 }
 
-/* 🔥 توزيع صفين */
+.topbar-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+/* 🔥 صفين */
 .topbar-actions{
   display:flex;
   flex-direction:column;
@@ -62,7 +77,7 @@ body{direction:rtl;overflow-x:hidden}
   width:100%;
 }
 
-/* الصف */
+/* الصفوف */
 .topbar-actions .row{
   display:flex;
   gap:6px;
@@ -94,7 +109,10 @@ body{direction:rtl;overflow-x:hidden}
 /* ================= BUTTONS ================= */
 
 .header-chip,
-.cart-chip{
+.cart-chip,
+.icon-btn,
+.ghost-btn,
+.primary-btn{
   border:1px solid var(--line);
   border-radius:14px;
   min-height:36px;
@@ -102,12 +120,13 @@ body{direction:rtl;overflow-x:hidden}
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:.72rem;
+  gap:6px;
   cursor:pointer;
 }
 
 .header-chip{
   background:var(--panel);
+  font-size:.72rem;
 }
 
 .tier-chip{
@@ -132,7 +151,7 @@ body{direction:rtl;overflow-x:hidden}
 }
 
 .cart-value{
-  font-size:1.2rem; /* 🔥 كبرناه */
+  font-size:1.2rem;
   font-weight:900;
   color:var(--gold-2);
 }
@@ -143,6 +162,10 @@ body{direction:rtl;overflow-x:hidden}
   position:relative;
 }
 
+.user-chip{
+  min-width:70px;
+}
+
 .user-menu{
   position:absolute;
   top:110%;
@@ -151,6 +174,7 @@ body{direction:rtl;overflow-x:hidden}
   border:1px solid var(--line);
   border-radius:12px;
   padding:6px;
+  z-index:200;
 }
 
 .user-menu button{
@@ -168,12 +192,64 @@ body{direction:rtl;overflow-x:hidden}
   padding:calc(var(--header-h) + 10px) 10px;
 }
 
+/* ================= COMMON ================= */
+
+.grid{
+  display:grid;
+  gap:10px;
+}
+
+.company-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.product-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.company-card,
+.product-card{
+  background:var(--panel);
+  border-radius:16px;
+  padding:10px;
+}
+
+.product-image{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+}
+
+/* ================= MODAL ================= */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:200;
+}
+
+.modal-card{
+  width:90%;
+  max-width:400px;
+  background:#111;
+  padding:16px;
+  border-radius:16px;
+}
+
+.hidden{
+  display:none !important;
+}
+
 /* ================= RESPONSIVE ================= */
 
 @media (max-width:640px){
 
   :root{
-    --header-h:clamp(120px,16vh,150px);
+    --header-h:clamp(130px,16vh,160px);
   }
 
   .header-chip{
