@@ -2052,25 +2052,50 @@ async function insertOrderItems(orderId) {
 }
 
 function buildWhatsAppInvoice(order, items) {
-  const rep = state.session;
-  const customer = state.selectedCustomer || state.session;
+
+  let repBlock = '';
+  let customerBlock = '';
+
+  // 🟢 حالة المندوب
+  if (state.session.userType === 'rep') {
+
+    const rep = state.session;
+    const customer = state.selectedCustomer;
+
+    repBlock = `
+👨‍💼 المندوب
+${rep.name || ''}
+📞 ${rep.phone || ''}
+📍 ${rep.address || rep.location || ''}
+━━━━━━━━━━━━━━
+`;
+
+    customerBlock = `
+👤 العميل
+${customer?.name || ''}
+📞 ${customer?.phone || ''}
+📍 ${customer?.address || customer?.location || ''}
+`;
+
+  } else {
+
+    // 🔵 عميل مباشر
+    const customer = state.session;
+
+    customerBlock = `
+👤 العميل
+${customer.name || ''}
+📞 ${customer.phone || ''}
+📍 ${customer.address || customer.location || ''}
+`;
+  }
 
   let message = `🧾 فاتورة طلب شراء
 رقم الفاتورة: ${order.order_number}
 
 ━━━━━━━━━━━━━━
-👨‍💼 المندوب
-${rep.name || ''}
-📞 ${rep.phone || ''}
-📍 ${rep.address || rep.location || ''}
+${repBlock}${customerBlock}
 
-━━━━━━━━━━━━━━
-👤 العميل
-${customer.name || ''}
-📞 ${customer.phone || ''}
-📍 ${customer.address || customer.location || ''}`;
-
-  message += `
 ━━━━━━━━━━━━━━
 📊 الشريحة
 ${getSelectedTierLabel()}
@@ -2079,7 +2104,11 @@ ${getSelectedTierLabel()}
 `;
 
   items.forEach((i) => {
-    const unitLabel = i.unit === 'carton' ? 'كرتونة' : i.unit === 'pack' ? 'دستة' : 'قطعة';
+    const unitLabel =
+      i.unit === 'carton' ? 'كرتونة' :
+      i.unit === 'pack' ? 'دستة' :
+      'قطعة';
+
     message += `
 📦 ${i.title || i.name || ''}
 كود: ${i.id}
