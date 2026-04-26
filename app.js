@@ -150,7 +150,16 @@ function toast(message) {
 }
 
 const personas = [
-  
+  "",
+  "",
+  "",
+  " ",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
 ];
 
 const SALES_SEEDS = {
