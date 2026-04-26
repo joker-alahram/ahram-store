@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0c10" />
+  <title>Sales System</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <section id="banner"></section>
+
+    <header class="topbar" id="mainHeader">
+      <div class="topbar-actions">
+        <div class="action-row action-row-top">
+          <button class="header-chip tier-chip" id="tierBtn" type="button">اختار شريحتك</button>
+          <button class="header-chip" id="dealsBtn" type="button">صفقة اليوم</button>
+          <div class="user-wrap">
+            <button class="header-chip user-chip" id="userBtn" type="button">دخول</button>
+            <div class="user-menu hidden" id="userMenu" aria-hidden="true">
+              <button type="button" data-action="my-data">بياناتي</button>
+              <button type="button" data-action="my-customers">عملائي</button>
+              <button type="button" data-action="invoices">فواتيري</button>
+              <button type="button" data-action="logout">تسجيل الخروج</button>
+            </div>
+          </div>
+        </div>
+        <div class="action-row action-row-bottom">
+          <button class="header-chip flash-chip" id="flashBtn" type="button">
+            <span id="flashBtnText">عرض الساعة</span>
+            <small id="flashBtnMeta"></small>
+          </button>
+          <button class="cart-chip" id="cartBtn" type="button" aria-label="فتح إتمام الشراء">
+            <span class="cart-label" id="cartLabel">إتمام الشراء</span>
+            <span class="cart-value" id="cartValue">0</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section id="searchBar"></section>
+    <main class="main" id="pageContent"></main>
+    <section id="registerPage" class="page hidden"></section>
+  </div>
+
+  <div class="overlay hidden" id="loginModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>تسجيل الدخول</h3>
+        <button class="icon-btn" data-close="loginModal" type="button">×</button>
+      </div>
+      <label class="field">
+        <span>الهاتف أو اسم المستخدم</span>
+        <input id="loginIdentifier" type="text" placeholder="01000000000 أو username" autocomplete="username" />
+      </label>
+      <label class="field">
+        <span>كلمة المرور</span>
+        <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </label>
+      <button class="primary-btn" id="submitLogin" type="button">دخول</button>
+      <button class="ghost-btn" data-action="open-register" type="button">تسجيل عميل جديد</button>
+      <p class="helper-text">يتم البحث في العملاء ثم المندوبين.</p>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="myDataModal" aria-hidden="true">
+    <div class="modal-card" id="myDataCard">
+      <div class="modal-head">
+        <h3>بياناتي</h3>
+        <button class="icon-btn" data-close="myDataModal" type="button">×</button>
+      </div>
+      <div id="myDataContent" class="profile-grid"></div>
+      <div class="modal-foot">
+        <button class="ghost-btn" data-close="myDataModal" type="button">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="addCustomerModal" aria-hidden="true">
+    <div class="modal-card modal-card-wide">
+      <div class="modal-head">
+        <h3>إضافة عميل</h3>
+        <button class="icon-btn" data-close="addCustomerModal" type="button">×</button>
+      </div>
+      <label class="field">
+        <span>اسم العميل</span>
+        <input id="custName" type="text" placeholder="اسم العميل" />
+      </label>
+      <label class="field">
+        <span>رقم الهاتف</span>
+        <input id="custPhone" type="text" placeholder="01000000000" />
+      </label>
+      <label class="field">
+        <span>العنوان</span>
+        <input id="custAddress" type="text" placeholder="العنوان" />
+      </label>
+      <div class="modal-foot modal-foot-stack">
+        <button class="primary-btn" data-action="save-customer" type="button">حفظ العميل</button>
+        <button class="ghost-btn" data-close="addCustomerModal" type="button">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="drawer hidden" id="cartDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <h3>السلة</h3>
+      <button class="icon-btn" data-close="cartDrawer" type="button">×</button>
+    </div>
+    <div class="drawer-body" id="cartItems"></div>
+    <div class="drawer-foot">
+      <div class="total-row">
+        <span>الإجمالي</span>
+        <strong id="cartTotal">0</strong>
+      </div>
+      <button class="primary-btn" id="checkoutBtn" type="button">التحقق من الطلب</button>
+      <button class="ghost-btn" id="saveCartBtn" type="button">حفظ السلة</button>
+    </div>
+  </aside>
+
+  <div class="toast hidden" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
