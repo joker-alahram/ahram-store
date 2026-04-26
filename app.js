@@ -534,7 +534,6 @@ async function registerCustomer() {
       phone: data.phone,
       password: data.password,
       address: data.address,
-      business_name: data.business_name || null,
       location: data.location || null,
       customer_type: 'direct',
       sales_rep_id: null,
