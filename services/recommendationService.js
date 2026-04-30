@@ -1,3 +1,0 @@
-function getRecommendationProducts() {
-  return getRecommendedProducts();
-}

@@ -1,3 +1,0 @@
-function loadProductCatalog() {
-  return loadData();
-}
