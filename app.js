@@ -2217,14 +2217,14 @@ function renderRegisterPage() {
       <div class="section-card register-card">
         <div class="register-hero">
           <h1>تسجيل عميل جديد</h1>
-          <p>سجّل عميلك مباشرة من الموبايل، من غير مودال، ومن غير تعقيد. الحساب بيتنشأ فورًا وبعدها يدخل تلقائي على المتجر.</p>
+          <p>سجل حسابك الشخصى لتتمكن من أرسال طلبات الشراء ومتابعة كل طلباتك السابقه</p>
         </div>
 
         <form class="register-form" id="registerForm" autocomplete="on">
           <div class="register-grid">
             <label class="field">
               <span>الاسم الكامل</span>
-              <input id="registerName" type="text" placeholder="الاسم رباعي أو ثنائي على الأقل" autocomplete="name" />
+              <input id="registerName" type="text" placeholder="الاسم ثنائي على الأقل" autocomplete="name" />
             </label>
 
             <label class="field">
@@ -2244,7 +2244,7 @@ function renderRegisterPage() {
 
             <label class="field">
               <span>اسم النشاط (اختياري)</span>
-              <input id="registerBusinessName" type="text" placeholder="اسم المحل أو الشركة" autocomplete="organization" />
+              <input id="registerBusinessName" type="text" placeholder="اسم المحل أو النشاط" autocomplete="organization" />
             </label>
 
             <div class="field">
@@ -2283,7 +2283,6 @@ function renderHomePage() {
     els.banner.innerHTML = `
       <section class="banner-card home-hero">
         <div class="home-hero-copy">
-          <div class="hero-kicker">AL Ahram CO PRO </div>
           <h1>الاهرام للتجارة والتوزيع</h1>
           <p></p>
           <div class="hero-actions">
@@ -2291,9 +2290,6 @@ function renderHomePage() {
             <button class="ghost-btn" type="button" data-action="shelf-more" data-hash="#deals">العروض القوية</button>
           </div>
           <div class="hero-pills">
-            <span class="badge">سرعة</span>
-            <span class="badge">ثقة</span>
-            <span class="badge">تغطيه واسعه</span>
           </div>
         </div>
         <div class="home-hero-art">
@@ -2408,7 +2404,7 @@ function renderTierPage() {
       <section class="section-card">
         <div class="section-head">
           <div>
-            <h2>عرض الشرائح</h2>
+            <h2>أختار شريحتك</h2>
             <div class="helper-text">اختر الشريحة المناسبة ثم عد إلى الصفحة الرئيسية</div>
           </div>
         </div>
