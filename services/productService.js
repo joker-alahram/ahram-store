@@ -1,0 +1,3 @@
+function loadProductCatalog() {
+  return loadData();
+}
