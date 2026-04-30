@@ -1560,9 +1560,9 @@ function setSearchBarHtml(html = '') {
 function updateHeader() {
   const tierLabel = getSelectedTierLabel();
   if (els.tierBtn) {
-    const tierText = state.selectedTier ? tierLabel : 'عرض الشرائح';
+    const tierText = state.selectedTier ? tierLabel : 'أختار شريحتك';
     els.tierBtn.textContent = tierText;
-    els.tierBtn.title = `${tierLabel} · عرض الشرائح`;
+    els.tierBtn.title = `${tierLabel} · أختار شريحتك`;
     els.tierBtn.setAttribute('aria-label', tierText);
   }
   if (els.userBtn) els.userBtn.textContent = getSessionLabel();
