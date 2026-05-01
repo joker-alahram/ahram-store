@@ -1,7 +1,7 @@
 const CONFIG = {
   baseUrl: 'https://upzuslyqfcvpbkqyzyxp.supabase.co/rest/v1',
   apiKey: 'sb_publishable_vpqJxVuMbYbm0y3VvVhuJw_FBQkLvYg',
-  supportWhatsapp: localStorage.getItem('support_whatsapp') || '201552670465',
+  supportWhatsapp: localStorage.getItem('support_whatsapp') || '201040880002',
 };
 
 const STORAGE = {
