@@ -1,0 +1,9 @@
+{
+  "name": "b2b-pricing-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node pricing-engine/tests.js"
+  }
+}
