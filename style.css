@@ -1,0 +1,51 @@
+@import url("./styles/tokens.css");
+@import url("./styles/mobile-header.css");
+@import url("./styles/flash-hero.css");
+@import url("./styles/tier-surface.css");
+@import url("./styles/product-feed.css");
+@import url("./styles/companies-grid.css");
+@import url("./styles/modal-system.css");
+@import url("./styles/operational-nav.css");
+
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at top right, rgba(255,255,255,.04), transparent 25%),radial-gradient(circle at bottom left, rgba(255,255,255,.02), transparent 22%),var(--bg);color:var(--text);font-family:"Cairo","IBM Plex Sans Arabic","Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{direction:rtl;overflow-x:hidden;transition:background-color .35s ease,color .35s ease,filter .35s ease}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{appearance:none;border:0}
+
+.app-shell{min-height:100vh;width:100%;max-width:100%;overflow-x:hidden}
+.page{width:100%;max-width:100%;display:block;overflow-x:hidden}
+.hidden{display:none !important}
+.mono{font-variant-numeric:tabular-nums}
+
+#headerSurface,#searchBar,#heroSurface,#tierSurface,#dailyDealSurface,#companiesSurface,#categoriesSurface,#productsSurface,#bottomNavSurface,#overlayRoot{width:100%;max-width:100%;margin:0}
+.main{padding:0 0 32px;width:100%;max-width:100%;overflow-x:hidden}
+.page-stack{display:grid;gap:12px}
+
+.section-card{padding:12px;border-radius:var(--radius);border:1px solid var(--line);background:var(--card-grad);box-shadow:var(--shadow)}
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.section-head h1,.section-head h2,.section-head h3{margin:0;font-size:1.05rem;font-weight:900;letter-spacing:-.01em}
+.helper-text{margin:0;color:var(--muted);font-size:.82rem;line-height:1.7}
+
+.primary-btn,.ghost-btn,.icon-btn,.mini-btn,.contact-icon-btn,.shelf-more{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;user-select:none;min-height:40px;padding:0 14px;font-weight:800;line-height:1.1;border-radius:18px;border:1px solid var(--line);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease,opacity .18s ease,color .18s ease}
+.primary-btn{background:var(--cta-grad);color:#fff;border-color:transparent;box-shadow:var(--glow)}
+.ghost-btn,.icon-btn,.mini-btn,.shelf-more{background:var(--surface-2);color:var(--text)}
+.icon-btn{width:40px;padding:0;font-size:1.2rem}
+.mini-btn{padding:0 10px;min-height:38px}
+.contact-icon-btn{width:40px;padding:0;background:linear-gradient(135deg, color-mix(in srgb, var(--primary) 22%, transparent), rgba(255,255,255,.03));color:var(--accent);border-color:var(--line-strong);box-shadow:var(--shadow-soft)}
+.shelf-more{padding-inline:14px}
+.primary-btn:hover,.ghost-btn:hover,.icon-btn:hover,.mini-btn:hover,.contact-icon-btn:hover,.shelf-more:hover{transform:translateY(-2px);border-color:var(--line-strong);box-shadow:var(--shadow-soft)}
+
+.search-card{display:grid;gap:10px;margin-top:12px}
+.search-row{display:flex;gap:8px;align-items:center;width:100%;min-width:0}
+input[type="search"],input[type="text"],input[type="password"],input[type="number"],input[type="tel"],select,textarea{width:100%;min-height:42px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb, var(--surface) 92%, #000 8%);color:var(--text);padding:0 12px;outline:none;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease,background .18s ease}
+input::placeholder,textarea::placeholder{color:color-mix(in srgb, var(--muted) 80%, transparent)}
+input:focus,select:focus,textarea:focus{border-color:var(--line-strong);box-shadow:0 0 0 4px var(--focus)}
+.search-row input{flex:1 1 auto;min-width:0}
+.search-row .mini-btn,.search-row .icon-btn{width:40px;min-width:40px;min-height:40px;padding:0;border-radius:14px}
+
+
+html,body,.app-shell,#headerSurface,#heroSurface,#tierSurface,#dailyDealSurface,#companiesSurface,#categoriesSurface,#productsSurface,.page,.home-shell,.home-surface,.home-hero,.hero-surface,.banner-strip-surface,.section-card,.shelf-card,.deal-list,.tier-grid,.customer-list,.invoice-list,.grid,.bottom-nav,#overlayRoot{width:100%;max-width:100%;overflow-x:hidden}
+
+*,*::before,*::after{min-width:0}
