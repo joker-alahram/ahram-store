@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#D4AF37" />
+  <title>متجر الأهرام للتجارة والتوزيع</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="gold">
+  <div class="app-shell">
+    <section id="banner"></section>
+
+    <header class="topbar" id="mainHeader">
+      <div class="commerce-topline">
+        <div class="brand-chip" aria-label="الأهرام للتجارة والتوزيع">
+          <span class="brand-mark" aria-hidden="true">◆</span>
+          <span class="brand-copy">
+            <strong>الأهرام</strong>
+            <small>تجارة وتوزيع</small>
+          </span>
+        </div>
+        <section id="searchBar"></section>
+        <button class="cart-chip" id="cartBtn" type="button" aria-label="فتح إتمام الشراء">
+          <span class="cart-badge" id="cartBadge">0</span>
+          <span class="cart-label" id="cartLabel">السلة</span>
+          <span class="cart-value" id="cartValue">0</span>
+        </button>
+      </div>
+
+      <div class="commerce-actions" id="commerceActions" aria-label="عناصر التجارة المميزة">
+        <button class="commerce-action-card tier-card-action" id="tierBtn" type="button" aria-label="تغيير الشريحة التجارية">
+          <span class="card-title" id="tierContextTitle">الشريحة الحالية</span>
+          <span class="card-subtitle mono" id="tierContextStatus">اختر شريحتك</span>
+          <span class="card-meta-row">
+            <span class="card-meta-pill" id="tierDiscountState">الخصم —</span>
+            <span class="card-meta-pill" id="tierMinState">الحد الأدنى —</span>
+          </span>
+          <span class="tier-progress-wrap" aria-hidden="true">
+            <span class="tier-progress-track"><span class="tier-progress-fill" id="tierProgressFill"></span></span>
+            <span class="tier-progress-stats">
+              <span class="tier-stat"><b id="tierCurrentEligible">—</b><small>المؤهل</small></span>
+              <span class="tier-stat"><b id="tierRemaining">—</b><small>المتبقي</small></span>
+            </span>
+          </span>
+          <span class="card-cta">تغيير الشريحة</span>
+        </button>
+
+        <button class="commerce-action-card flash-card-action" id="flashBtn" type="button" aria-label="عرض الساعة">
+          <span class="card-title" id="flashBtnText">عرض الساعة</span>
+          <span class="flash-countdown-capsule hidden" id="flashCountdownCapsule" aria-live="polite">
+            <span class="flash-live-dot" aria-hidden="true"></span>
+            <span class="flash-countdown-value mono" id="flashCountdownValue"></span>
+            <small>متبقي</small>
+          </span>
+          <span class="flash-footer" aria-hidden="true">
+            <span class="flash-footer-copy">
+              <span class="flash-footer-label">Flash</span>
+              <span class="flash-footer-note">Urgency</span>
+            </span>
+            <span class="flash-footer-visual"></span>
+          </span>
+        </button>
+
+        <button class="commerce-action-card deal-card-action" id="dealsBtn" type="button" aria-label="صفقة اليوم">
+          <span class="card-kicker">Daily Deal</span>
+          <span class="card-title">صفقة اليوم</span>
+          <span class="card-subtitle">باكدج اليوم · سعر خاص</span>
+          <span class="deal-visual" aria-hidden="true"><span class="deal-gift"></span></span>
+          <span class="card-cta deal-cta">استعرض الباكدج</span>
+        </button>
+
+        <button class="commerce-action-card home-card-action" id="homeBtn" data-action="home" type="button" aria-label="الانتقال إلى الرئيسية">
+          <span class="card-kicker">Home</span>
+          <span class="card-title">الرئيسية</span>
+          <span class="card-subtitle">عودة سريعة للمنتجات</span>
+          <span class="premium-nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img" focusable="false">
+              <path d="M4 10.25L12 4l8 6.25V20a1 1 0 0 1-1 1h-4.5a1 1 0 0 1-1-1v-4.25h-3V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" />
+            </svg>
+          </span>
+          <span class="card-cta">الرئيسية</span>
+        </button>
+
+        <div class="user-wrap">
+          <button class="commerce-action-card premium-nav-btn user-chip" id="userBtn" type="button" aria-label="تسجيل الدخول أو فتح الحساب">
+            <span class="premium-nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img" focusable="false">
+                <path d="M12 11.2a4 4 0 1 0-4-4 4.004 4.004 0 0 0 4 4Zm0 2.1c-4.32 0-8 2.14-8 4.78A1.92 1.92 0 0 0 5.92 20h12.16A1.92 1.92 0 0 0 20 18.08c0-2.64-3.68-4.78-8-4.78Zm5.95 1.82a5.37 5.37 0 0 1 1.9 2.96H21a1 1 0 0 0 1-1v-.62a1.34 1.34 0 0 0-.58-1.11 5.4 5.4 0 0 0-3.47-1.29c-.47 0-.93.05-1.38.15a6.62 6.62 0 0 1 1.38 1.91Zm1.11-4.84a2.7 2.7 0 1 1-2.7-2.7 2.7 2.7 0 0 1 2.7 2.7Z" />
+              </svg>
+            </span>
+            <span class="card-title" id="userBtnLabel">دخول</span>
+            <span class="card-subtitle" id="userBtnSub">تسجيل الدخول</span>
+            <span class="card-cta">الحساب</span>
+          </button>
+          <div class="user-menu hidden" id="userMenu" aria-hidden="true">
+            <button type="button" data-action="my-data">حسابي</button>
+            <button type="button" data-action="my-customers">عملائي</button>
+            <button type="button" data-action="invoices">فواتيري</button>
+            <button type="button" data-action="logout">تسجيل الخروج</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main" id="pageContent"></main>
+    <section id="registerPage" class="page hidden"></section>
+  </div>
+
+  <div class="overlay hidden" id="loginModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>تسجيل الدخول</h3>
+        <button class="icon-btn" data-close="loginModal" type="button">×</button>
+      </div>
+      <label class="field">
+        <span>الهاتف أو اسم المستخدم</span>
+        <input id="loginIdentifier" type="text" placeholder="01000000000 أو username" autocomplete="username" />
+      </label>
+      <label class="field">
+        <span>كلمة المرور</span>
+        <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </label>
+      <button class="primary-btn" id="submitLogin" type="button">دخول</button>
+      <button class="ghost-btn" data-action="open-register" type="button">تسجيل عميل جديد</button>
+      <p class="helper-text">يتم البحث في قاعدة البيانات.</p>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="myDataModal" aria-hidden="true">
+    <div class="modal-card" id="myDataCard">
+      <div class="modal-head">
+        <h3>بياناتي</h3>
+        <button class="icon-btn" data-close="myDataModal" type="button">×</button>
+      </div>
+      <div id="myDataContent" class="profile-grid"></div>
+      <div class="modal-foot">
+        <button class="ghost-btn" data-close="myDataModal" type="button">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="addCustomerModal" aria-hidden="true">
+    <div class="modal-card modal-card-wide">
+      <div class="modal-head">
+        <h3>إضافة عميل</h3>
+        <button class="icon-btn" data-close="addCustomerModal" type="button">×</button>
+      </div>
+      <label class="field">
+        <span>اسم العميل</span>
+        <input id="custName" type="text" placeholder="اسم العميل" />
+      </label>
+      <label class="field">
+        <span>رقم الهاتف</span>
+        <input id="custPhone" type="text" placeholder="01000000000" />
+      </label>
+      <label class="field">
+        <span>العنوان</span>
+        <input id="custAddress" type="text" placeholder="العنوان" />
+      </label>
+      <div class="modal-foot modal-foot-stack">
+        <button class="primary-btn" data-action="save-customer" type="button">حفظ العميل</button>
+        <button class="ghost-btn" data-close="addCustomerModal" type="button">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="productModal" aria-hidden="true">
+    <div class="modal-card modal-card-wide product-modal" id="productModalCard">
+      <div class="modal-head">
+        <h3 id="productModalTitle">تفاصيل المنتج</h3>
+        <button class="icon-btn" data-close="productModal" id="productModalClose" type="button">×</button>
+      </div>
+      <div id="productModalBody"></div>
+      <div class="modal-foot modal-foot-stack">
+        <button class="primary-btn" id="productModalAction" type="button">إضافة للسلة</button>
+        <button class="ghost-btn" id="productModalSecondary" data-close="productModal" type="button">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="tierModal" aria-hidden="true">
+    <div class="modal-card modal-card-wide tier-modal" id="tierModalCard">
+      <div class="modal-head">
+        <h3>اختيار الشريحة التجارية</h3>
+        <button class="icon-btn" data-close="tierModal" type="button">×</button>
+      </div>
+      <div id="tierModalBody" class="tier-modal-body"></div>
+    </div>
+  </div>
+
+  <aside class="drawer hidden" id="cartDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <h3>السلة</h3>
+      <button class="icon-btn" data-close="cartDrawer" type="button">×</button>
+    </div>
+    <div class="drawer-body" id="cartItems"></div>
+    <div class="drawer-foot">
+      <div class="total-row">
+        <span>الإجمالي</span>
+        <strong id="cartTotal">0</strong>
+      </div>
+      <button class="primary-btn" id="checkoutBtn" type="button">التحقق من الطلب</button>
+      <button class="ghost-btn" id="saveCartBtn" type="button">حفظ السلة</button>
+      <button type="button" class="ghost-btn" 
+          onclick="document.getElementById('cartDrawer').classList.add('hidden')" 
+          style="width: 100%; margin-top: 10px; border: 1px solid var(--line); color: var(--muted); font-weight: bold;">
+    إغلاق وتكملة التسوق
+  </button>
+</div>
+    </div>
+  </aside>
+
+  <div class="toast hidden" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script src="cart.engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
