@@ -1,0 +1,29 @@
+@import url("./styles/tokens.css");
+@import url("./styles/legacy.css");
+@import url("./styles/header.css");
+@import url("./styles/header-mobile.css");
+
+@import url("./styles/layout-recovery.css");
+
+
+/* operational pass overrides */
+.company-banner-surface{width:100%;max-width:100%;margin:0 auto;overflow:hidden;background:var(--surface);border-bottom:1px solid var(--line)}
+.company-banner-image{display:block;width:100%;height:min(30vw,180px);object-fit:cover;object-position:center;background:#0b0b0b}
+.cart-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;color:var(--accent)}
+.cart-icon svg{width:18px;height:18px;fill:currentColor;display:block}
+.account-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.account-summary-card{padding:12px;border-radius:18px;background:var(--surface-2);border:1px solid var(--line);display:grid;gap:4px}
+.account-summary-label{font-size:.68rem;color:var(--muted);font-weight:800}
+.account-summary-card strong{font-size:1rem}
+.account-summary-card small{font-size:.68rem;color:var(--muted)}
+.account-actions-rail{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.cart-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cart-summary-card{padding:10px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line);display:grid;gap:4px}
+.cart-progress{margin-top:10px;height:8px;border-radius:999px;background:color-mix(in srgb, var(--primary) 10%, transparent);overflow:hidden}
+.cart-progress span{display:block;height:100%;border-radius:inherit;background:var(--cta-grad)}
+.product-image,.deal-image,.modal-image,.company-logo,.banner-strip-image{object-fit:contain;object-position:center}
+.product-image,.deal-image,.modal-image,.company-logo{background:#0d0d0d}
+
+.contact-strip .contact-icon-btn:nth-child(1){color:#f59e0b}
+.contact-strip .contact-icon-btn:nth-child(2){color:#25D366}
+.contact-strip .contact-icon-btn:nth-child(3){color:#1877F2}
