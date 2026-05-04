@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0e1b40" />
+  <title>متجر الأهرام للتجارة والتوزيع</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="gold">
+  <div class="app-shell" id="appShell">
+    <header class="app-header" id="appHeader">
+      <div class="header-prelude">
+        <section class="banner-strip" aria-label="بنر الشركة">
+          <img src="assets/company-banner.jpg" alt="شركة الأهرام للتجارة والتوزيع" class="banner-image" />
+        </section>
+
+        <section class="identity-row" aria-label="هوية الشركة">
+          <div class="identity-copy">
+            <p class="company-name">متجر الأهرام للتجارة والتوزيع</p>
+          </div>
+          <button class="login-btn" id="loginBtn" type="button">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Zm0 2c-4.4 0-8 2.6-8 5.8A1.2 1.2 0 0 0 5.2 21h13.6a1.2 1.2 0 0 0 1.2-1.2c0-3.2-3.6-5.8-8-5.8Z"/></svg>
+            </span>
+            <span id="loginBtnLabel">تسجيل الدخول</span>
+          </button>
+        </section>
+
+        <section class="theme-contact-row" aria-label="الثيمات والتواصل">
+          <div class="theme-switcher" id="themeSwitcher"></div>
+          <div class="contact-actions">
+            <button class="contact-btn" data-action="call" type="button" aria-label="اتصال">
+              <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.2 11.6 11.6 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A18 18 0 0 1 2 4a1 1 0 0 1 1-1h2.6a1 1 0 0 1 1 1 11.6 11.6 0 0 0 .6 3.6 1 1 0 0 1-.2 1L5 11.4a15 15 0 0 0 1.6-.6Z"/></svg>
+              <span>اتصل بنا</span>
+            </button>
+            <button class="contact-btn" data-action="whatsapp" type="button" aria-label="واتساب">
+              <svg viewBox="0 0 24 24"><path d="M20.5 3.6A11.7 11.7 0 0 0 1.9 17.1L1 22l4.9-1A11.7 11.7 0 0 0 20.5 3.6Zm-8.4 16.7a9.4 9.4 0 0 1-4.8-1.3l-.3-.2-2.9.6.6-2.8-.2-.3a9.4 9.4 0 1 1 17.3-5 9.3 9.3 0 0 1-9.7 9Zm5.4-6.9c-.3-.2-1.8-.9-2-1s-.4-.2-.6.2-.7 1-.9 1.2-.3.2-.6.1a7.7 7.7 0 0 1-2.3-1.4 8.6 8.6 0 0 1-1.6-2c-.2-.3 0-.4.1-.6l.4-.5a.6.6 0 0 0 0-.6c0-.2-.6-1.7-.9-2.3s-.4-.5-.6-.5h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-1 2.3c0 .6.2 1.2.5 1.7a15.8 15.8 0 0 0 6.8 6.8 4.4 4.4 0 0 0 2.1.6 2.8 2.8 0 0 0 1.8-.8 2.7 2.7 0 0 0 .9-1.7c0-.2 0-.4-.2-.5Z"/></svg>
+              <span>واتساب</span>
+            </button>
+            <button class="contact-btn" data-action="facebook" type="button" aria-label="فيس بوك">
+              <svg viewBox="0 0 24 24"><path d="M14 8.2V7a1.5 1.5 0 0 1 1.5-1.5h1V2H14a4 4 0 0 0-4 4v2.2H8V12h2v10h4V12h2.9l.6-3.8Z"/></svg>
+              <span>فيس بوك</span>
+            </button>
+            <button class="contact-btn" data-action="support" type="button" aria-label="الدعم">
+              <svg viewBox="0 0 24 24"><path d="M12 2A9.5 9.5 0 0 0 2.5 11.5V17a2.5 2.5 0 0 0 2.5 2.5h2V11H5v-.5a7 7 0 0 1 14 0V11h-2v8.5h2A2.5 2.5 0 0 0 21.5 17v-5.5A9.5 9.5 0 0 0 12 2Zm-4 9.5v8.5H7a1 1 0 0 1-1-1v-7.5h2Zm8 0h2v7.5a1 1 0 0 1-1 1h-1v-8.5Z"/></svg>
+              <span>الدعم</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="hero-slot" id="heroSlot" aria-live="polite"></section>
+
+        <section class="action-row" aria-label="أزرار التشغيل السريع">
+          <button class="action-chip tier-action" id="tierActionBtn" data-action="open-tier" type="button">اختار شريحتك</button>
+          <button class="action-chip" data-action="companies" type="button">تصفح الشركات</button>
+          <button class="action-chip" data-action="deals" type="button">صفقة اليوم</button>
+          <button class="action-chip flash-action" data-action="flash" type="button">عرض الساعة</button>
+          <button class="action-chip" data-action="sections" type="button">الأقسام</button>
+        </section>
+      </div>
+
+      <section class="sticky-bar" id="stickyBar" aria-label="شريط البحث وإجمالي المشتريات">
+        <label class="search-box" id="searchBox" aria-label="بحث">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 1 0 4.72 13.34l4.22 4.22 1.42-1.42-4.22-4.22A7.5 7.5 0 0 0 10.5 3Zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Z"/></svg>
+          <input id="searchInput" type="search" placeholder="ابحث عن منتج أو شركة أو صنف..." value="" />
+        </label>
+        <button class="cart-summary" id="cartSummaryBtn" type="button">
+          <div class="cart-summary-copy">
+            <strong id="cartTotalValue">0.00 ج.م</strong>
+            <small>إجمالي المشتريات</small>
+            <span>اضغط لإتمام الشراء</span>
+          </div>
+          <span class="cart-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-11.2-3h10.8a2 2 0 0 0 1.9-1.4l2.1-7.6a1 1 0 0 0-1-1.2H5.4L4.8 3H2v2h1.2l2.7 11.3A2 2 0 0 0 7.8 18h10.7v-2H7.8Z"/></svg>
+            <span class="cart-badge" id="cartBadge">0</span>
+          </span>
+        </button>
+      </section>
+    </header>
+
+    <main class="main-content" id="mainContent"></main>
+
+    <nav class="footer-nav" aria-label="التنقل السفلي">
+      <button class="footer-btn is-active" data-route="#home" type="button">
+        <svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5V20a1 1 0 0 1-1 1h-4.5v-6H9.5v6H5a1 1 0 0 1-1-1Z"/></svg>
+        <span>الرئيسية</span>
+      </button>
+      <button class="footer-btn" data-route="#tiers" type="button">
+        <svg viewBox="0 0 24 24"><path d="M12 2 3 7l9 5 9-5-9-5Zm0 9L3 6v6l9 5 9-5V6l-9 5Zm0 7L3 13v3l9 5 9-5v-3l-9 5Z"/></svg>
+        <span>الشريحة</span>
+      </button>
+      <button class="footer-btn" data-route="#offers" type="button">
+        <svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6Z"/></svg>
+        <span>العروض</span>
+      </button>
+      <button class="footer-btn" data-route="#account" type="button">
+        <svg viewBox="0 0 24 24"><path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Zm0 2c-4.4 0-8 2.6-8 5.8A1.2 1.2 0 0 0 5.2 21h13.6a1.2 1.2 0 0 0 1.2-1.2c0-3.2-3.6-5.8-8-5.8Z"/></svg>
+        <span id="accountNavLabel">تسجيل الدخول</span>
+      </button>
+      <button class="footer-btn" data-route="#quick" type="button">
+        <svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6Z"/></svg>
+        <span>التسوق السريع</span>
+      </button>
+    </nav>
+  </div>
+
+  <div class="overlay hidden" id="tierModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>اختيار الشريحة</h3>
+        <button class="icon-btn" data-close="tierModal" type="button">×</button>
+      </div>
+      <p class="modal-copy">يجب أن تختار شريحتك قبل أول عملية شراء.</p>
+      <div id="tierModalList" class="tier-list"></div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="loginModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>تسجيل الدخول</h3>
+        <button class="icon-btn" data-close="loginModal" type="button">×</button>
+      </div>
+      <label class="field">
+        <span>الاسم</span>
+        <input id="loginName" type="text" placeholder="اسم المستخدم" autocomplete="username" />
+      </label>
+      <label class="field">
+        <span>كلمة المرور</span>
+        <input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </label>
+      <label class="field">
+        <span>نوع الحساب</span>
+        <select id="loginRole">
+          <option value="customer">عميل</option>
+          <option value="rep">مندوب</option>
+        </select>
+      </label>
+      <button class="primary-btn" id="submitLoginBtn" type="button">دخول</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="accountModal" aria-hidden="true">
+    <div class="modal-card modal-card-wide">
+      <div class="modal-head">
+        <h3 id="accountModalTitle">حسابي</h3>
+        <button class="icon-btn" data-close="accountModal" type="button">×</button>
+      </div>
+      <div id="accountModalBody"></div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="productModal" aria-hidden="true">
+    <div class="modal-card modal-card-wide">
+      <div class="modal-head">
+        <h3 id="productModalTitle">تفاصيل المنتج</h3>
+        <button class="icon-btn" data-close="productModal" type="button">×</button>
+      </div>
+      <div id="productModalBody"></div>
+      <div class="modal-actions">
+        <button class="primary-btn" id="productAddBtn" type="button">إضافة للسلة</button>
+        <button class="ghost-btn" data-close="productModal" type="button">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="drawer hidden" id="cartDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <h3>إتمام الشراء</h3>
+      <button class="icon-btn" data-close="cartDrawer" type="button">×</button>
+    </div>
+    <div class="drawer-body" id="cartItems"></div>
+    <div class="drawer-foot">
+      <div class="total-row">
+        <span>الإجمالي</span>
+        <strong id="drawerTotal">0.00 ج.م</strong>
+      </div>
+      <button class="primary-btn" id="checkoutBtn" type="button">التحقق من الطلب</button>
+      <button class="ghost-btn" id="saveCartBtn" type="button">حفظ السلة</button>
+    </div>
+  </aside>
+
+  <div class="toast hidden" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script src="app.js"></script>
+</body>
+</html>
