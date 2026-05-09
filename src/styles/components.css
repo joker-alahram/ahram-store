@@ -1,0 +1,8 @@
+.section--compact { margin-top: 12px; }
+.hero__panel-row strong, .cart-summary__row strong, .checkout-box__row strong { font-size: var(--text-sm); }
+.order-card__top, .customer-card__top, .rep-card__top, .tier-card__top { margin-top: 0; }
+.order-card__items { margin-top: 12px; display: grid; gap: 6px; }
+.order-card__foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; color: var(--muted); font-size: var(--text-xs); }
+.product-card__hero:focus, .bottom-nav__item:focus, .company-chip:focus, .tier-chip:focus, .btn:focus, .icon-btn:focus, .floating-cart:focus { outline: 2px solid rgba(246,200,95,0.4); outline-offset: 2px; }
+.offer-card__foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
+.offer-card__meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }

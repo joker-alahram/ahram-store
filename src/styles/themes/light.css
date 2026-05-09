@@ -1,0 +1,5 @@
+body[data-theme='light'] .floating-cart,
+body[data-theme='light'] .bottom-nav,
+body[data-theme='light'] .modal__sheet,
+body[data-theme='light'] .section,
+body[data-theme='light'] .hero { box-shadow: 0 10px 24px rgba(16,24,40,0.08); }

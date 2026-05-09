@@ -1,0 +1,15 @@
+{
+  "name": "ahram-b2b-commerce-runtime",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173 --strictPort",
+    "validate": "python scripts/validate.py",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
+  }
+}
