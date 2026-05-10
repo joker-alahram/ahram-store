@@ -26,7 +26,10 @@ async function authenticateWithServer(api, identifier, password) {
   ];
   for (const endpoint of endpoints) {
     try {
-      const rows = await api.post(endpoint, { identifier, password });
+      const rows = await api.post(endpoint, {
+  identifier,
+  user_password: password
+});
       if (Array.isArray(rows) && rows.length) return rows[0];
       if (rows && typeof rows === 'object') return rows;
     } catch {
