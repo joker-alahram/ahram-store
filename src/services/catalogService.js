@@ -2,8 +2,9 @@ import { normalizeTierName, buildPriceBook } from './pricingService.js';
 
 function sanitizeImageSrc(value) {
   const src = String(value ?? '').trim();
+
   if (!src) return '';
-  if (/^data:image\//i.test(src)) return '';
+
   return src;
 }
 
