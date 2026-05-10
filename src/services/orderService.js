@@ -24,7 +24,7 @@ export async function submitOrder(api, state, tier, totals, invoiceSequence) {
     products_total: Number(totals.products.toFixed(2)),
     deals_total: Number(totals.deals.toFixed(2)),
     flash_total: Number(totals.flash.toFixed(2)),
-    status: 'pending',
+    status: 'submitted',
     customer_id: customer?.id || session.id,
     user_id: session.id,
     sales_rep_id: linkedRepId,
