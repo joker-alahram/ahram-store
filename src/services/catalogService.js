@@ -51,7 +51,7 @@ function normalizeOffer(row, kind) {
     price: Number(row.price ?? 0),
     stock: Number(row.stock ?? 0),
     can_buy: row.can_buy !== false && row.is_active !== false && (kind === 'daily' ? Number(row.stock ?? 0) > 0 : true),
-    status: row.status || (kind === 'flash' ? 'pending' : 'active'),
+    status: row.status || (kind === 'flash' ? 'scheduled' : 'active'),
   };
 }
 
