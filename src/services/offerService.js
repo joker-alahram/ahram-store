@@ -36,7 +36,7 @@ export function computeFlashState(offers = []) {
     return { offer: current, status: 'expired', countdown: '', endedAt: current.end_time || '' };
   }
 
-  return { offer: current, status: 'pending', countdown: current.start_time ? countdown(new Date(current.start_time).getTime()) : '', endedAt: current.start_time || '' };
+  return { offer: current, status: 'scheduled', countdown: current.start_time ? countdown(new Date(current.start_time).getTime()) : '', endedAt: current.start_time || '' };
 }
 
 export async function loadOffers(api) {
