@@ -199,55 +199,19 @@ async function sleepFrame() {
   }
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
-
-async function loadPagedRows(
-  api,
-  path,
-  params = {},
-  pageSize = 120
-) {
+async function loadPagedRows(api, path, params = {}, pageSize = 500) {
   const rows = [];
-
   let offset = 0;
-
-  const maxRows = 300;
-
   while (true) {
-
-    if (rows.length >= maxRows) {
-      break;
-    }
-
-    const page = await api.get(path, {
-      ...params,
-      limit: String(pageSize),
-      offset: String(offset),
-    }).catch(() => []);
-
-    const batch = Array.isArray(page)
-      ? page
-      : [];
-
-    if (!batch.length) {
-      break;
-    }
-
+    const page = await api.get(path, { ...params, limit: String(pageSize), offset: String(offset) }).catch(() => []);
+    const batch = Array.isArray(page) ? page : [];
+    if (!batch.length) break;
     rows.push(...batch);
-
     offset += batch.length;
-
-    if (batch.length < pageSize) {
-      break;
-    }
-
-    if (rows.length >= maxRows) {
-      break;
-    }
-
+    if (batch.length < pageSize) break;
     await sleepFrame();
   }
-
-  return rows.slice(0, maxRows);
+  return rows;
 }
 
 function normalizeTopRows(rows, kind) {
