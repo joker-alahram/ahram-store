@@ -264,26 +264,9 @@ export async function loadHomeCatalog(api) {
 }
 
 export async function loadCompanyCatalog(api, companyId, selectedTierName = null) {
-
-  let trimmedCompanyId =
-    normalizeSpacing(companyId ?? '');
-
+  const trimmedCompanyId = normalizeSpacing(companyId ?? '');
   if (!trimmedCompanyId) {
-
-    await sleepFrame();
-
-    trimmedCompanyId =
-      normalizeSpacing(companyId ?? '');
-
-    if (!trimmedCompanyId) {
-      return {
-        companyId: '',
-        rows: [],
-        aggregated: new Map(),
-        productIndex: {},
-        products: [],
-        priceBook: {},
-      };
+    return { companyId: trimmedCompanyId, rows: [], aggregated: new Map(), productIndex: {}, products: [] };
   }
 
 const rows = await loadPagedRows(api, 'v_runtime_products_full', {
