@@ -203,6 +203,7 @@ async function loadPagedRows(api, path, params = {}, pageSize = 500) {
   const rows = [];
   let offset = 0;
   while (true) {
+    if (rows.length >= 300) break;
     const page = await api.get(path, { ...params, limit: String(pageSize), offset: String(offset) }).catch(() => []);
     const batch = Array.isArray(page) ? page : [];
     if (!batch.length) break;
