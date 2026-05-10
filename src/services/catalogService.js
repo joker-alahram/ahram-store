@@ -284,7 +284,6 @@ export async function loadCompanyCatalog(api, companyId, selectedTierName = null
         products: [],
         priceBook: {},
       };
-    }
   }
 
 const rows = await loadPagedRows(api, 'v_runtime_products_full', {
