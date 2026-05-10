@@ -200,19 +200,54 @@ async function sleepFrame() {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-async function loadPagedRows(api, path, params = {}, pageSize = 500) {
+async function loadPagedRows(
+  api,
+  path,
+  params = {},
+  pageSize = 120
+) {
   const rows = [];
+
   let offset = 0;
+
+  const maxRows = 300;
+
   while (true) {
-    const page = await api.get(path, { ...params, limit: String(pageSize), offset: String(offset) }).catch(() => []);
-    const batch = Array.isArray(page) ? page : [];
-    if (!batch.length) break;
+
+    if (rows.length >= maxRows) {
+      break;
+    }
+
+    const page = await api.get(path, {
+      ...params,
+      limit: String(pageSize),
+      offset: String(offset),
+    }).catch(() => []);
+
+    const batch = Array.isArray(page)
+      ? page
+      : [];
+
+    if (!batch.length) {
+      break;
+    }
+
     rows.push(...batch);
+
     offset += batch.length;
-    if (batch.length < pageSize) break;
+
+    if (batch.length < pageSize) {
+      break;
+    }
+
+    if (rows.length >= maxRows) {
+      break;
+    }
+
     await sleepFrame();
   }
-  return rows;
+
+  return rows.slice(0, maxRows);
 }
 
 function normalizeTopRows(rows, kind) {
@@ -269,7 +304,7 @@ export async function loadCompanyCatalog(api, companyId, selectedTierName = null
     return { companyId: trimmedCompanyId, rows: [], aggregated: new Map(), productIndex: {}, products: [] };
   }
 
-  const rows = await loadPagedRows(api, 'v_runtime_products_full', {
+const rows = await loadPagedRows(api, 'v_runtime_products_full', {
   select: `
     company_id,
     company_name,
@@ -296,6 +331,7 @@ export async function loadCompanyCatalog(api, companyId, selectedTierName = null
   visible: 'eq.true',
   runtime_healthy: 'eq.true',
   is_sellable: 'eq.true',
+  unit_active: 'eq.true',
   tier_name: `eq.${normalizeTierName(selectedTierName || 'base')}`,
   order: 'display_order.asc',
 }, 120).catch(() => []);
