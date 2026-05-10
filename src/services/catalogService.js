@@ -270,12 +270,35 @@ export async function loadCompanyCatalog(api, companyId, selectedTierName = null
   }
 
   const rows = await loadPagedRows(api, 'v_runtime_products_full', {
-    select: 'company_id,company_name,company_logo,product_id,product_name,category,product_image,status,visible,unit_code,tier_name,final_price,available_qty,reserved_qty,allow_backorder,runtime_healthy,is_sellable,unit_active,min_qty,display_order',
-    company_id: `eq.${trimmedCompanyId}`,
-    visible: 'eq.true',
-    order: 'product_id.asc,unit_code.asc,display_order.asc',
-  }, 500).catch(() => []);
-
+  select: `
+    company_id,
+    company_name,
+    company_logo,
+    product_id,
+    product_name,
+    category,
+    product_image,
+    status,
+    visible,
+    unit_code,
+    tier_name,
+    final_price,
+    available_qty,
+    reserved_qty,
+    allow_backorder,
+    runtime_healthy,
+    is_sellable,
+    unit_active,
+    min_qty,
+    display_order
+  `,
+  company_id: `eq.${trimmedCompanyId}`,
+  visible: 'eq.true',
+  runtime_healthy: 'eq.true',
+  is_sellable: 'eq.true',
+  tier_name: `eq.${normalizeTierName(selectedTierName || 'base')}`,
+  order: 'display_order.asc',
+}, 120).catch(() => []);
   const aggregated = aggregateRuntimeProducts(rows);
   const productIndex = projectRuntimeProducts(aggregated, selectedTierName);
   const products = Object.values(productIndex).sort((a, b) => {
