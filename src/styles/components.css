@@ -114,16 +114,16 @@
 .product-card__media, .offer-card__media { width: 100%; border: 0; background: transparent; padding: 0; cursor: pointer; }
 .product-card__media img, .offer-card__media img {
   width: 100%;
-  aspect-ratio: 1 / .74;
+  aspect-ratio: 1 / .62;
   object-fit: contain;
   background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(245,238,222,.96));
 }
 .product-card__media > div, .offer-card__media > div {
-  width: 100%; aspect-ratio: 1 / .74; display: grid; place-items: center; background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(245,238,222,.96)); color: #111; font-size: 1.8rem; font-weight: 900;
+  width: 100%; aspect-ratio: 1 / .62; display: grid; place-items: center; background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(245,238,222,.96)); color: #111; font-size: 1.8rem; font-weight: 900;
 }
-.product-card__body, .offer-card__body { padding: 6px; display: grid; gap: 3px; }
-.product-card__title, .offer-card__title { font-weight: 900; line-height: 1.35; min-height: 2em; font-size: .74rem; }
-.product-card__meta, .offer-card__desc { color: var(--muted); font-size: .67rem; line-height: 1.35; }
+.product-card__body, .offer-card__body { padding: 4px; display: grid; gap: 2px; }
+.product-card__title, .offer-card__title { font-weight: 900; line-height: 1.2; min-height: 1.7em; font-size: .68rem; }
+.product-card__meta, .offer-card__desc { color: var(--muted); font-size: .60rem; line-height: 1.15; }
 .product-card__price-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
 .price { font-weight: 900; }
 .price--old { color: var(--muted); text-decoration: line-through; font-size: .68rem; }
@@ -140,7 +140,8 @@
 }
 .unit-chip { background: rgba(255,255,255,.04); padding: 4px 8px; font-size: .64rem; cursor: pointer; min-height: 26px; }
 .unit-chip.is-active { background: color-mix(in srgb, var(--primary) 18%, transparent); color: var(--accent); border-color: var(--line-strong); }
-.product-card__cta, .offer-card__actions .btn { width: 100%; min-height: 30px; }
+.product-card__cta, .offer-card__actions .btn { width: 100%;  min-height: 26px;
+  font-size: .62rem; }
 .offer-card { display: grid; grid-template-rows: auto 1fr; }
 .tier-card, .invoice-card, .customer-card, .account-card, .summary-box, .checkout-box, .auth-card, .modal-frame { padding: 14px; }
 .customer-card { cursor: pointer; }
