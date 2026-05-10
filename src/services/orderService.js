@@ -63,7 +63,7 @@ export async function submitOrder(api, state, tier, totals, invoiceSequence) {
     unit: item.unit_name || item.unit || 'piece',
 
     product_name_snapshot:
-      item.name || item.product_name || '',
+      product_name_snapshot:   item.name ||   item.title ||   item.product_name ||   '',
 
     company_id_snapshot:
       item.company_id || '',
