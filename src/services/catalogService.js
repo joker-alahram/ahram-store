@@ -200,20 +200,78 @@ async function sleepFrame() {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
-async function loadPagedRows(api, path, params = {}, pageSize = 500) {
-  const rows = [];
-  let offset = 0;
-  while (true) {
-    const page = await api.get(path, { ...params, limit: String(pageSize), offset: String(offset) }).catch(() => []);
-    const batch = Array.isArray(page) ? page : [];
-    if (!batch.length) break;
-    rows.push(...batch);
-    offset += batch.length;
-    if (batch.length < pageSize) break;
-    await sleepFrame();
+async function loadPagedRows(
+  api,
+  path,
+  params = {},
+  pageSize = 120
+) {
+
+  const firstPage =
+    await api.get(
+      path,
+      {
+        ...params,
+        limit: String(pageSize),
+        offset: '0',
+      }
+    ).catch(() => []);
+
+  const initialRows =
+    Array.isArray(firstPage)
+      ? firstPage
+      : [];
+
+  if (
+    initialRows.length < pageSize
+  ) {
+    return initialRows;
   }
+
+  const rows = [...initialRows];
+
+  let offset =
+    initialRows.length;
+
+  queueMicrotask(async () => {
+
+    while (true) {
+
+      const page =
+        await api.get(
+          path,
+          {
+            ...params,
+            limit: String(pageSize),
+            offset: String(offset),
+          }
+        ).catch(() => []);
+
+      const batch =
+        Array.isArray(page)
+          ? page
+          : [];
+
+      if (!batch.length) {
+        break;
+      }
+
+      rows.push(...batch);
+
+      offset += batch.length;
+
+      if (
+        batch.length < pageSize
+      ) {
+        break;
+      }
+
+      await sleepFrame();
+    }
+  });
+
   return rows;
-}
+}}
 
 function normalizeTopRows(rows, kind) {
   if (!Array.isArray(rows)) return [];
