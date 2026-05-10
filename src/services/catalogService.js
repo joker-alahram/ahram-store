@@ -301,7 +301,28 @@ const rows = await loadPagedRows(api, 'v_runtime_products_full', {
   order: 'display_order.asc',
 }, 120).catch(() => []);
   const aggregated = aggregateRuntimeProducts(rows);
-  const productIndex = projectRuntimeProducts(aggregated, selectedTierName);
+  const tierKey =
+  normalizeTierName(selectedTierName || 'base');
+
+const cacheKey =
+  `${trimmedCompanyId}:${tierKey}`;
+
+window.__runtimeProductProjectionCache =
+  window.__runtimeProductProjectionCache || {};
+
+let productIndex =
+  window.__runtimeProductProjectionCache[cacheKey];
+
+if (!productIndex) {
+  productIndex =
+    projectRuntimeProducts(
+      aggregated,
+      selectedTierName
+    );
+
+  window.__runtimeProductProjectionCache[cacheKey] =
+    productIndex;
+}
   const products = Object.values(productIndex).sort((a, b) => {
     const left = Number(a.units?.[a.defaultUnit]?.display_order ?? Number.POSITIVE_INFINITY);
     const right = Number(b.units?.[b.defaultUnit]?.display_order ?? Number.POSITIVE_INFINITY);
