@@ -24,7 +24,7 @@ export async function submitOrder(api, state, tier, totals, invoiceSequence) {
     products_total: Number(totals.products.toFixed(2)),
     deals_total: Number(totals.deals.toFixed(2)),
     flash_total: Number(totals.flash.toFixed(2)),
-    status: 'submitted',
+    status: 'pending',
     customer_id: customer?.id || session.id,
     user_id: session.id,
     sales_rep_id: linkedRepId,
@@ -37,64 +37,14 @@ export async function submitOrder(api, state, tier, totals, invoiceSequence) {
   const order = Array.isArray(orderRows) ? orderRows[0] : orderRows;
   if (!order?.id) throw new Error('ORDER_CREATE_FAILED');
 
-  const items = state.commerce.cart.map((item) => {
-  const qty = Number(item.qty || 1);
-
-  const basePrice =
-    Number(item.base_price ?? item.basePrice ?? item.price ?? 0);
-
-  const finalPrice =
-    Number(item.final_price ?? item.finalPrice ?? item.price ?? 0);
-
-  const lineTotal =
-    Number(item.line_total ?? (finalPrice * qty));
-
-  return {
+  const items = state.commerce.cart.map((item) => ({
     order_id: order.id,
-
     product_id: String(item.id),
-
-    type: item.type || 'product',
-
-    qty,
-
-    price: finalPrice,
-
-    unit: item.unit_name || item.unit || 'piece',
-
-    product_name_snapshot:
-      product_name_snapshot:   item.name ||   item.title ||   item.product_name ||   '',
-
-    company_id_snapshot:
-      item.company_id || '',
-
-    unit_code:
-      item.unit_code || item.unit || 'piece',
-
-    tier_name:
-      item.tier_name || tier.tier_name || 'base',
-
-    base_price_snapshot: basePrice,
-
-    final_price_snapshot: finalPrice,
-
-    pricing_source_snapshot:
-      item.pricing_source || 'runtime',
-
-    applied_discount_percent_snapshot:
-      Number(item.discount_percent || 0),
-
-    line_total: lineTotal,
-
-    currency_code: 'EGP',
-
-    reserved_qty: qty,
-
-    fulfilled_qty: 0,
-
-    rejected_qty: 0,
-  };
-});
+    type: item.type,
+    qty: Number(item.qty || 1),
+    price: Number(item.price || 0),
+    unit: item.unit || 'piece',
+  }));
 
   if (items.length) await api.post('order_items', items);
   return { order, items, customer };
