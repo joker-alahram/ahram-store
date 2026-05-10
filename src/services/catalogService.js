@@ -199,11 +199,11 @@ async function sleepFrame() {
   }
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
+
 async function loadPagedRows(api, path, params = {}, pageSize = 500) {
   const rows = [];
   let offset = 0;
   while (true) {
-    if (rows.length >= 300) break;
     const page = await api.get(path, { ...params, limit: String(pageSize), offset: String(offset) }).catch(() => []);
     const batch = Array.isArray(page) ? page : [];
     if (!batch.length) break;
@@ -269,37 +269,13 @@ export async function loadCompanyCatalog(api, companyId, selectedTierName = null
     return { companyId: trimmedCompanyId, rows: [], aggregated: new Map(), productIndex: {}, products: [] };
   }
 
-const rows = await loadPagedRows(api, 'v_runtime_products_full', {
-  select: `
-    company_id,
-    company_name,
-    company_logo,
-    product_id,
-    product_name,
-    category,
-    product_image,
-    status,
-    visible,
-    unit_code,
-    tier_name,
-    final_price,
-    available_qty,
-    reserved_qty,
-    allow_backorder,
-    runtime_healthy,
-    is_sellable,
-    unit_active,
-    min_qty,
-    display_order
-  `,
-  company_id: `eq.${trimmedCompanyId}`,
-  visible: 'eq.true',
-  runtime_healthy: 'eq.true',
-  is_sellable: 'eq.true',
-  unit_active: 'eq.true',
-  tier_name: `eq.${normalizeTierName(selectedTierName || 'base')}`,
-  order: 'display_order.asc',
-}, 120).catch(() => []);
+  const rows = await loadPagedRows(api, 'v_runtime_products_full', {
+    select: 'company_id,company_name,company_logo,product_id,product_name,category,product_image,status,visible,unit_code,tier_name,final_price,available_qty,reserved_qty,allow_backorder,runtime_healthy,is_sellable,unit_active,min_qty,display_order',
+    company_id: `eq.${trimmedCompanyId}`,
+    visible: 'eq.true',
+    order: 'product_id.asc,unit_code.asc,display_order.asc',
+  }, 500).catch(() => []);
+
   const aggregated = aggregateRuntimeProducts(rows);
   const productIndex = projectRuntimeProducts(aggregated, selectedTierName);
   const products = Object.values(productIndex).sort((a, b) => {
