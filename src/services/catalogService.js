@@ -224,7 +224,9 @@ export async function loadHomeCatalog(api) {
     api.get('companies', { select: 'company_id,company_name,company_logo,visible,allow_discount', visible: 'eq.true', order: 'company_id.asc' }),
     api.get('tiers', { select: 'tier_name,visible_label,min_order,discount_percent,visible,is_active,is_default,discount_carton,discount_pack', order: 'min_order.asc' }),
     api.get('v_app_settings', { select: 'settings,updated_at' }),
-    api.get('v_daily_deals', { select: 'id,title,description,image,price,stock,can_buy,is_active,status' }),
+    api.get('v_daily_deals', {
+  select: 'id,title,description,image,price,stock,can_buy,is_active,sold_count'
+}),
     api.get('v_flash_offers', { select: 'id,title,description,image,price,stock,can_buy,is_active,status,start_time,end_time,current_time' }),
   ]);
 
