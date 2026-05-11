@@ -103,25 +103,27 @@ function createProductShell(row) {
 function chooseVariant(variants, selectedTierName) {
   const canonical = normalizeTierName(selectedTierName);
 
-  const buyable = variants.filter(
-    (row) =>
-      row.can_buy === true &&
-      row.unit_active !== false
+  const active = variants.filter(
+    (row) => row.unit_active !== false
   );
 
   if (canonical) {
     const tierMatch =
-      buyable.find(
-        (row) => normalizeTierName(row.tier_name) === canonical
+      active.find(
+        (row) =>
+          normalizeTierName(row.tier_name) === canonical
       ) ||
       variants.find(
-        (row) => normalizeTierName(row.tier_name) === canonical
+        (row) =>
+          normalizeTierName(row.tier_name) === canonical
       );
 
-    if (tierMatch) return tierMatch;
+    if (tierMatch) {
+      return tierMatch;
+    }
   }
 
-  return buyable[0] || variants[0] || null;
+  return active[0] || variants[0] || null;
 }
 
 export function aggregateRuntimeProducts(rows) {
