@@ -76,9 +76,6 @@ function normalizeRuntimeRow(row) {
     runtime_healthy: row.runtime_healthy !== false,
     is_sellable: row.is_sellable !== false,
     unit_active: row.unit_active !== false,
-    can_buy: row.can_buy === true,
-availability_reason: String(row.availability_reason ?? '').trim(),
-catalog_visible: row.catalog_visible !== false,
     min_qty: Number(row.min_qty ?? 1),
     display_order: Number(row.display_order ?? 0),
   };
@@ -102,27 +99,11 @@ function createProductShell(row) {
 
 function chooseVariant(variants, selectedTierName) {
   const canonical = normalizeTierName(selectedTierName);
-
-  const active = variants.filter(
-    (row) => row.unit_active !== false
-  );
-
+  const active = variants.filter((row) => row.runtime_healthy !== false && row.is_sellable !== false && row.unit_active !== false && row.final_price > 0);
   if (canonical) {
-    const tierMatch =
-      active.find(
-        (row) =>
-          normalizeTierName(row.tier_name) === canonical
-      ) ||
-      variants.find(
-        (row) =>
-          normalizeTierName(row.tier_name) === canonical
-      );
-
-    if (tierMatch) {
-      return tierMatch;
-    }
+    const tierMatch = active.find((row) => normalizeTierName(row.tier_name) === canonical) || variants.find((row) => normalizeTierName(row.tier_name) === canonical);
+    if (tierMatch) return tierMatch;
   }
-
   return active[0] || variants[0] || null;
 }
 
@@ -174,8 +155,6 @@ export function projectRuntimeProducts(aggregatedProducts, selectedTierName) {
         runtime_healthy: chosen.runtime_healthy !== false,
         is_sellable: chosen.is_sellable !== false,
         unit_active: chosen.unit_active !== false,
-        can_buy: chosen.can_buy === true,
-availability_reason: chosen.availability_reason || '',
         min_qty: Number(chosen.min_qty ?? 1),
         display_order: Number(chosen.display_order ?? 0),
         tier_name: normalizeTierName(chosen.tier_name),
@@ -290,33 +269,35 @@ export async function loadCompanyCatalog(api, companyId, selectedTierName = null
     return { companyId: trimmedCompanyId, rows: [], aggregated: new Map(), productIndex: {}, products: [] };
   }
 
-const rows = await loadPagedRows(api, 'v_catalog_products', {
-select: `
-  company_id,
-  company_name,
-  company_logo,
-  product_id,
-  product_name,
-  category,
-  product_image,
-  status,
-  visible,
-  unit_code,
-  tier_name,
-  final_price,
-  available_qty,
-  reserved_qty,
-  allow_backorder,
-  is_sellable,
-  unit_active,
-  min_qty,
-  display_order,
-  can_buy,
-  availability_reason,
-  catalog_visible
+const rows = await loadPagedRows(api, 'v_runtime_products_full', {
+  select: `
+    company_id,
+    company_name,
+    company_logo,
+    product_id,
+    product_name,
+    category,
+    product_image,
+    status,
+    visible,
+    unit_code,
+    tier_name,
+    final_price,
+    available_qty,
+    reserved_qty,
+    allow_backorder,
+    runtime_healthy,
+    is_sellable,
+    unit_active,
+    min_qty,
+    display_order
   `,
   company_id: `eq.${trimmedCompanyId}`,
   visible: 'eq.true',
+  runtime_healthy: 'eq.true',
+  is_sellable: 'eq.true',
+  unit_active: 'eq.true',
+  tier_name: `eq.${normalizeTierName(selectedTierName || 'base')}`,
   order: 'display_order.asc',
 }, 120).catch(() => []);
   const aggregated = aggregateRuntimeProducts(rows);
