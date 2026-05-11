@@ -13,7 +13,7 @@ export function companyCard(company) {
 }
 
 function renderUnitChips(product, selectedUnit) {
-  const units = Object.values(product.units || {})
+  const units =   product._sortedUnits || [];
     .filter((unit) => unit?.unit_code)
     .sort((a, b) => Number(a.display_order ?? 0) - Number(b.display_order ?? 0) || String(a.unit_code).localeCompare(String(b.unit_code), 'ar'));
 
@@ -25,7 +25,22 @@ function renderUnitChips(product, selectedUnit) {
 }
 
 export function productCard(product, tier, { unit, qty, inCart } = {}) {
-  const selectedUnit = unit || product.defaultUnit || Object.keys(product.units || {}).find((key) => Number(product.units[key]?.final_price ?? 0) > 0) || 'carton';
+const sortedUnits =
+  product._sortedUnits ||
+  Object.values(product.units || {})
+    .filter((unit) => unit?.unit_code)
+    .sort(
+      (a, b) =>
+        Number(a.display_order ?? 0) -
+          Number(b.display_order ?? 0) ||
+        String(a.unit_code).localeCompare(
+          String(b.unit_code),
+          'ar'
+        )
+    );
+
+product._sortedUnits = sortedUnits;
+  const selectedUnit = unit || product.defaultUnit || sortedUnits.map((u) => u.unit_code).find((key) => Number(product.units[key]?.final_price ?? 0) > 0) || 'carton';
   const display = computeDisplayPrice(product, selectedUnit, tier);
   const currentUnit = product.units?.[selectedUnit] || null;
   const canBuy = product.can_buy !== false && Number(currentUnit?.final_price ?? display.final ?? 0) > 0 && currentUnit?.unit_active !== false && currentUnit?.is_sellable !== false;
