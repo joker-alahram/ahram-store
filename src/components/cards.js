@@ -13,11 +13,47 @@ export function companyCard(company) {
 }
 
 function renderUnitChips(product, selectedUnit) {
-  const units =   product._sortedUnits || [];
-    .filter((unit) => unit?.unit_code)
-    .sort((a, b) => Number(a.display_order ?? 0) - Number(b.display_order ?? 0) || String(a.unit_code).localeCompare(String(b.unit_code), 'ar'));
+  const units =
+    product._sortedUnits || [];
 
-  return units.map((unit) => {
+  return units
+    .map((unit) => {
+      const active =
+        unit.unit_code === selectedUnit;
+
+      const disabled =
+        unit.runtime_healthy ===
+          false ||
+        unit.is_sellable === false ||
+        unit.unit_active === false ||
+        Number(
+          unit.final_price ?? 0
+        ) <= 0;
+
+      return `
+        <button
+          class="unit-chip ${
+            active ? 'is-active' : ''
+          }"
+          data-action="set-unit"
+          data-product-id="${dom.escape(
+            product.product_id
+          )}"
+          data-unit="${dom.escape(
+            unit.unit_code
+          )}"
+          ${disabled ? 'disabled' : ''}
+        >
+          ${dom.escape(
+            labelForUnit(
+              unit.unit_code
+            )
+          )}
+        </button>
+      `;
+    })
+    .join('');
+}
     const active = unit.unit_code === selectedUnit;
     const disabled = unit.runtime_healthy === false || unit.is_sellable === false || unit.unit_active === false || Number(unit.final_price ?? 0) <= 0;
     return `<button class="unit-chip ${active ? 'is-active' : ''}" data-action="set-unit" data-product-id="${dom.escape(product.product_id)}" data-unit="${dom.escape(unit.unit_code)}" ${disabled ? 'disabled' : ''}>${dom.escape(labelForUnit(unit.unit_code))}</button>`;
