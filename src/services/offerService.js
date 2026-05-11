@@ -54,11 +54,7 @@ export function computeFlashState(offers = []) {
       offer: current,
       status: 'active',
 
-      countdown: end
-        ? countdown(
-            end.getTime(),
-            current.current_time
-          )
+     countdown(end.getTime())
         : '',
 
       endedAt: end
@@ -80,11 +76,9 @@ export function computeFlashState(offers = []) {
     offer: current,
     status: 'scheduled',
 
-    countdown: current.start_time
-      ? countdown(
-          new Date(current.start_time).getTime(),
-          current.current_time
-        )
+    countdown(
+  new Date(current.start_time).getTime()
+)
       : '',
 
     endedAt: current.start_time || '',
@@ -123,12 +117,8 @@ export async function loadOffers(api) {
   };
 }
 
-export function countdown(targetTs, currentTs = null) {
-  const nowTs = currentTs
-    ? new Date(currentTs).getTime()
-    : Date.now();
-
-  const diff = Math.max(0, targetTs - nowTs);
+export function countdown(targetTs) {
+  const diff = Math.max(0, targetTs - Date.now());
 
   const totalSeconds = Math.floor(diff / 1000);
 
