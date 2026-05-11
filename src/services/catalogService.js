@@ -317,7 +317,6 @@ select: `
   `,
   company_id: `eq.${trimmedCompanyId}`,
   visible: 'eq.true',
-  tier_name: `eq.${normalizeTierName(selectedTierName || 'base')}`,
   order: 'display_order.asc',
 }, 120).catch(() => []);
   const aggregated = aggregateRuntimeProducts(rows);
