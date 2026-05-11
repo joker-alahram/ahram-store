@@ -2,7 +2,7 @@ import { dom } from '../core/dom.js';
 import { computeDisplayPrice, labelForUnit } from '../services/pricingService.js';
 import { formatMoney } from '../services/invoiceService.js';
 
-export function companyCard(company) {
+export function companyCard(company) 
   return `
     <article class="company-card" data-action="open-company" data-company-id="${dom.escape(company.company_id)}">
       <div class="company-card__logo">${company.company_logo ? `<img src="${dom.escape(company.company_logo)}" alt="${dom.escape(company.company_name)}" loading="lazy" />` : `<span>${dom.escape((company.company_name || '').slice(0, 1) || 'A')}</span>`}</div>
@@ -22,13 +22,10 @@ function renderUnitChips(product, selectedUnit) {
         unit.unit_code === selectedUnit;
 
       const disabled =
-        unit.runtime_healthy ===
-          false ||
+        unit.runtime_healthy === false ||
         unit.is_sellable === false ||
         unit.unit_active === false ||
-        Number(
-          unit.final_price ?? 0
-        ) <= 0;
+        Number(unit.final_price ?? 0) <= 0;
 
       return `
         <button
@@ -45,9 +42,7 @@ function renderUnitChips(product, selectedUnit) {
           ${disabled ? 'disabled' : ''}
         >
           ${dom.escape(
-            labelForUnit(
-              unit.unit_code
-            )
+            labelForUnit(unit.unit_code)
           )}
         </button>
       `;
