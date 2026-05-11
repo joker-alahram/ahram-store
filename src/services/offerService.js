@@ -10,7 +10,7 @@ function normalizeOffer(row, kind) {
     stock: Number(row.stock ?? 0),
     sold_count: Number(row.sold_count ?? 0),
     can_buy: row.can_buy !== false,
-    status: row.status || (kind === 'flash' ? 'scheduled' : 'active'),
+    status:   row.runtime_status ||   row.status ||   (kind === 'flash' ? 'scheduled' : 'active'),
 
     start_time:
       row.start_time_cairo ||
