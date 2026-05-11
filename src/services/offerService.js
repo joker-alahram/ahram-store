@@ -45,7 +45,10 @@ function offerSortScore(offer, index) {
   const endTs = resolveTimestamp(offer.end_time, offer.current_time, offer.start_time);
   return {
     active: offer.status === 'active' && offer.can_buy !== false,
-    scheduled: offer.status === 'scheduled' && offer.can_buy !== false,
+    const active = offers.find(
+  (offer) =>
+    offer.status === 'active'
+);
     expired: offer.status === 'expired',
     startTs: startTs ?? Number.POSITIVE_INFINITY,
     endTs: endTs ?? Number.POSITIVE_INFINITY,
