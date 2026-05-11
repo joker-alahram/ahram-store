@@ -31,7 +31,9 @@ function normalizeOffer(row, kind) {
 
 export function computeFlashState(offers = []) {
   const active = offers.find(
-    (offer) => offer.status === 'active' && offer.can_buy
+    (offer) =>
+      offer.status === 'active' &&
+      offer.can_buy
   );
 
   const current = active || offers[0] || null;
@@ -45,20 +47,21 @@ export function computeFlashState(offers = []) {
     };
   }
 
-  if (current.status === 'active' || current.can_buy) {
+  if (
+    current.status === 'active' ||
+    current.can_buy
+  ) {
     const end = current.end_time
       ? new Date(current.end_time)
       : null;
 
     return {
       offer: current,
+
       status: 'active',
 
       countdown: end
-        ? countdown(
-            end.getTime(),
-            current.current_time
-          )
+        ? countdown(end.getTime())
         : '',
 
       endedAt: end
@@ -70,27 +73,33 @@ export function computeFlashState(offers = []) {
   if (current.status === 'expired') {
     return {
       offer: current,
+
       status: 'expired',
+
       countdown: '',
-      endedAt: current.end_time || '',
+
+      endedAt:
+        current.end_time || '',
     };
   }
 
   return {
     offer: current,
+
     status: 'scheduled',
 
     countdown: current.start_time
       ? countdown(
-          new Date(current.start_time).getTime(),
-          current.current_time
+          new Date(
+            current.start_time
+          ).getTime()
         )
       : '',
 
-    endedAt: current.start_time || '',
+    endedAt:
+      current.start_time || '',
   };
 }
-
 export async function loadOffers(api) {
   const [daily, flash] = await Promise.allSettled([
     api.get('v_daily_deals', {
