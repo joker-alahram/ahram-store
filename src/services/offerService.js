@@ -54,7 +54,8 @@ export function computeFlashState(offers = []) {
       offer: current,
       status: 'active',
 
-     countdown(end.getTime())
+      countdown: end
+        ? countdown(end.getTime())
         : '',
 
       endedAt: end
@@ -62,6 +63,29 @@ export function computeFlashState(offers = []) {
         : '',
     };
   }
+
+  if (current.status === 'expired') {
+    return {
+      offer: current,
+      status: 'expired',
+      countdown: '',
+      endedAt: current.end_time || '',
+    };
+  }
+
+  return {
+    offer: current,
+    status: 'scheduled',
+
+    countdown: current.start_time
+      ? countdown(
+          new Date(current.start_time).getTime()
+        )
+      : '',
+
+    endedAt: current.start_time || '',
+  };
+}
 
   if (current.status === 'expired') {
     return {
