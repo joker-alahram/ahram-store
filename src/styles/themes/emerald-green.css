@@ -1,0 +1,25 @@
+body[data-theme="emerald-green"], :root[data-theme="emerald-green"] {
+  --theme-name: "emerald-green";
+  --bg: #05110b;
+  --bg-2: #0c1e13;
+  --surface: #10261a;
+  --surface-2: #143023;
+  --surface-3: #17402d;
+  --surface-4: #1d5138;
+  --card: linear-gradient(180deg, rgba(16,38,26,.98), rgba(9,20,14,.98));
+  --line: rgba(37,194,110,.14);
+  --line-strong: rgba(37,194,110,.42);
+  --text: #eefcf4;
+  --muted: #9cc9ae;
+  --primary: #25c26e;
+  --primary-2: #5de19b;
+  --accent: #d4ffe6;
+  --success: #2ed181;
+  --danger: #ff7777;
+  --shadow: 0 22px 60px rgba(0,0,0,.5);
+  --shadow-soft: 0 10px 24px rgba(0,0,0,.26);
+  --glow: 0 0 0 1px rgba(37,194,110,.18), 0 0 26px rgba(37,194,110,.12);
+  --hero-grad: radial-gradient(circle at top right, rgba(37,194,110,.16), transparent 34%), linear-gradient(145deg, rgba(19,48,35,.98), rgba(5,17,11,.98));
+  --cta-grad: linear-gradient(135deg, #ccffe2 0%, #25c26e 48%, #13854a 100%);
+  --card-grad: linear-gradient(180deg, rgba(16,38,26,.98), rgba(9,20,14,.98));
+}

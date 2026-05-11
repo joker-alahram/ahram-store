@@ -1,0 +1,25 @@
+body[data-theme="royal-purple"], :root[data-theme="royal-purple"] {
+  --theme-name: "royal-purple";
+  --bg: #0a0714;
+  --bg-2: #161126;
+  --surface: #1b1630;
+  --surface-2: #261d44;
+  --surface-3: #32285a;
+  --surface-4: #403271;
+  --card: linear-gradient(180deg, rgba(27,22,48,.98), rgba(15,11,28,.98));
+  --line: rgba(139,92,246,.14);
+  --line-strong: rgba(139,92,246,.42);
+  --text: #f6f1ff;
+  --muted: #beb0de;
+  --primary: #8b5cf6;
+  --primary-2: #b495ff;
+  --accent: #f1e8ff;
+  --success: #45d483;
+  --danger: #ff6c6c;
+  --shadow: 0 22px 60px rgba(0,0,0,.54);
+  --shadow-soft: 0 10px 24px rgba(0,0,0,.3);
+  --glow: 0 0 0 1px rgba(139,92,246,.18), 0 0 26px rgba(139,92,246,.12);
+  --hero-grad: radial-gradient(circle at top right, rgba(139,92,246,.18), transparent 34%), linear-gradient(145deg, rgba(38,29,68,.98), rgba(10,7,20,.98));
+  --cta-grad: linear-gradient(135deg, #ece1ff 0%, #8b5cf6 48%, #5b21b6 100%);
+  --card-grad: linear-gradient(180deg, rgba(27,22,48,.98), rgba(15,11,28,.98));
+}

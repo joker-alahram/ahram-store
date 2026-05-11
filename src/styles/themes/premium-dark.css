@@ -1,0 +1,25 @@
+body[data-theme="premium-dark"], :root[data-theme="premium-dark"] {
+  --theme-name: "premium-dark";
+  --bg: #070707;
+  --bg-2: #0f0d0b;
+  --surface: #121110;
+  --surface-2: #191613;
+  --surface-3: #221f1a;
+  --surface-4: #2a251f;
+  --card: linear-gradient(180deg, rgba(24,22,18,.98), rgba(12,11,10,.98));
+  --line: rgba(212,175,55,.14);
+  --line-strong: rgba(212,175,55,.4);
+  --text: #f8f4ea;
+  --muted: #b9b1a1;
+  --primary: #d4af37;
+  --primary-2: #f4d66f;
+  --accent: #ffe89b;
+  --success: #45d483;
+  --danger: #ff6c6c;
+  --shadow: 0 22px 60px rgba(0,0,0,.52);
+  --shadow-soft: 0 10px 24px rgba(0,0,0,.28);
+  --glow: 0 0 0 1px rgba(212,175,55,.16), 0 0 26px rgba(212,175,55,.10);
+  --hero-grad: radial-gradient(circle at top right, rgba(212,175,55,.14), transparent 34%), linear-gradient(145deg, rgba(20,19,16,.98), rgba(7,7,7,.98));
+  --cta-grad: linear-gradient(135deg, #f7de86 0%, #d4af37 48%, #9f7a12 100%);
+  --card-grad: linear-gradient(180deg, rgba(24,22,18,.98), rgba(12,11,10,.98));
+}

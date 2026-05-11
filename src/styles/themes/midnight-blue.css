@@ -1,0 +1,25 @@
+body[data-theme="midnight-blue"], :root[data-theme="midnight-blue"] {
+  --theme-name: "midnight-blue";
+  --bg: #050b18;
+  --bg-2: #0a1530;
+  --surface: #101b37;
+  --surface-2: #132245;
+  --surface-3: #17305e;
+  --surface-4: #1e3d75;
+  --card: linear-gradient(180deg, rgba(16,27,55,.98), rgba(10,20,43,.98));
+  --line: rgba(98,142,255,.14);
+  --line-strong: rgba(98,142,255,.42);
+  --text: #eef4ff;
+  --muted: #9bb0da;
+  --primary: #628eff;
+  --primary-2: #8fb0ff;
+  --accent: #d8e5ff;
+  --success: #45d483;
+  --danger: #ff6c6c;
+  --shadow: 0 22px 60px rgba(0,0,0,.55);
+  --shadow-soft: 0 10px 24px rgba(0,0,0,.3);
+  --glow: 0 0 0 1px rgba(98,142,255,.18), 0 0 26px rgba(98,142,255,.12);
+  --hero-grad: radial-gradient(circle at top right, rgba(98,142,255,.16), transparent 34%), linear-gradient(145deg, rgba(11,21,48,.98), rgba(5,11,24,.98));
+  --cta-grad: linear-gradient(135deg, #c8d8ff 0%, #628eff 48%, #1f53d9 100%);
+  --card-grad: linear-gradient(180deg, rgba(16,27,55,.98), rgba(10,20,43,.98));
+}
