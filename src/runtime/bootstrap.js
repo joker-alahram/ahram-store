@@ -131,7 +131,15 @@ async function ensureCompanyCatalogLoaded(store, api, companyId) {
   const trimmed = String(companyId ?? '').trim();
   if (!trimmed) return;
   const state = store.getState();
-  if (state.runtime.companyRowsCache?.[trimmed]) return;
+  const cachedRows =
+  state.runtime.companyRowsCache?.[trimmed];
+
+if (
+  Array.isArray(cachedRows) &&
+  cachedRows.length > 0
+) {
+  return;
+}
   store.update((draft) => {
     draft.runtime.loading.company = trimmed;
     draft.runtime.companyErrors[trimmed] = null;
