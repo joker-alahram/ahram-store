@@ -1,0 +1,26 @@
+body[data-theme="amazon-inspired-theme"] {
+  --theme-name: "amazon-inspired-theme";
+  --bg: #08111d;
+  --bg-2: #0e1724;
+  --surface: #121c2a;
+  --surface-2: #182535;
+  --surface-3: #203042;
+  --surface-4: #27384d;
+  --line: rgba(255, 153, 0, 0.16);
+  --line-strong: rgba(255, 153, 0, 0.42);
+  --text: #f5f9ff;
+  --muted: #b5c4d7;
+  --primary: #ff9900;
+  --primary-2: #ffbf47;
+  --accent: #ffffff;
+  --success: #3ddc97;
+  --danger: #ff7676;
+  --shadow: 0 22px 60px rgba(0, 0, 0, 0.50);
+  --shadow-soft: 0 10px 24px rgba(0,0,0,.28);
+  --glow: 0 0 0 1px rgba(255,153,0,.18), 0 0 26px rgba(255,153,0,.12);
+  --hero-grad: radial-gradient(circle at top right, rgba(255,153,0,.16), transparent 34%), linear-gradient(145deg, rgba(18,28,42,.98), rgba(8,17,29,.98));
+  --cta-grad: linear-gradient(135deg, #ffd36a 0%, #ff9900 48%, #b55d00 100%);
+  --card-grad: linear-gradient(180deg, rgba(18,28,42,.98), rgba(10,16,26,.98));
+  --footer-bg: rgba(8,17,29,.94);
+  --search-bg: linear-gradient(180deg, rgba(18,28,42,.96), rgba(8,17,29,.90));
+}
