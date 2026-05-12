@@ -209,6 +209,7 @@ export async function submitOrder(api, state, tier, totals) {
   const orderItemsPayload = normalizedItems.map((item) => ({
     order_id: order.id,
     product_id: item.product_id,
+    runtime_type: item.runtime_type,
     type: item.type,
     qty: item.qty,
     price: item.price,
