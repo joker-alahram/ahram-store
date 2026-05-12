@@ -167,6 +167,10 @@ export async function submitOrder(api, state, tier, totals) {
     runtime_type: item.runtime_type,
   }));
 
+  console.log(
+  'ORDER_ITEMS_PAYLOAD',
+  JSON.stringify(orderItemsPayload, null, 2)
+);
   if (orderItemsPayload.length) await api.post('order_items', orderItemsPayload);
   return { order, items: orderItemsPayload, customer };
 }
