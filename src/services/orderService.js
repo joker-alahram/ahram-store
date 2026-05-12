@@ -148,15 +148,24 @@ function normalizeOrderItem(item, tier) {
 function dedupeOrderItems(items) {
   const seen = new Set();
   const result = [];
+
   for (const item of Array.isArray(items) ? items : []) {
-    const key = [item.product_id, item.unit_code, item.type, item.offer_id_snapshot || ''].join('|');
+    const key = [
+      item.product_id,
+      item.unit_code,
+      item.type,
+      item.offer_id_snapshot || '',
+    ].join('|');
+
     if (seen.has(key)) continue;
+
     seen.add(key);
+
     result.push(item);
   }
+
   return result;
 }
-
 export function validateCheckout(state, tier, totals) {
   const session = state.auth.session;
   const userType = session?.user_type || session?.userType || 'customer';
