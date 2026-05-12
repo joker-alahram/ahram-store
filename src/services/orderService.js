@@ -18,91 +18,132 @@ function buildOfferProductId(item) {
 }
 
 function normalizeOrderItem(item, tier) {
-  const sourceType = String(item.type || 'product').trim().toLowerCase() || 'product';
+  const sourceType =
+    String(item.type || 'product')
+      .trim()
+      .toLowerCase() || 'product';
+
   const isFlashBundle = isOfferType(sourceType);
-  const qty = isFlashBundle ? 1 : Math.max(1, Number(item.qty || 1));
-  const basePrice = Number(item.base_price ?? item.basePrice ?? item.price ?? 0);
-  const finalPrice = Number(item.final_price ?? item.finalPrice ?? item.price ?? 0);
-  const unit = normalizeUnitCode(item.unit_code || item.unit || item.unit_name);
+
+  const qty = isFlashBundle
+    ? 1
+    : Math.max(1, Number(item.qty || 1));
+
+  const basePrice = Number(
+    item.base_price ??
+    item.basePrice ??
+    item.price ??
+    0
+  );
+
+  const finalPrice = Number(
+    item.final_price ??
+    item.finalPrice ??
+    item.price ??
+    0
+  );
+
+  const unit = normalizeUnitCode(
+    item.unit_code ||
+    item.unit ||
+    item.unit_name
+  );
+
   const productId = isFlashBundle
-    ? (String(item.product_id || '').trim() || buildOfferProductId(item) || `flash:${String(item.offer_id || item.id || '').trim()}`)
+    ? null
     : String(item.product_id || item.id || '').trim();
 
-  if (!productId) {
-    throw new Error('INVALID_PRODUCT_ID');
-  }
   if (!finalPrice || finalPrice <= 0) {
     throw new Error('INVALID_FINAL_PRICE');
   }
 
   return {
-  product_id: isFlashBundle ? null : productId,
+    product_id: productId,
 
-  runtime_type: isFlashBundle ? 'flash_offer' : 'product',
+    runtime_type: isFlashBundle
+      ? 'flash_offer'
+      : 'product',
 
-  type: isFlashBundle ? 'flash' : sourceType,
-  source_type: sourceType || 'product',
-
-  qty,
-
-  price: finalPrice,
-
-  unit,
-
-  product_name_snapshot:
-    item.name || item.title || item.product_name || '',
-
-  company_id_snapshot:
-    item.company_id || item.companyId || '',
-
-  offer_id_snapshot:
-    item.offer_id || item.id || null,
-
-  source_product_id_snapshot:
-    item.source_product_id ||
-    (isOfferType(sourceType)
-      ? item.product_id || null
-      : null),
-
-  offer_kind_snapshot:
-    sourceType === 'flash'
+    type: isFlashBundle
       ? 'flash'
-      : sourceType === 'deal'
-      ? 'deal'
-      : null,
+      : sourceType,
 
-  unit_code: unit,
+    source_type: sourceType || 'product',
 
-  tier_name:
-    item.tier_name ||
-    item.tierName ||
-    tier?.tier_name ||
-    'base',
+    qty,
 
-  base_price_snapshot: basePrice,
+    price: finalPrice,
 
-  final_price_snapshot: finalPrice,
+    unit: isFlashBundle
+      ? 'bundle'
+      : unit,
 
-  pricing_source_snapshot:
-    item.pricing_source || 'runtime',
+    product_name_snapshot:
+      item.name ||
+      item.title ||
+      item.product_name ||
+      '',
 
-  applied_discount_percent_snapshot:
-    Number(item.discount_percent || 0),
+    company_id_snapshot:
+      item.company_id ||
+      item.companyId ||
+      '',
 
-  package_details_snapshot:
-    item.package_details || '',
+    offer_id_snapshot:
+      item.offer_id ||
+      item.id ||
+      null,
 
-  line_total:
-    Number(item.line_total ?? finalPrice * qty),
+    source_product_id_snapshot:
+      item.source_product_id ||
+      (isOfferType(sourceType)
+        ? item.product_id || null
+        : null),
 
-  currency_code: 'EGP',
+    offer_kind_snapshot:
+      sourceType === 'flash'
+        ? 'flash'
+        : sourceType === 'deal'
+        ? 'deal'
+        : null,
 
-  reserved_qty: isFlashBundle ? 0 : qty,
+    unit_code: isFlashBundle
+      ? 'FLASH_BUNDLE'
+      : unit,
 
-  fulfilled_qty: 0,
+    tier_name:
+      item.tier_name ||
+      item.tierName ||
+      tier?.tier_name ||
+      'base',
 
-  rejected_qty: 0,
-};
+    base_price_snapshot: basePrice,
+
+    final_price_snapshot: finalPrice,
+
+    pricing_source_snapshot:
+      item.pricing_source || 'runtime',
+
+    applied_discount_percent_snapshot:
+      Number(item.discount_percent || 0),
+
+    package_details_snapshot:
+      item.package_details || '',
+
+    line_total:
+      Number(item.line_total ?? finalPrice * qty),
+
+    currency_code: 'EGP',
+
+    reserved_qty: isFlashBundle
+      ? 0
+      : qty,
+
+    fulfilled_qty: 0,
+
+    rejected_qty: 0,
+  };
+}
 
 function dedupeOrderItems(items) {
   const seen = new Set();
