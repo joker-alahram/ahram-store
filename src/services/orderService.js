@@ -36,31 +36,73 @@ function normalizeOrderItem(item, tier) {
   }
 
   return {
-    product_id: productId,
-    type: isFlashBundle ? 'flash' : sourceType,
-    source_type: sourceType || 'product',
-    qty,
-    price: finalPrice,
-    unit,
-    product_name_snapshot: item.name || item.title || item.product_name || '',
-    company_id_snapshot: item.company_id || item.companyId || '',
-    offer_id_snapshot: item.offer_id || item.id || null,
-    source_product_id_snapshot: item.source_product_id || (isOfferType(sourceType) ? item.product_id || null : null),
-    offer_kind_snapshot: sourceType === 'flash' ? 'flash' : sourceType === 'deal' ? 'deal' : null,
-    unit_code: unit,
-    tier_name: item.tier_name || item.tierName || tier?.tier_name || 'base',
-    base_price_snapshot: basePrice,
-    final_price_snapshot: finalPrice,
-    pricing_source_snapshot: item.pricing_source || 'runtime',
-    applied_discount_percent_snapshot: Number(item.discount_percent || 0),
-    package_details_snapshot: item.package_details || '',
-    line_total: Number(item.line_total ?? finalPrice * qty),
-    currency_code: 'EGP',
-    reserved_qty: isFlashBundle ? 0 : qty,
-    fulfilled_qty: 0,
-    rejected_qty: 0,
-  };
-}
+  product_id: isFlashBundle ? null : productId,
+
+  runtime_type: isFlashBundle ? 'flash_offer' : 'product',
+
+  type: isFlashBundle ? 'flash' : sourceType,
+  source_type: sourceType || 'product',
+
+  qty,
+
+  price: finalPrice,
+
+  unit,
+
+  product_name_snapshot:
+    item.name || item.title || item.product_name || '',
+
+  company_id_snapshot:
+    item.company_id || item.companyId || '',
+
+  offer_id_snapshot:
+    item.offer_id || item.id || null,
+
+  source_product_id_snapshot:
+    item.source_product_id ||
+    (isOfferType(sourceType)
+      ? item.product_id || null
+      : null),
+
+  offer_kind_snapshot:
+    sourceType === 'flash'
+      ? 'flash'
+      : sourceType === 'deal'
+      ? 'deal'
+      : null,
+
+  unit_code: unit,
+
+  tier_name:
+    item.tier_name ||
+    item.tierName ||
+    tier?.tier_name ||
+    'base',
+
+  base_price_snapshot: basePrice,
+
+  final_price_snapshot: finalPrice,
+
+  pricing_source_snapshot:
+    item.pricing_source || 'runtime',
+
+  applied_discount_percent_snapshot:
+    Number(item.discount_percent || 0),
+
+  package_details_snapshot:
+    item.package_details || '',
+
+  line_total:
+    Number(item.line_total ?? finalPrice * qty),
+
+  currency_code: 'EGP',
+
+  reserved_qty: isFlashBundle ? 0 : qty,
+
+  fulfilled_qty: 0,
+
+  rejected_qty: 0,
+};
 
 function dedupeOrderItems(items) {
   const seen = new Set();
