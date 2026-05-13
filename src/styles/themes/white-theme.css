@@ -1,0 +1,26 @@
+body[data-theme="white-theme"] {
+  --theme-name: "white-theme";
+  --bg: #f7f8fc;
+  --bg-2: #edf1f8;
+  --surface: #ffffff;
+  --surface-2: #f4f7fb;
+  --surface-3: #e8eef6;
+  --surface-4: #dfe7f2;
+  --line: rgba(20, 35, 60, 0.10);
+  --line-strong: rgba(20, 35, 60, 0.22);
+  --text: #182233;
+  --muted: #64748b;
+  --primary: #2d6cdf;
+  --primary-2: #6ba3ff;
+  --accent: #0f172a;
+  --success: #198754;
+  --danger: #dc3545;
+  --shadow: 0 18px 44px rgba(20, 35, 60, 0.12);
+  --shadow-soft: 0 8px 18px rgba(20, 35, 60, 0.08);
+  --glow: 0 0 0 1px rgba(45,108,223,.12), 0 0 22px rgba(45,108,223,.08);
+  --hero-grad: radial-gradient(circle at top right, rgba(45,108,223,.10), transparent 32%), linear-gradient(145deg, rgba(255,255,255,.99), rgba(237,241,248,.99));
+  --cta-grad: linear-gradient(135deg, #e9f1ff 0%, #2d6cdf 52%, #1848a8 100%);
+  --card-grad: linear-gradient(180deg, rgba(255,255,255,.99), rgba(247,249,253,.99));
+  --footer-bg: rgba(255,255,255,.92);
+  --search-bg: linear-gradient(180deg, rgba(255,255,255,.96), rgba(244,247,251,.92));
+}
