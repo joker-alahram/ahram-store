@@ -1342,12 +1342,19 @@ async function loadCustomersIntoState(store, api, session = null) {
   store.update((draft) => { draft.commerce.customers = rows; draft.runtime.loading.customers = false; });
 }
 
-async function performCheckout(store, api, schedule) {
+let checkoutSubmitting = false;async function performCheckout(store, api, schedule) {
   const scope = captureRuntimeScope(store);
   const latestState = store.getState();
   const tier = getSelectedTier(latestState);
   const totals = computeCartTotals(latestState);
   const validation = validateCheckout(latestState, tier, totals);
+  if (checkoutSubmitting) {
+  return false;
+}
+
+checkoutSubmitting = true;
+
+const whatsappWindow = window.open('', '_blank');
   if (!validation.ok) {
     notify(store, 'warning', 'تعذر الإرسال', validation.message);
     return false;
@@ -1380,7 +1387,7 @@ async function performCheckout(store, api, schedule) {
       tierLabel: tier.visible_label || tier.tier_name,
       supportWhatsapp: api.config.supportWhatsapp,
     });
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    if (whatsappWindow && !whatsappWindow.closed) {   whatsappWindow.location.href = whatsappUrl; }
     store.update((draft) => {
       if (!isRuntimeScopeActive(scope)) return false;
       draft.commerce.cart = [];
@@ -1401,10 +1408,14 @@ async function performCheckout(store, api, schedule) {
   } catch (error) {
     console.error(error);
     notify(store, 'error', 'فشل إرسال الطلب', '');
+    if (whatsappWindow && !whatsappWindow.closed) {
+  whatsappWindow.close();
+}
     return false;
-  } finally {
-    setCheckoutBusy(store, false);
-  }
+  }finally {
+  checkoutSubmitting = false;
+  setCheckoutBusy(store, false);
+}
 }
 
 export async function bootstrapApp() {
